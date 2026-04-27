@@ -263,21 +263,29 @@
             currentKey: 'G',
             useFlats: false,
 
-            init() {
+           init() {
                 this.populateDropdowns();
                 
-                // Live Stream Songs
-                onSnapshot(collection(db, "songs"), (snapshot) => {
-                    this.songs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                    this.renderSongList(this.songs);
-                    document.getElementById('loading').classList.add('hidden');
-                });
+                // Live Stream Songs with Error Catching
+                onSnapshot(collection(db, "songs"), 
+                    (snapshot) => {
+                        console.log("Database connected successfully");
+                        this.songs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                        this.renderSongList(this.songs);
+                        document.getElementById('loading').classList.add('hidden');
+                    }, 
+                    (error) => {
+                        console.error("Firebase Error:", error);
+                        alert("Connection Error: " + error.message);
+                        // Hide loading anyway so you can see the app
+                        document.getElementById('loading').classList.add('hidden');
+                    }
+                );
 
                 // Live Stream Leaders
                 onSnapshot(collection(db, "leaders"), (snapshot) => {
                     this.leaders = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                     if(this.currentSongId) this.updateLeaderDropdown();
-                    if(!document.getElementById('view-leaders').classList.contains('hidden')) this.renderLeaders();
                 });
             },
 
