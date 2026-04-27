@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Church Band Song Book</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto+Mono&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #0f172a; /* Dark Navy */
+            --bg-card: #1e293b;
+            --accent: #fbbf24; /* Gold/Amber */
+            --text-main: #fef3c7; /* Cream */
+            --text-dim: #94a3b8;
+            --forest: #064e3b;
+            --white: #ffffff;
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'Roboto Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            padding-bottom: 50px;
+        }
+
+        /* --- UI COMPONENTS --- */
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(251, 191, 36, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .nav-links button {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 6px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-left: 10px;
+            transition: 0.3s;
+        }
+
+        .nav-links button:hover {
+            background: var(--accent);
+            color: var(--bg-deep);
+        }
+
+        h1, h2, h3 { font-family: var(--font-serif); }
+        
+        .btn {
+            background: var(--accent);
+            color: var(--bg-deep);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0 20px;
+            background: var(--bg-card);
+            border: 1px solid #334155;
+            color: var(--text-main);
+            border-radius: 6px;
+        }
+
+        /* --- SONG LIST --- */
+        .search-bar { margin-bottom: 30px; }
+        .song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .song-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border-left: 4px solid var(--accent);
+        }
+        .song-card:hover { transform: translateY(-5px); }
+        .song-card h3 { margin-bottom: 5px; color: var(--accent); }
+        .song-card p { font-size: 0.9rem; color: var(--text-dim); }
+        .tag {
+            display: inline-block;
+            background: var(--forest);
+            color: #ecfdf5;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-right: 5px;
+            margin-top: 10px;
+        }
+
+        /* --- SONG DETAIL --- */
+        .controls-panel {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-end;
+        }
+        .control-group { flex: 1; min-width: 150px; }
+        .control-group label { display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; }
+        
+        .diatonic-helper {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .diatonic-pill {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        .diatonic-pill span { display: block; font-size: 0.6rem; opacity: 0.7; }
+
+        #chord-chart-container {
+            background: #fff;
+            color: #333;
+            padding: 40px;
+            border-radius: 8px;
+            overflow-x: auto;
+            white-space: pre;
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .chord { color: #b45309; font-weight: bold; position: relative; display: inline-block; height: 0; vertical-align: top; top: -1.2em; }
+        .lyric-line { display: block; margin-bottom: 1.5em; position: relative; }
+
+        /* --- PERFORMANCE VIEW --- */
+        .performance-mode {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: white; color: black;
+            z-index: 1000; padding: 50px;
+            overflow-y: auto;
+        }
+        .perf-close { position: fixed; top: 20px; right: 20px; }
+
+        /* --- LEADERS --- */
+        .leader-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .avatar {
+            width: 40px; height: 40px;
+            background: var(--accent);
+            color: var(--bg-deep);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="main-nav">
+        <nav>
+            <a href="#" class="logo" onclick="app.showSongs()">ChurchBand.</a>
+            <div class="nav-links">
+                <button onclick="app.showSongs()">Songs</button>
+                <button onclick="app.showLeaders()">Leaders</button>
+                <button onclick="app.showAddSong()">+ Add Song</button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- VIEW: SONG LIST -->
+    <div id="view-list" class="container view">
+        <div class="search-bar">
+            <input type="text" id="song-search" placeholder="Search by title, artist, or tag..." oninput="app.filterSongs()">
+        </div>
+        <div id="song-grid" class="song-grid"></div>
+    </div>
+
+    <!-- VIEW: SONG DETAIL -->
+    <div id="view-detail" class="container view hidden">
+        <div style="margin-bottom: 20px;">
+            <button class="btn-outline" onclick="app.showSongs()">← Back</button>
+        </div>
+        <h1 id="detail-title" style="font-size: 2.5rem; margin-bottom: 5px;"></h1>
+        <p id="detail-meta" style="color: var(--text-dim); margin-bottom: 30px;"></p>
+
+        <div class="controls-panel">
+            <div class="control-group">
+                <label>Song Leader</label>
+                <select id="leader-select" onchange="app.handleLeaderChange()">
+                    <option value="">Default Key</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Transpose Key</label>
+                <div style="display: flex; gap: 5px;">
+                    <select id="key-select" onchange="app.handleManualKeyChange()"></select>
+                </div>
+            </div>
+            <div class="control-group">
+                <label>Font Size</label>
+                <input type="range" min="12" max="30" value="18" oninput="app.updateFontSize(this.value)">
+            </div>
+            <div class="control-group">
+                <button class="btn" onclick="app.enterPerformanceMode()">Performance View</button>
+            </div>
+            <div class="control-group">
+                <label>Accidentals</label>
+                <button class="btn-outline" style="width:100%" onclick="app.toggleFlats()"># / ♭</button>
+            </div>
+        </div>
+
+        <div id="diatonic-helper" class="diatonic-helper"></div>
+        
+        <div id="chord-chart-container"></div>
+        
+        <div style="margin-top: 30px; display: flex; gap: 10px;">
+            <button class="btn-outline" onclick="app.editCurrentSong()">Edit Song</button>
+            <button class="btn-outline" style="color: #f87171; border-color: #f87171;" onclick="app.deleteCurrentSong()">Delete</button>
+        </div>
+    </div>
+
+    <!-- VIEW: ADD/EDIT SONG -->
+    <div id="view-edit" class="container view hidden">
+        <h2 id="edit-view-title">Add New Song</h2>
+        <form id="song-form" onsubmit="app.saveSong(event)">
+            <input type="hidden" id="edit-id">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <label>Title</label>
+                    <input type="text" id="edit-title" required>
+                </div>
+                <div>
+                    <label>Artist</label>
+                    <input type="text" id="edit-artist" required>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px;">
+                <div>
+                    <label>Default Key</label>
+                    <select id="edit-key"></select>
+                </div>
+                <div>
+                    <label>BPM</label>
+                    <input type="number" id="edit-bpm">
+                </div>
+                <div>
+                    <label>Time Sig</label>
+                    <input type="text" id="edit-time" placeholder="4/4">
+                </div>
+                <div>
+                    <label>Tags (comma separated)</label>
+                    <input type="text" id="edit-tags" placeholder="Worship, Praise">
+                </div>
+            </div>
+            <label>Chord Chart (Use [Chord] before lyrics)</label>
+            <textarea id="edit-chart" rows="15" style="font-family: var(--font-mono);"></textarea>
+            <button type="submit" class="btn">Save Song</button>
+            <button type="button" class="btn-outline" onclick="app.showSongs()">Cancel</button>
+        </form>
+    </div>
+
+    <!-- VIEW: LEADERS -->
+    <div id="view-leaders" class="container view hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+            <h2>Song Leaders</h2>
+            <button class="btn" onclick="app.addLeader()">+ Add Leader</button>
+        </div>
+        <div id="leaders-list"></div>
+    </div>
+
+    <div id="performance-view" class="performance-mode hidden">
+        <button class="btn perf-close" onclick="app.exitPerformanceMode()">Close</button>
+        <div id="performance-content" style="font-family: var(--font-mono);"></div>
+    </div>
+
+    <script>
+        const CHROMATIC_SHARP = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const CHROMATIC_FLAT = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+        
+        const SEED_SONGS = [
+            { id: 1, title: "Amazing Grace", artist: "John Newton", defaultKey: "G", tempo: 75, timeSignature: "3/4", tags: ["Hymn", "Classic"], chordChart: "[G]Amazing grace how [C]sweet the [G]sound\nThat saved a [G]wretch like [D]me\nI [G]once was lost but [C]now am [G]found\nWas [G]blind but [D]now I [G]see" },
+            { id: 2, title: "10,000 Reasons", artist: "Matt Redman", defaultKey: "G", tempo: 73, timeSignature: "4/4", tags: ["Worship", "Bless"], chordChart: "[C]Bless the [G]Lord O my [D]soul [Em]O my [C]soul\n[G]Worship His [D]holy name\nSing like [C]never be[G]fore [C]O [D]my [Em]soul\nI'll [C]worship Your [D]holy [G]name" },
+            { id: 3, title: "Way Maker", artist: "Sinach", defaultKey: "C", tempo: 68, timeSignature: "4/4", tags: ["Worship", "Miracle"], chordChart: "You are [F]Way Maker, Miracle Worker\n[C]Promise Keeper, Light in the darkness\n[G]My God, that is who You [Am]are" },
+            { id: 4, title: "Good Good Father", artist: "Chris Tomlin", defaultKey: "A", tempo: 72, timeSignature: "6/8", tags: ["Worship", "Father"], chordChart: "You're a [A]good good Father\nIt's who You [D]are, it's who You [A]are\nAnd I'm [A]loved by You\nIt's who I [D]am, it's who I [A]am" },
+            { id: 5, title: "What A Beautiful Name", artist: "Hillsong Worship", defaultKey: "D", tempo: 68, timeSignature: "4/4", tags: ["Worship", "Jesus"], chordChart: "What a [D]beautiful Name it is\nWhat a [A]beautiful Name it is\nThe [Bm]Name of [A]Jesus [G]Christ my King" }
+        ];
+
+        const SEED_LEADERS = [
+            { id: 1, name: "David", initials: "D", preferredKeys: { "1": "G", "2": "A", "3": "D" } },
+            { id: 2, name: "Sarah", initials: "S", preferredKeys: { "1": "C", "5": "C" } }
+        ];
+
+        const app = {
+            songs: [],
+            leaders: [],
+            currentSongId: null,
+            currentKey: 'C',
+            useFlats: false,
+            
+            init() {
+                this.loadData();
+                this.populateKeyDropdowns();
+                this.showSongs();
+            },
+
+            loadData() {
+                const storedSongs = localStorage.getItem('cbsb_songs');
+                const storedLeaders = localStorage.getItem('cbsb_leaders');
+                this.songs = storedSongs ? JSON.parse(storedSongs) : SEED_SONGS;
+                this.leaders = storedLeaders ? JSON.parse(storedLeaders) : SEED_LEADERS;
+                this.saveData();
+            },
+
+            saveData() {
+                localStorage.setItem('cbsb_songs', JSON.stringify(this.songs));
+                localStorage.setItem('cbsb_leaders', JSON.stringify(this.leaders));
+            },
+
+            populateKeyDropdowns() {
+                const selects = ['key-select', 'edit-key'];
+                selects.forEach(id => {
+                    const el = document.getElementById(id);
+                    el.innerHTML = CHROMATIC_SHARP.map(k => `<option value="${k}">${k}</option>`).join('');
+                });
+            },
+
+            showView(viewId) {
+                document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+                document.getElementById(viewId).classList.remove('hidden');
+                window.scrollTo(0,0);
+            },
+
+            showSongs() {
+                this.showView('view-list');
+                this.renderSongList(this.songs);
+            },
+
+            filterSongs() {
+                const term = document.getElementById('song-search').value.toLowerCase();
+                const filtered = this.songs.filter(s => 
+                    s.title.toLowerCase().includes(term) || 
+                    s.artist.toLowerCase().includes(term) ||
+                    s.tags.some(t => t.toLowerCase().includes(term))
+                );
+                this.renderSongList(filtered);
+            },
+
+            renderSongList(list) {
+                const grid = document.getElementById('song-grid');
+                grid.innerHTML = list.map(s => `
+                    <div class="song-card" onclick="app.viewSong(${s.id})">
+                        <h3>${s.title}</h3>
+                        <p>${s.artist} • ${s.defaultKey}</p>
+                        <div>${s.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+                    </div>
+                `).join('');
+            },
+
+            viewSong(id) {
+                const song = this.songs.find(s => s.id === id);
+                this.currentSongId = id;
+                this.currentKey = song.defaultKey;
+                this.showView('view-detail');
+                
+                document.getElementById('detail-title').innerText = song.title;
+                document.getElementById('detail-meta').innerText = `${song.artist} | ${song.tempo} BPM | ${song.timeSignature}`;
+                
+                // Populate leader dropdown
+                const lSelect = document.getElementById('leader-select');
+                lSelect.innerHTML = `<option value="">Original Key (${song.defaultKey})</option>` + 
+                    this.leaders.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
+                
+                document.getElementById('key-select').value = this.currentKey;
+                this.renderChart();
+            },
+
+            handleLeaderChange() {
+                const leaderId = document.getElementById('leader-select').value;
+                const song = this.songs.find(s => s.id === this.currentSongId);
+                
+                if (!leaderId) {
+                    this.currentKey = song.defaultKey;
+                } else {
+                    const leader = this.leaders.find(l => l.id == leaderId);
+                    this.currentKey = leader.preferredKeys[this.currentSongId] || song.defaultKey;
+                }
+                
+                document.getElementById('key-select').value = this.currentKey;
+                this.renderChart();
+            },
+
+            handleManualKeyChange() {
+                this.currentKey = document.getElementById('key-select').value;
+                
+                // If a leader is selected, update their preference
+                const leaderId = document.getElementById('leader-select').value;
+                if (leaderId) {
+                    const leader = this.leaders.find(l => l.id == leaderId);
+                    leader.preferredKeys[this.currentSongId] = this.currentKey;
+                    this.saveData();
+                }
+                
+                this.renderChart();
+            },
+
+            toggleFlats() {
+                this.useFlats = !this.useFlats;
+                this.renderChart();
+            },
+
+            transposeChord(chordName, steps) {
+                // Handle Slash Chords (e.g., G/B)
+                return chordName.split('/').map(part => {
+                    const match = part.match(/^([A-G][#b]?)(.*)/);
+                    if (!match) return part;
+                    
+                    const root = match[1];
+                    const quality = match[2];
+                    
+                    // Normalize to index
+                    let index = CHROMATIC_SHARP.indexOf(root);
+                    if (index === -1) index = CHROMATIC_FLAT.indexOf(root);
+                    if (index === -1) return part;
+                    
+                    let newIndex = (index + steps) % 12;
+                    if (newIndex < 0) newIndex += 12;
+                    
+                    const newRoot = this.useFlats ? CHROMATIC_FLAT[newIndex] : CHROMATIC_SHARP[newIndex];
+                    return newRoot + quality;
+                }).join('/');
+            },
+
+            renderChart() {
+                const song = this.songs.find(s => s.id === this.currentSongId);
+                
+                // Calculate Transpose Steps
+                let startIndex = CHROMATIC_SHARP.indexOf(song.defaultKey);
+                if (startIndex === -1) startIndex = CHROMATIC_FLAT.indexOf(song.defaultKey);
+                
+                let targetIndex = CHROMATIC_SHARP.indexOf(this.currentKey);
+                if (targetIndex === -1) targetIndex = CHROMATIC_FLAT.indexOf(this.currentKey);
+                
+                const steps = targetIndex - startIndex;
+
+                // Process Chart
+                const chartContainer = document.getElementById('chord-chart-container');
+                const lines = song.chordChart.split('\n');
+                
+                let html = '';
+                lines.forEach(line => {
+                    if (line.trim() === "") {
+                        html += '<br/>';
+                        return;
+                    }
+                    
+                    let lyricLine = `<span class="lyric-line">`;
+                    let lastIndex = 0;
+                    const regex = /\[(.*?)\]/g;
+                    let match;
+
+                    while ((match = regex.exec(line)) !== null) {
+                        // Add lyrics before chord
+                        lyricLine += line.substring(lastIndex, match.index);
+                        // Add transposed chord
+                        const transposed = this.transposeChord(match[1], steps);
+                        lyricLine += `<span class="chord">${transposed}</span>`;
+                        lastIndex = regex.lastIndex;
+                    }
+                    lyricLine += line.substring(lastIndex) + `</span>`;
+                    html += lyricLine;
+                });
+
+                chartContainer.innerHTML = html;
+                document.getElementById('performance-content').innerHTML = html;
+                this.renderDiatonic(this.currentKey);
+            },
+
+            renderDiatonic(key) {
+                const formulas = [
+                    { label: 'I', type: 'Maj' }, { label: 'ii', type: 'm' }, 
+                    { label: 'iii', type: 'm' }, { label: 'IV', type: 'Maj' }, 
+                    { label: 'V', type: 'Maj' }, { label: 'vi', type: 'm' }, 
+                    { label: 'vii°', type: 'dim' }
+                ];
+                const intervals = [0, 2, 4, 5, 7, 9, 11];
+                
+                const helper = document.getElementById('diatonic-helper');
+                helper.innerHTML = intervals.map((interval, idx) => {
+                    const note = this.transposeChord(key, interval);
+                    const suffix = formulas[idx].type === 'm' ? 'm' : (formulas[idx].type === 'dim' ? 'dim' : '');
+                    return `<div class="diatonic-pill"><span>${formulas[idx].label}</span>${note}${suffix}</div>`;
+                }).join('');
+            },
+
+            updateFontSize(size) {
+                document.getElementById('chord-chart-container').style.fontSize = size + 'px';
+            },
+
+            enterPerformanceMode() {
+                document.getElementById('performance-view').classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            },
+
+            exitPerformanceMode() {
+                document.getElementById('performance-view').classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            },
+
+            // --- CRUD OPS ---
+            showAddSong() {
+                this.showView('view-edit');
+                document.getElementById('edit-view-title').innerText = "Add New Song";
+                document.getElementById('song-form').reset();
+                document.getElementById('edit-id').value = "";
+            },
+
+            editCurrentSong() {
+                const song = this.songs.find(s => s.id === this.currentSongId);
+                this.showView('view-edit');
+                document.getElementById('edit-view-title').innerText = "Edit Song";
+                document.getElementById('edit-id').value = song.id;
+                document.getElementById('edit-title').value = song.title;
+                document.getElementById('edit-artist').value = song.artist;
+                document.getElementById('edit-key').value = song.defaultKey;
+                document.getElementById('edit-bpm').value = song.tempo;
+                document.getElementById('edit-time').value = song.timeSignature;
+                document.getElementById('edit-tags').value = song.tags.join(', ');
+                document.getElementById('edit-chart').value = song.chordChart;
+            },
+
+            saveSong(e) {
+                e.preventDefault();
+                const id = document.getElementById('edit-id').value;
+                const newSong = {
+                    id: id ? parseInt(id) : Date.now(),
+                    title: document.getElementById('edit-title').value,
+                    artist: document.getElementById('edit-artist').value,
+                    defaultKey: document.getElementById('edit-key').value,
+                    tempo: document.getElementById('edit-bpm').value,
+                    timeSignature: document.getElementById('edit-time').value,
+                    tags: document.getElementById('edit-tags').value.split(',').map(t => t.trim()),
+                    chordChart: document.getElementById('edit-chart').value
+                };
+
+                if (id) {
+                    const idx = this.songs.findIndex(s => s.id == id);
+                    this.songs[idx] = newSong;
+                } else {
+                    this.songs.push(newSong);
+                }
+
+                this.saveData();
+                this.viewSong(newSong.id);
+            },
+
+            deleteCurrentSong() {
+                if (confirm('Delete this song permanently?')) {
+                    this.songs = this.songs.filter(s => s.id !== this.currentSongId);
+                    this.saveData();
+                    this.showSongs();
+                }
+            },
+
+            showLeaders() {
+                this.showView('view-leaders');
+                const list = document.getElementById('leaders-list');
+                list.innerHTML = this.leaders.map(l => `
+                    <div class="leader-card">
+                        <div style="display:flex; align-items:center;">
+                            <div class="avatar">${l.initials}</div>
+                            <div>
+                                <strong>${l.name}</strong><br/>
+                                <small style="color:var(--text-dim)">${Object.keys(l.preferredKeys).length} custom keys saved</small>
+                            </div>
+                        </div>
+                        <button class="btn-outline" onclick="app.deleteLeader(${l.id})">Remove</button>
+                    </div>
+                `).join('');
+            },
+
+            addLeader() {
+                const name = prompt("Enter leader name:");
+                if (name) {
+                    const initials = name.substring(0, 1).toUpperCase();
+                    this.leaders.push({ id: Date.now(), name, initials, preferredKeys: {} });
+                    this.saveData();
+                    this.showLeaders();
+                }
+            },
+
+            deleteLeader(id) {
+                if (confirm('Remove this leader?')) {
+                    this.leaders = this.leaders.filter(l => l.id !== id);
+                    this.saveData();
+                    this.showLeaders();
+                }
+            }
+        };
+
+        // Initialize App
+        app.init();
+    </script>
+</body>
+</html>
