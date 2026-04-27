@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Church Band Song Book</title>
+    <title>JRM Lalaan Worship Team</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto+Mono&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-deep: #0f172a; /* Dark Navy */
+            --bg-deep: #0f172a;
             --bg-card: #1e293b;
-            --accent: #fbbf24; /* Gold/Amber */
-            --text-main: #fef3c7; /* Cream */
+            --accent: #fbbf24;
+            --text-main: #fef3c7;
             --text-dim: #94a3b8;
             --forest: #064e3b;
             --white: #ffffff;
@@ -31,9 +31,8 @@
             padding-bottom: 50px;
         }
 
-        /* --- UI COMPONENTS --- */
         .container { max-width: 900px; margin: 0 auto; padding: 20px; }
-        
+
         nav {
             display: flex;
             justify-content: space-between;
@@ -41,6 +40,8 @@
             padding: 20px 0;
             border-bottom: 1px solid rgba(251, 191, 36, 0.2);
             margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .logo {
@@ -48,6 +49,7 @@
             font-size: 1.5rem;
             color: var(--accent);
             text-decoration: none;
+            cursor: pointer;
         }
 
         .nav-links button {
@@ -59,6 +61,7 @@
             border-radius: 4px;
             margin-left: 10px;
             transition: 0.3s;
+            font-family: var(--font-sans);
         }
 
         .nav-links button:hover {
@@ -67,7 +70,7 @@
         }
 
         h1, h2, h3 { font-family: var(--font-serif); }
-        
+
         .btn {
             background: var(--accent);
             color: var(--bg-deep);
@@ -78,12 +81,18 @@
             cursor: pointer;
             display: inline-block;
             text-decoration: none;
+            font-family: var(--font-sans);
         }
 
         .btn-outline {
             background: transparent;
             border: 1px solid var(--accent);
             color: var(--accent);
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font-sans);
         }
 
         input, select, textarea {
@@ -94,7 +103,58 @@
             border: 1px solid #334155;
             color: var(--text-main);
             border-radius: 6px;
+            font-family: var(--font-sans);
         }
+
+        /* --- SYNC STATUS --- */
+        #sync-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-card);
+            border: 1px solid #334155;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 100;
+            transition: opacity 0.5s;
+        }
+        .sync-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #64748b;
+        }
+        .sync-dot.synced { background: #22c55e; }
+        .sync-dot.syncing { background: #fbbf24; animation: pulse 1s infinite; }
+        .sync-dot.error { background: #ef4444; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+        /* --- LOADING OVERLAY --- */
+        #loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-deep);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            gap: 16px;
+        }
+        #loading-overlay h2 { font-family: var(--font-serif); color: var(--accent); font-size: 2rem; }
+        #loading-overlay p { color: var(--text-dim); }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid rgba(251,191,36,0.2);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         /* --- SONG LIST --- */
         .search-bar { margin-bottom: 30px; }
@@ -134,7 +194,7 @@
         }
         .control-group { flex: 1; min-width: 150px; }
         .control-group label { display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; }
-        
+
         .diatonic-helper {
             display: flex;
             gap: 10px;
@@ -198,13 +258,33 @@
         }
 
         .hidden { display: none; }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-dim);
+            padding: 60px 20px;
+        }
+        .empty-state p { font-size: 1.1rem; margin-top: 10px; }
     </style>
 </head>
 <body>
 
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <h2>JRM Lalaan</h2>
+        <div class="spinner"></div>
+        <p>Loading worship songs…</p>
+    </div>
+
+    <!-- Sync Status Indicator -->
+    <div id="sync-status">
+        <div class="sync-dot syncing" id="sync-dot"></div>
+        <span id="sync-label">Connecting…</span>
+    </div>
+
     <div class="container" id="main-nav">
         <nav>
-            <a href="#" class="logo" onclick="app.showSongs()">JRM Lalaan Worship Team</a>
+            <span class="logo" onclick="app.showSongs()">JRM Lalaan Worship Team</span>
             <div class="nav-links">
                 <button onclick="app.showSongs()">Songs</button>
                 <button onclick="app.showLeaders()">Leaders</button>
@@ -216,7 +296,7 @@
     <!-- VIEW: SONG LIST -->
     <div id="view-list" class="container view">
         <div class="search-bar">
-            <input type="text" id="song-search" placeholder="Search by title, artist, or tag..." oninput="app.filterSongs()">
+            <input type="text" id="song-search" placeholder="Search by title, artist, or tag…" oninput="app.filterSongs()">
         </div>
         <div id="song-grid" class="song-grid"></div>
     </div>
@@ -238,9 +318,7 @@
             </div>
             <div class="control-group">
                 <label>Transpose Key</label>
-                <div style="display: flex; gap: 5px;">
-                    <select id="key-select" onchange="app.handleManualKeyChange()"></select>
-                </div>
+                <select id="key-select" onchange="app.handleManualKeyChange()"></select>
             </div>
             <div class="control-group">
                 <label>Font Size</label>
@@ -256,9 +334,8 @@
         </div>
 
         <div id="diatonic-helper" class="diatonic-helper"></div>
-        
         <div id="chord-chart-container"></div>
-        
+
         <div style="margin-top: 30px; display: flex; gap: 10px;">
             <button class="btn-outline" onclick="app.editCurrentSong()">Edit Song</button>
             <button class="btn-outline" style="color: #f87171; border-color: #f87171;" onclick="app.deleteCurrentSong()">Delete</button>
@@ -268,19 +345,19 @@
     <!-- VIEW: ADD/EDIT SONG -->
     <div id="view-edit" class="container view hidden">
         <h2 id="edit-view-title">Add New Song</h2>
-        <form id="song-form" onsubmit="app.saveSong(event)">
+        <div id="song-form">
             <input type="hidden" id="edit-id">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div>
                     <label>Title</label>
-                    <input type="text" id="edit-title" required>
+                    <input type="text" id="edit-title">
                 </div>
                 <div>
                     <label>Artist</label>
-                    <input type="text" id="edit-artist" required>
+                    <input type="text" id="edit-artist">
                 </div>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px; flex-wrap: wrap;">
                 <div>
                     <label>Default Key</label>
                     <select id="edit-key"></select>
@@ -300,9 +377,9 @@
             </div>
             <label>Chord Chart (Use [Chord] before lyrics)</label>
             <textarea id="edit-chart" rows="15" style="font-family: var(--font-mono);"></textarea>
-            <button type="submit" class="btn">Save Song</button>
-            <button type="button" class="btn-outline" onclick="app.showSongs()">Cancel</button>
-        </form>
+            <button class="btn" onclick="app.saveSong()">Save Song</button>
+            <button class="btn-outline" onclick="app.showSongs()" style="margin-left: 10px;">Cancel</button>
+        </div>
     </div>
 
     <!-- VIEW: LEADERS -->
@@ -314,82 +391,143 @@
         <div id="leaders-list"></div>
     </div>
 
+    <!-- PERFORMANCE VIEW -->
     <div id="performance-view" class="performance-mode hidden">
         <button class="btn perf-close" onclick="app.exitPerformanceMode()">Close</button>
         <div id="performance-content" style="font-family: var(--font-mono);"></div>
     </div>
-    
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    
-    <script>
+
+    <script type="module">
+        // ─── Firebase Modular SDK v12 ─────────────────────────────────────────
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+        import {
+            getFirestore, collection, doc,
+            getDocs, addDoc, updateDoc, deleteDoc,
+            onSnapshot, orderBy, query, limit, writeBatch
+        } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
         const firebaseConfig = {
-            apiKey: "AIzaSyDKzrReZCSHgOPWzvAccygflLGcwtAP7Mo",
-            authDomain: "jrm-lalaan-worship-chords.firebaseapp.com",
-            projectId: "jrm-lalaan-worship-chords",
-            storageBucket: "jrm-lalaan-worship-chords.firebasestorage.app",
-            messagingSenderId: "318238516737",
-            appId: "1:318238516737:web:4c8707fdf0fcaf4edec200"
+            apiKey: "AIzaSyBCgMy7M9S3THmv4OZMCQOeIbxYbbiNfu0",
+            authDomain: "jrm-lalaan-chords.firebaseapp.com",
+            projectId: "jrm-lalaan-chords",
+            storageBucket: "jrm-lalaan-chords.firebasestorage.app",
+            messagingSenderId: "1049411098418",
+            appId: "1:1049411098418:web:e61b2b9040b42d4daee92b"
         };
 
-    // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        
-        const CHROMATIC_SHARP = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-        const CHROMATIC_FLAT = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
-        
+        const firebaseApp = initializeApp(firebaseConfig);
+        const db = getFirestore(firebaseApp);
+
+        // ─── Constants ────────────────────────────────────────────────────────
+        const CHROMATIC_SHARP = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+        const CHROMATIC_FLAT  = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+
+        // Seed data — only written once when Firestore is empty
         const SEED_SONGS = [
-            { id: 1, title: "Amazing Grace", artist: "John Newton", defaultKey: "G", tempo: 75, timeSignature: "3/4", tags: ["Hymn", "Classic"], chordChart: "[G]Amazing grace how [C]sweet the [G]sound\nThat saved a [G]wretch like [D]me\nI [G]once was lost but [C]now am [G]found\nWas [G]blind but [D]now I [G]see" },
-            { id: 2, title: "10,000 Reasons", artist: "Matt Redman", defaultKey: "G", tempo: 73, timeSignature: "4/4", tags: ["Worship", "Bless"], chordChart: "[C]Bless the [G]Lord O my [D]soul [Em]O my [C]soul\n[G]Worship His [D]holy name\nSing like [C]never be[G]fore [C]O [D]my [Em]soul\nI'll [C]worship Your [D]holy [G]name" },
-            { id: 3, title: "Way Maker", artist: "Sinach", defaultKey: "C", tempo: 68, timeSignature: "4/4", tags: ["Worship", "Miracle"], chordChart: "You are [F]Way Maker, Miracle Worker\n[C]Promise Keeper, Light in the darkness\n[G]My God, that is who You [Am]are" },
-            { id: 4, title: "Good Good Father", artist: "Chris Tomlin", defaultKey: "A", tempo: 72, timeSignature: "6/8", tags: ["Worship", "Father"], chordChart: "You're a [A]good good Father\nIt's who You [D]are, it's who You [A]are\nAnd I'm [A]loved by You\nIt's who I [D]am, it's who I [A]am" },
-            { id: 5, title: "What A Beautiful Name", artist: "Hillsong Worship", defaultKey: "D", tempo: 68, timeSignature: "4/4", tags: ["Worship", "Jesus"], chordChart: "What a [D]beautiful Name it is\nWhat a [A]beautiful Name it is\nThe [Bm]Name of [A]Jesus [G]Christ my King" }
+            { title: "Amazing Grace", artist: "John Newton", defaultKey: "G", tempo: 75, timeSignature: "3/4", tags: ["Hymn","Classic"], chordChart: "[G]Amazing grace how [C]sweet the [G]sound\nThat saved a [G]wretch like [D]me\nI [G]once was lost but [C]now am [G]found\nWas [G]blind but [D]now I [G]see" },
+            { title: "10,000 Reasons", artist: "Matt Redman", defaultKey: "G", tempo: 73, timeSignature: "4/4", tags: ["Worship","Bless"], chordChart: "[C]Bless the [G]Lord O my [D]soul [Em]O my [C]soul\n[G]Worship His [D]holy name\nSing like [C]never be[G]fore [C]O [D]my [Em]soul\nI'll [C]worship Your [D]holy [G]name" },
+            { title: "Way Maker", artist: "Sinach", defaultKey: "C", tempo: 68, timeSignature: "4/4", tags: ["Worship","Miracle"], chordChart: "You are [F]Way Maker, Miracle Worker\n[C]Promise Keeper, Light in the darkness\n[G]My God, that is who You [Am]are" },
+            { title: "Good Good Father", artist: "Chris Tomlin", defaultKey: "A", tempo: 72, timeSignature: "6/8", tags: ["Worship","Father"], chordChart: "You're a [A]good good Father\nIt's who You [D]are, it's who You [A]are\nAnd I'm [A]loved by You\nIt's who I [D]am, it's who I [A]am" },
+            { title: "What A Beautiful Name", artist: "Hillsong Worship", defaultKey: "D", tempo: 68, timeSignature: "4/4", tags: ["Worship","Jesus"], chordChart: "What a [D]beautiful Name it is\nWhat a [A]beautiful Name it is\nThe [Bm]Name of [A]Jesus [G]Christ my King" }
         ];
 
         const SEED_LEADERS = [
-            { id: 1, name: "David", initials: "D", preferredKeys: { "1": "G", "2": "A", "3": "D" } },
-            { id: 2, name: "Sarah", initials: "S", preferredKeys: { "1": "C", "5": "C" } }
+            { name: "David",  initials: "D", preferredKeys: {} },
+            { name: "Sarah",  initials: "S", preferredKeys: {} }
         ];
 
+        // ─── App ──────────────────────────────────────────────────────────────
         const app = {
             songs: [],
             leaders: [],
             currentSongId: null,
             currentKey: 'C',
             useFlats: false,
-            
-            init() {
-                this.loadData();
+
+            // ── Bootstrap ──────────────────────────────────────────────────
+            async init() {
                 this.populateKeyDropdowns();
-                this.showSongs();
+                this.setSyncStatus('syncing', 'Connecting…');
+
+                try {
+                    await this.seedIfEmpty();
+                    this.listenSongs();
+                    this.listenLeaders();
+                } catch (err) {
+                    console.error(err);
+                    this.setSyncStatus('error', 'Connection failed');
+                    this.hideLoading();
+                }
             },
 
-            loadData() {
-                const storedSongs = localStorage.getItem('cbsb_songs');
-                const storedLeaders = localStorage.getItem('cbsb_leaders');
-                this.songs = storedSongs ? JSON.parse(storedSongs) : SEED_SONGS;
-                this.leaders = storedLeaders ? JSON.parse(storedLeaders) : SEED_LEADERS;
-                this.saveData();
+            setSyncStatus(state, label) {
+                const dot = document.getElementById('sync-dot');
+                dot.className = 'sync-dot ' + state;
+                document.getElementById('sync-label').textContent = label;
             },
 
-            saveData() {
-                localStorage.setItem('cbsb_songs', JSON.stringify(this.songs));
-                localStorage.setItem('cbsb_leaders', JSON.stringify(this.leaders));
+            hideLoading() {
+                const overlay = document.getElementById('loading-overlay');
+                overlay.style.opacity = '0';
+                overlay.style.transition = 'opacity 0.4s';
+                setTimeout(() => overlay.style.display = 'none', 400);
             },
 
-            populateKeyDropdowns() {
-                const selects = ['key-select', 'edit-key'];
-                selects.forEach(id => {
-                    const el = document.getElementById(id);
-                    el.innerHTML = CHROMATIC_SHARP.map(k => `<option value="${k}">${k}</option>`).join('');
+            // ── Seed Firestore once ────────────────────────────────────────
+            async seedIfEmpty() {
+                const snap = await db.collection('songs').limit(1).get();
+                if (snap.empty) {
+                    const batch = db.batch();
+                    SEED_SONGS.forEach(s => batch.set(db.collection('songs').doc(), s));
+                    SEED_LEADERS.forEach(l => batch.set(db.collection('leaders').doc(), l));
+                    await batch.commit();
+                }
+            },
+
+            // ── Real-time listeners ────────────────────────────────────────
+            listenSongs() {
+                db.collection('songs').orderBy('title').onSnapshot(snap => {
+                    this.songs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    this.renderSongList(this.songs);
+
+                    // If we're viewing a song, re-render chart in case it was edited
+                    if (this.currentSongId && document.getElementById('view-detail').classList.contains('hidden') === false) {
+                        const still = this.songs.find(s => s.id === this.currentSongId);
+                        if (still) this.renderChart();
+                    }
+
+                    this.setSyncStatus('synced', 'Synced ✓');
+                    this.hideLoading();
+                    this.showSongs();
+                }, err => {
+                    console.error(err);
+                    this.setSyncStatus('error', 'Sync error');
                 });
             },
 
+            listenLeaders() {
+                db.collection('leaders').orderBy('name').onSnapshot(snap => {
+                    this.leaders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    // Refresh leaders view if open
+                    if (!document.getElementById('view-leaders').classList.contains('hidden')) {
+                        this.renderLeadersList();
+                    }
+                }, err => console.error(err));
+            },
+
+            // ── Key Dropdowns ──────────────────────────────────────────────
+            populateKeyDropdowns() {
+                ['key-select','edit-key'].forEach(id => {
+                    document.getElementById(id).innerHTML =
+                        CHROMATIC_SHARP.map(k => `<option value="${k}">${k}</option>`).join('');
+                });
+            },
+
+            // ── Views ──────────────────────────────────────────────────────
             showView(viewId) {
                 document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
                 document.getElementById(viewId).classList.remove('hidden');
-                window.scrollTo(0,0);
+                window.scrollTo(0, 0);
             },
 
             showSongs() {
@@ -399,39 +537,44 @@
 
             filterSongs() {
                 const term = document.getElementById('song-search').value.toLowerCase();
-                const filtered = this.songs.filter(s => 
-                    s.title.toLowerCase().includes(term) || 
+                const filtered = this.songs.filter(s =>
+                    s.title.toLowerCase().includes(term) ||
                     s.artist.toLowerCase().includes(term) ||
-                    s.tags.some(t => t.toLowerCase().includes(term))
+                    (s.tags || []).some(t => t.toLowerCase().includes(term))
                 );
                 this.renderSongList(filtered);
             },
 
             renderSongList(list) {
                 const grid = document.getElementById('song-grid');
+                if (list.length === 0) {
+                    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>No songs found.</p></div>`;
+                    return;
+                }
                 grid.innerHTML = list.map(s => `
-                    <div class="song-card" onclick="app.viewSong(${s.id})">
+                    <div class="song-card" onclick="app.viewSong('${s.id}')">
                         <h3>${s.title}</h3>
                         <p>${s.artist} • ${s.defaultKey}</p>
-                        <div>${s.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+                        <div>${(s.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
                     </div>
                 `).join('');
             },
 
             viewSong(id) {
                 const song = this.songs.find(s => s.id === id);
+                if (!song) return;
                 this.currentSongId = id;
                 this.currentKey = song.defaultKey;
                 this.showView('view-detail');
-                
+
                 document.getElementById('detail-title').innerText = song.title;
-                document.getElementById('detail-meta').innerText = `${song.artist} | ${song.tempo} BPM | ${song.timeSignature}`;
-                
-                // Populate leader dropdown
+                document.getElementById('detail-meta').innerText =
+                    `${song.artist} | ${song.tempo} BPM | ${song.timeSignature}`;
+
                 const lSelect = document.getElementById('leader-select');
-                lSelect.innerHTML = `<option value="">Original Key (${song.defaultKey})</option>` + 
+                lSelect.innerHTML = `<option value="">Original Key (${song.defaultKey})</option>` +
                     this.leaders.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
-                
+
                 document.getElementById('key-select').value = this.currentKey;
                 this.renderChart();
             },
@@ -439,29 +582,25 @@
             handleLeaderChange() {
                 const leaderId = document.getElementById('leader-select').value;
                 const song = this.songs.find(s => s.id === this.currentSongId);
-                
                 if (!leaderId) {
                     this.currentKey = song.defaultKey;
                 } else {
-                    const leader = this.leaders.find(l => l.id == leaderId);
-                    this.currentKey = leader.preferredKeys[this.currentSongId] || song.defaultKey;
+                    const leader = this.leaders.find(l => l.id === leaderId);
+                    this.currentKey = (leader.preferredKeys || {})[this.currentSongId] || song.defaultKey;
                 }
-                
                 document.getElementById('key-select').value = this.currentKey;
                 this.renderChart();
             },
 
             handleManualKeyChange() {
                 this.currentKey = document.getElementById('key-select').value;
-                
-                // If a leader is selected, update their preference
                 const leaderId = document.getElementById('leader-select').value;
                 if (leaderId) {
-                    const leader = this.leaders.find(l => l.id == leaderId);
-                    leader.preferredKeys[this.currentSongId] = this.currentKey;
-                    this.saveData();
+                    const leader = this.leaders.find(l => l.id === leaderId);
+                    const updatedKeys = { ...(leader.preferredKeys || {}), [this.currentSongId]: this.currentKey };
+                    db.collection('leaders').doc(leaderId).update({ preferredKeys: updatedKeys })
+                        .catch(console.error);
                 }
-                
                 this.renderChart();
             },
 
@@ -471,22 +610,16 @@
             },
 
             transposeChord(chordName, steps) {
-                // Handle Slash Chords (e.g., G/B)
                 return chordName.split('/').map(part => {
                     const match = part.match(/^([A-G][#b]?)(.*)/);
                     if (!match) return part;
-                    
                     const root = match[1];
                     const quality = match[2];
-                    
-                    // Normalize to index
                     let index = CHROMATIC_SHARP.indexOf(root);
                     if (index === -1) index = CHROMATIC_FLAT.indexOf(root);
                     if (index === -1) return part;
-                    
                     let newIndex = (index + steps) % 12;
                     if (newIndex < 0) newIndex += 12;
-                    
                     const newRoot = this.useFlats ? CHROMATIC_FLAT[newIndex] : CHROMATIC_SHARP[newIndex];
                     return newRoot + quality;
                 }).join('/');
@@ -494,36 +627,24 @@
 
             renderChart() {
                 const song = this.songs.find(s => s.id === this.currentSongId);
-                
-                // Calculate Transpose Steps
+                if (!song) return;
+
                 let startIndex = CHROMATIC_SHARP.indexOf(song.defaultKey);
                 if (startIndex === -1) startIndex = CHROMATIC_FLAT.indexOf(song.defaultKey);
-                
                 let targetIndex = CHROMATIC_SHARP.indexOf(this.currentKey);
                 if (targetIndex === -1) targetIndex = CHROMATIC_FLAT.indexOf(this.currentKey);
-                
                 const steps = targetIndex - startIndex;
 
-                // Process Chart
-                const chartContainer = document.getElementById('chord-chart-container');
                 const lines = song.chordChart.split('\n');
-                
                 let html = '';
                 lines.forEach(line => {
-                    if (line.trim() === "") {
-                        html += '<br/>';
-                        return;
-                    }
-                    
+                    if (line.trim() === '') { html += '<br/>'; return; }
                     let lyricLine = `<span class="lyric-line">`;
                     let lastIndex = 0;
                     const regex = /\[(.*?)\]/g;
                     let match;
-
                     while ((match = regex.exec(line)) !== null) {
-                        // Add lyrics before chord
                         lyricLine += line.substring(lastIndex, match.index);
-                        // Add transposed chord
                         const transposed = this.transposeChord(match[1], steps);
                         lyricLine += `<span class="chord">${transposed}</span>`;
                         lastIndex = regex.lastIndex;
@@ -532,22 +653,20 @@
                     html += lyricLine;
                 });
 
-                chartContainer.innerHTML = html;
+                document.getElementById('chord-chart-container').innerHTML = html;
                 document.getElementById('performance-content').innerHTML = html;
                 this.renderDiatonic(this.currentKey);
             },
 
             renderDiatonic(key) {
                 const formulas = [
-                    { label: 'I', type: 'Maj' }, { label: 'ii', type: 'm' }, 
-                    { label: 'iii', type: 'm' }, { label: 'IV', type: 'Maj' }, 
-                    { label: 'V', type: 'Maj' }, { label: 'vi', type: 'm' }, 
-                    { label: 'vii°', type: 'dim' }
+                    {label:'I',type:'Maj'},{label:'ii',type:'m'},
+                    {label:'iii',type:'m'},{label:'IV',type:'Maj'},
+                    {label:'V',type:'Maj'},{label:'vi',type:'m'},
+                    {label:'vii°',type:'dim'}
                 ];
-                const intervals = [0, 2, 4, 5, 7, 9, 11];
-                
-                const helper = document.getElementById('diatonic-helper');
-                helper.innerHTML = intervals.map((interval, idx) => {
+                const intervals = [0,2,4,5,7,9,11];
+                document.getElementById('diatonic-helper').innerHTML = intervals.map((interval, idx) => {
                     const note = this.transposeChord(key, interval);
                     const suffix = formulas[idx].type === 'm' ? 'm' : (formulas[idx].type === 'dim' ? 'dim' : '');
                     return `<div class="diatonic-pill"><span>${formulas[idx].label}</span>${note}${suffix}</div>`;
@@ -568,98 +687,139 @@
                 document.body.style.overflow = 'auto';
             },
 
-            // --- CRUD OPS ---
+            // ── CRUD: Songs ────────────────────────────────────────────────
             showAddSong() {
                 this.showView('view-edit');
-                document.getElementById('edit-view-title').innerText = "Add New Song";
-                document.getElementById('song-form').reset();
-                document.getElementById('edit-id').value = "";
+                document.getElementById('edit-view-title').innerText = 'Add New Song';
+                document.getElementById('edit-id').value = '';
+                document.getElementById('edit-title').value = '';
+                document.getElementById('edit-artist').value = '';
+                document.getElementById('edit-key').value = 'G';
+                document.getElementById('edit-bpm').value = '';
+                document.getElementById('edit-time').value = '4/4';
+                document.getElementById('edit-tags').value = '';
+                document.getElementById('edit-chart').value = '';
             },
 
             editCurrentSong() {
                 const song = this.songs.find(s => s.id === this.currentSongId);
                 this.showView('view-edit');
-                document.getElementById('edit-view-title').innerText = "Edit Song";
+                document.getElementById('edit-view-title').innerText = 'Edit Song';
                 document.getElementById('edit-id').value = song.id;
                 document.getElementById('edit-title').value = song.title;
                 document.getElementById('edit-artist').value = song.artist;
                 document.getElementById('edit-key').value = song.defaultKey;
                 document.getElementById('edit-bpm').value = song.tempo;
                 document.getElementById('edit-time').value = song.timeSignature;
-                document.getElementById('edit-tags').value = song.tags.join(', ');
+                document.getElementById('edit-tags').value = (song.tags||[]).join(', ');
                 document.getElementById('edit-chart').value = song.chordChart;
             },
 
-            saveSong(e) {
-                e.preventDefault();
+            async saveSong() {
+                const title = document.getElementById('edit-title').value.trim();
+                const artist = document.getElementById('edit-artist').value.trim();
+                if (!title || !artist) { alert('Title and Artist are required.'); return; }
+
                 const id = document.getElementById('edit-id').value;
-                const newSong = {
-                    id: id ? parseInt(id) : Date.now(),
-                    title: document.getElementById('edit-title').value,
-                    artist: document.getElementById('edit-artist').value,
+                const data = {
+                    title,
+                    artist,
                     defaultKey: document.getElementById('edit-key').value,
-                    tempo: document.getElementById('edit-bpm').value,
-                    timeSignature: document.getElementById('edit-time').value,
-                    tags: document.getElementById('edit-tags').value.split(',').map(t => t.trim()),
+                    tempo: parseInt(document.getElementById('edit-bpm').value) || 0,
+                    timeSignature: document.getElementById('edit-time').value || '4/4',
+                    tags: document.getElementById('edit-tags').value.split(',').map(t => t.trim()).filter(Boolean),
                     chordChart: document.getElementById('edit-chart').value
                 };
 
-                if (id) {
-                    const idx = this.songs.findIndex(s => s.id == id);
-                    this.songs[idx] = newSong;
-                } else {
-                    this.songs.push(newSong);
+                this.setSyncStatus('syncing', 'Saving…');
+                try {
+                    if (id) {
+                        await db.collection('songs').doc(id).update(data);
+                        this.viewSong(id);
+                    } else {
+                        const ref = await db.collection('songs').add(data);
+                        this.viewSong(ref.id);
+                    }
+                    this.setSyncStatus('synced', 'Synced ✓');
+                } catch (err) {
+                    console.error(err);
+                    this.setSyncStatus('error', 'Save failed');
+                    alert('Error saving song. Check console.');
                 }
-
-                this.saveData();
-                this.viewSong(newSong.id);
             },
 
-            deleteCurrentSong() {
-                if (confirm('Delete this song permanently?')) {
-                    this.songs = this.songs.filter(s => s.id !== this.currentSongId);
-                    this.saveData();
+            async deleteCurrentSong() {
+                if (!confirm('Delete this song permanently?')) return;
+                this.setSyncStatus('syncing', 'Deleting…');
+                try {
+                    await db.collection('songs').doc(this.currentSongId).delete();
+                    this.setSyncStatus('synced', 'Synced ✓');
                     this.showSongs();
+                } catch (err) {
+                    console.error(err);
+                    this.setSyncStatus('error', 'Delete failed');
                 }
             },
 
+            // ── CRUD: Leaders ──────────────────────────────────────────────
             showLeaders() {
                 this.showView('view-leaders');
+                this.renderLeadersList();
+            },
+
+            renderLeadersList() {
                 const list = document.getElementById('leaders-list');
+                if (this.leaders.length === 0) {
+                    list.innerHTML = `<div class="empty-state"><p>No leaders yet. Add one!</p></div>`;
+                    return;
+                }
                 list.innerHTML = this.leaders.map(l => `
                     <div class="leader-card">
                         <div style="display:flex; align-items:center;">
                             <div class="avatar">${l.initials}</div>
                             <div>
                                 <strong>${l.name}</strong><br/>
-                                <small style="color:var(--text-dim)">${Object.keys(l.preferredKeys).length} custom keys saved</small>
+                                <small style="color:var(--text-dim)">${Object.keys(l.preferredKeys||{}).length} custom keys saved</small>
                             </div>
                         </div>
-                        <button class="btn-outline" onclick="app.deleteLeader(${l.id})">Remove</button>
+                        <button class="btn-outline" onclick="app.deleteLeader('${l.id}')">Remove</button>
                     </div>
                 `).join('');
             },
 
-            addLeader() {
-                const name = prompt("Enter leader name:");
-                if (name) {
-                    const initials = name.substring(0, 1).toUpperCase();
-                    this.leaders.push({ id: Date.now(), name, initials, preferredKeys: {} });
-                    this.saveData();
+            async addLeader() {
+                const name = prompt('Enter leader name:');
+                if (!name || !name.trim()) return;
+                const trimmed = name.trim();
+                this.setSyncStatus('syncing', 'Saving…');
+                try {
+                    await db.collection('leaders').add({
+                        name: trimmed,
+                        initials: trimmed.charAt(0).toUpperCase(),
+                        preferredKeys: {}
+                    });
+                    this.setSyncStatus('synced', 'Synced ✓');
                     this.showLeaders();
+                } catch (err) {
+                    console.error(err);
+                    this.setSyncStatus('error', 'Save failed');
                 }
             },
 
-            deleteLeader(id) {
-                if (confirm('Remove this leader?')) {
-                    this.leaders = this.leaders.filter(l => l.id !== id);
-                    this.saveData();
+            async deleteLeader(id) {
+                if (!confirm('Remove this leader?')) return;
+                this.setSyncStatus('syncing', 'Removing…');
+                try {
+                    await db.collection('leaders').doc(id).delete();
+                    this.setSyncStatus('synced', 'Synced ✓');
                     this.showLeaders();
+                } catch (err) {
+                    console.error(err);
+                    this.setSyncStatus('error', 'Remove failed');
                 }
             }
         };
 
-        // Initialize App
         app.init();
     </script>
 </body>
