@@ -401,9 +401,18 @@
         // ─── Firebase Modular SDK v12 ─────────────────────────────────────────
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
         import {
-            getFirestore, collection, doc,
-            getDocs, addDoc, updateDoc, deleteDoc,
-            onSnapshot, orderBy, query, limit, writeBatch
+            getFirestore,
+            collection,
+            doc,
+            getDocs,
+            addDoc,
+            updateDoc,
+            deleteDoc,
+            onSnapshot,
+            orderBy,
+            query,
+            limit,
+            writeBatch
         } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -422,7 +431,6 @@
         const CHROMATIC_SHARP = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
         const CHROMATIC_FLAT  = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
 
-        // Seed data — only written once when Firestore is empty
         const SEED_SONGS = [
             { title: "Amazing Grace", artist: "John Newton", defaultKey: "G", tempo: 75, timeSignature: "3/4", tags: ["Hymn","Classic"], chordChart: "[G]Amazing grace how [C]sweet the [G]sound\nThat saved a [G]wretch like [D]me\nI [G]once was lost but [C]now am [G]found\nWas [G]blind but [D]now I [G]see" },
             { title: "10,000 Reasons", artist: "Matt Redman", defaultKey: "G", tempo: 73, timeSignature: "4/4", tags: ["Worship","Bless"], chordChart: "[C]Bless the [G]Lord O my [D]soul [Em]O my [C]soul\n[G]Worship His [D]holy name\nSing like [C]never be[G]fore [C]O [D]my [Em]soul\nI'll [C]worship Your [D]holy [G]name" },
@@ -454,7 +462,7 @@
                     this.listenSongs();
                     this.listenLeaders();
                 } catch (err) {
-                    console.error(err);
+                    console.error('Init error:', err);
                     this.setSyncStatus('error', 'Connection failed');
                     this.hideLoading();
                 }
@@ -473,25 +481,27 @@
                 setTimeout(() => overlay.style.display = 'none', 400);
             },
 
-            // ── Seed Firestore once ────────────────────────────────────────
+            // ── Seed Firestore once (FIXED: using modular API) ─────────────
             async seedIfEmpty() {
-                const snap = await db.collection('songs').limit(1).get();
+                const songsCol = collection(db, 'songs');
+                const snap = await getDocs(query(songsCol, limit(1)));
                 if (snap.empty) {
-                    const batch = db.batch();
-                    SEED_SONGS.forEach(s => batch.set(db.collection('songs').doc(), s));
-                    SEED_LEADERS.forEach(l => batch.set(db.collection('leaders').doc(), l));
+                    const batch = writeBatch(db);
+                    SEED_SONGS.forEach(s => batch.set(doc(songsCol), s));
+                    const leadersCol = collection(db, 'leaders');
+                    SEED_LEADERS.forEach(l => batch.set(doc(leadersCol), l));
                     await batch.commit();
                 }
             },
 
-            // ── Real-time listeners ────────────────────────────────────────
+            // ── Real-time listeners (FIXED: using modular API) ─────────────
             listenSongs() {
-                db.collection('songs').orderBy('title').onSnapshot(snap => {
+                const q = query(collection(db, 'songs'), orderBy('title'));
+                onSnapshot(q, snap => {
                     this.songs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                     this.renderSongList(this.songs);
 
-                    // If we're viewing a song, re-render chart in case it was edited
-                    if (this.currentSongId && document.getElementById('view-detail').classList.contains('hidden') === false) {
+                    if (this.currentSongId && !document.getElementById('view-detail').classList.contains('hidden')) {
                         const still = this.songs.find(s => s.id === this.currentSongId);
                         if (still) this.renderChart();
                     }
@@ -500,19 +510,20 @@
                     this.hideLoading();
                     this.showSongs();
                 }, err => {
-                    console.error(err);
+                    console.error('Songs listener error:', err);
                     this.setSyncStatus('error', 'Sync error');
+                    this.hideLoading();
                 });
             },
 
             listenLeaders() {
-                db.collection('leaders').orderBy('name').onSnapshot(snap => {
+                const q = query(collection(db, 'leaders'), orderBy('name'));
+                onSnapshot(q, snap => {
                     this.leaders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                    // Refresh leaders view if open
                     if (!document.getElementById('view-leaders').classList.contains('hidden')) {
                         this.renderLeadersList();
                     }
-                }, err => console.error(err));
+                }, err => console.error('Leaders listener error:', err));
             },
 
             // ── Key Dropdowns ──────────────────────────────────────────────
@@ -598,7 +609,8 @@
                 if (leaderId) {
                     const leader = this.leaders.find(l => l.id === leaderId);
                     const updatedKeys = { ...(leader.preferredKeys || {}), [this.currentSongId]: this.currentKey };
-                    db.collection('leaders').doc(leaderId).update({ preferredKeys: updatedKeys })
+                    // FIXED: using modular updateDoc
+                    updateDoc(doc(db, 'leaders', leaderId), { preferredKeys: updatedKeys })
                         .catch(console.error);
                 }
                 this.renderChart();
@@ -687,7 +699,7 @@
                 document.body.style.overflow = 'auto';
             },
 
-            // ── CRUD: Songs ────────────────────────────────────────────────
+            // ── CRUD: Songs (FIXED: using modular API) ─────────────────────
             showAddSong() {
                 this.showView('view-edit');
                 document.getElementById('edit-view-title').innerText = 'Add New Song';
@@ -734,15 +746,15 @@
                 this.setSyncStatus('syncing', 'Saving…');
                 try {
                     if (id) {
-                        await db.collection('songs').doc(id).update(data);
+                        await updateDoc(doc(db, 'songs', id), data);
                         this.viewSong(id);
                     } else {
-                        const ref = await db.collection('songs').add(data);
+                        const ref = await addDoc(collection(db, 'songs'), data);
                         this.viewSong(ref.id);
                     }
                     this.setSyncStatus('synced', 'Synced ✓');
                 } catch (err) {
-                    console.error(err);
+                    console.error('Save error:', err);
                     this.setSyncStatus('error', 'Save failed');
                     alert('Error saving song. Check console.');
                 }
@@ -752,16 +764,16 @@
                 if (!confirm('Delete this song permanently?')) return;
                 this.setSyncStatus('syncing', 'Deleting…');
                 try {
-                    await db.collection('songs').doc(this.currentSongId).delete();
+                    await deleteDoc(doc(db, 'songs', this.currentSongId));
                     this.setSyncStatus('synced', 'Synced ✓');
                     this.showSongs();
                 } catch (err) {
-                    console.error(err);
+                    console.error('Delete error:', err);
                     this.setSyncStatus('error', 'Delete failed');
                 }
             },
 
-            // ── CRUD: Leaders ──────────────────────────────────────────────
+            // ── CRUD: Leaders (FIXED: using modular API) ───────────────────
             showLeaders() {
                 this.showView('view-leaders');
                 this.renderLeadersList();
@@ -793,7 +805,7 @@
                 const trimmed = name.trim();
                 this.setSyncStatus('syncing', 'Saving…');
                 try {
-                    await db.collection('leaders').add({
+                    await addDoc(collection(db, 'leaders'), {
                         name: trimmed,
                         initials: trimmed.charAt(0).toUpperCase(),
                         preferredKeys: {}
@@ -801,7 +813,7 @@
                     this.setSyncStatus('synced', 'Synced ✓');
                     this.showLeaders();
                 } catch (err) {
-                    console.error(err);
+                    console.error('Add leader error:', err);
                     this.setSyncStatus('error', 'Save failed');
                 }
             },
@@ -810,16 +822,18 @@
                 if (!confirm('Remove this leader?')) return;
                 this.setSyncStatus('syncing', 'Removing…');
                 try {
-                    await db.collection('leaders').doc(id).delete();
+                    await deleteDoc(doc(db, 'leaders', id));
                     this.setSyncStatus('synced', 'Synced ✓');
                     this.showLeaders();
                 } catch (err) {
-                    console.error(err);
+                    console.error('Delete leader error:', err);
                     this.setSyncStatus('error', 'Remove failed');
                 }
             }
         };
 
+        // Expose app globally so inline onclick handlers can reach it
+        window.app = app;
         app.init();
     </script>
 </body>
