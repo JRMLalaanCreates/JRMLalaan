@@ -383,7 +383,7 @@
         }
 
         /* ================================================================
-           LINEUP TOOLBAR — redesigned for mobile-first
+           LINEUP TOOLBAR
         ================================================================ */
         .lineup-toolbar {
             position: sticky;
@@ -395,7 +395,6 @@
             margin-bottom: 20px;
         }
 
-        /* Row 1: font size */
         .toolbar-row {
             display: flex;
             align-items: center;
@@ -415,7 +414,6 @@
             min-width: 68px;
         }
 
-        /* Font size presets */
         .font-size-presets {
             display: flex;
             gap: 3px;
@@ -441,7 +439,6 @@
         .font-size-presets button:hover { background: #334155; }
         .font-size-presets button.active { background: var(--accent); color: var(--bg-deep); }
 
-        /* Nudge +/- */
         .font-nudge-wrap {
             display: flex;
             align-items: center;
@@ -473,7 +470,6 @@
             text-align: center;
         }
 
-        /* Row 2: wrap toggle + zoom */
         .wrap-toggle-group {
             display: flex;
             gap: 3px;
@@ -498,7 +494,6 @@
         .wrap-toggle-group button:hover { background: #334155; }
         .wrap-toggle-group button.active { background: #6366f1; color: #fff; }
 
-        /* Zoom slider row */
         .zoom-slider-wrap {
             display: flex;
             align-items: center;
@@ -523,7 +518,6 @@
             text-align: right;
         }
 
-        /* Chart content: wrapping vs scrolling */
         .lineup-chart-content {
             overflow-x: auto;
         }
@@ -535,8 +529,6 @@
         .lineup-chart-content .lyric-line {
             white-space: inherit;
         }
-
-        /* ================================================================ */
 
         /* --- SONG DETAIL --- */
         .controls-panel {
@@ -831,6 +823,62 @@
             border-color: #6366f1;
             color: #a5b4fc;
         }
+
+        /* ── Chord Picker MODAL (replaces floating popup) ── */
+        #ve-chord-picker-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.72);
+            z-index: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            /* subtle fade-in */
+            animation: fadeInOverlay 0.15s ease;
+        }
+        #ve-chord-picker-overlay.hidden { display: none; }
+        @keyframes fadeInOverlay {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        #ve-chord-picker {
+            background: var(--bg-card);
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 22px 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            width: 100%;
+            max-width: 360px;
+            /* slide-up */
+            animation: slideUpPicker 0.18s ease;
+        }
+        @keyframes slideUpPicker {
+            from { transform: translateY(20px); opacity: 0; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+        .ve-picker-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+        .ve-picker-title {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        .ve-picker-context {
+            font-size: 0.72rem;
+            color: #a5b4fc;
+            font-weight: 600;
+            background: rgba(99,102,241,0.15);
+            border: 1px solid rgba(99,102,241,0.3);
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
     </style>
 </head>
 <body>
@@ -855,6 +903,27 @@
             <p class="modal-sub">Saved preferred keys</p>
             <div id="modal-keys-list"></div>
             <button class="btn modal-close-btn" onclick="app.closeLeaderModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- Chord Picker Modal (centered overlay, same style as leader modal) -->
+    <div id="ve-chord-picker-overlay" class="hidden" onclick="app.veOverlayClick(event)">
+        <div id="ve-chord-picker">
+            <div class="ve-picker-header">
+                <span class="ve-picker-title">Place chord here</span>
+                <span class="ve-picker-context" id="ve-picker-context"></span>
+            </div>
+            <div id="ve-quick-chords" style="display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:14px;"></div>
+            <div style="display:flex;gap:6px;align-items:center;border-top:1px solid #334155;padding-top:12px;">
+                <input id="ve-custom-chord" type="text" placeholder="Custom… e.g. Gmaj7"
+                    style="flex:1;padding:7px 10px;margin:0;font-size:0.85rem;border-radius:6px;"
+                    onkeydown="if(event.key==='Enter')app.veConfirmCustomChord()">
+                <button onclick="app.veConfirmCustomChord()" style="background:var(--accent);color:var(--bg-deep);border:none;padding:7px 12px;border-radius:6px;font-weight:700;cursor:pointer;font-size:0.82rem;white-space:nowrap;">✓ Add</button>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:10px;">
+                <button onclick="app.veRemoveChordAtCursor()" style="flex:1;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:7px;border-radius:6px;cursor:pointer;font-size:0.8rem;font-weight:600;">✕ Remove chord</button>
+                <button onclick="app.veClosePicker()" style="flex:1;background:transparent;border:1px solid #334155;color:var(--text-dim);padding:7px;border-radius:6px;cursor:pointer;font-size:0.8rem;">Cancel</button>
+            </div>
         </div>
     </div>
 
@@ -1064,22 +1133,6 @@
                             <span style="color:#94a3b8;font-size:0.85rem;">Type lyrics above to get started…</span>
                         </div>
                     </div>
-
-                    <!-- Chord picker popup -->
-                    <div id="ve-chord-picker" style="display:none;position:fixed;z-index:900;background:var(--bg-card);border:1px solid #334155;border-radius:12px;padding:14px;box-shadow:0 8px 32px rgba(0,0,0,0.6);min-width:260px;">
-                        <div style="font-size:0.7rem;color:var(--text-dim);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;">Place chord at this position</div>
-                        <div id="ve-quick-chords" style="display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:10px;"></div>
-                        <div style="display:flex;gap:6px;align-items:center;border-top:1px solid #334155;padding-top:10px;">
-                            <input id="ve-custom-chord" type="text" placeholder="Custom… e.g. Gmaj7"
-                                style="flex:1;padding:7px 10px;margin:0;font-size:0.85rem;border-radius:6px;"
-                                onkeydown="if(event.key==='Enter')app.veConfirmCustomChord()">
-                            <button onclick="app.veConfirmCustomChord()" style="background:var(--accent);color:var(--bg-deep);border:none;padding:7px 12px;border-radius:6px;font-weight:700;cursor:pointer;font-size:0.82rem;white-space:nowrap;">✓ Add</button>
-                        </div>
-                        <div style="display:flex;gap:6px;margin-top:8px;">
-                            <button onclick="app.veRemoveChordAtCursor()" style="flex:1;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:6px;border-radius:6px;cursor:pointer;font-size:0.8rem;font-weight:600;">✕ Remove chord here</button>
-                            <button onclick="app.veClosePicker()" style="flex:1;background:transparent;border:1px solid #334155;color:var(--text-dim);padding:6px;border-radius:6px;cursor:pointer;font-size:0.8rem;">Cancel</button>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- RAW TEXT EDITOR -->
@@ -1165,15 +1218,6 @@
                 if (window.innerWidth < 600) {
                     this.lineupWrapMode = true;
                 }
-                document.addEventListener('click', (e) => {
-                    const picker = document.getElementById('ve-chord-picker');
-                    if (picker && picker.style.display !== 'none') {
-                        if (!picker.contains(e.target) && !e.target.classList.contains('ve-char')) {
-                            this.veClosePicker();
-                            this.veRenderCanvas();
-                        }
-                    }
-                });
                 try {
                     await this.seedIfEmpty();
                     this.listenSongs();
@@ -1379,7 +1423,6 @@
                 const sectionsHtml = songs.map((song, idx) => {
                     const chartHtml = this.buildChartHtml(song, song.defaultKey);
 
-                    // Build leader options — show their saved key next to name if they have one
                     const leaderOptions = this.leaders.map(l => {
                         const savedKey = (l.preferredKeys || {})[song.id];
                         const label = savedKey
@@ -1399,7 +1442,6 @@
                                 <button class="lineup-open-btn" onclick="app.viewSong('${song.id}')">Open Song →</button>
                             </div>
 
-                            <!-- Leader selector row -->
                             <div class="lineup-leader-row">
                                 <span class="lineup-leader-label">🎤 Song Leader</span>
                                 <select class="lineup-leader-select" id="lineup-leader-${song.id}"
@@ -1426,8 +1468,6 @@
                 this.showView('view-lineup');
             },
 
-            // ── Per-song leader key change in lineup view ────────────────
-
             changeLineupSongKey(songId, leaderId) {
                 const song = this.songs.find(s => s.id === songId);
                 if (!song) return;
@@ -1445,7 +1485,6 @@
                             badgeText = `Key of ${savedKey}`;
                             badgeClass = 'lineup-key-badge';
                         } else {
-                            // Leader has no saved key — stay on default, show warning badge
                             targetKey = song.defaultKey;
                             badgeText = `No saved key — using ${song.defaultKey}`;
                             badgeClass = 'lineup-key-badge no-saved';
@@ -1453,22 +1492,18 @@
                     }
                 }
 
-                // Re-render chart in new key
                 const chartEl = document.getElementById(`lineup-chart-${songId}`);
                 if (chartEl) {
                     chartEl.innerHTML = this.buildChartHtml(song, targetKey);
-                    // Reapply wrap mode
                     if (this.lineupWrapMode) chartEl.classList.add('wrap-on');
                     else chartEl.classList.remove('wrap-on');
                 }
 
-                // Update the meta paragraph to reflect active key
                 const metaEl = document.getElementById(`lineup-song-meta-p-${songId}`);
                 if (metaEl) {
                     metaEl.innerHTML = `${this.escHtml(song.artist)} &bull; Key of <strong>${targetKey}</strong> &bull; ${song.tempo} BPM &bull; ${song.timeSignature}`;
                 }
 
-                // Show / hide the badge
                 const badge = document.getElementById(`lineup-key-badge-${songId}`);
                 if (badge) {
                     badge.className = badgeClass;
@@ -1968,14 +2003,17 @@
                 this.veActiveLine = li;
                 this.veActiveChar = ci;
                 this.veRenderCanvas();
-                this.veOpenPicker(li, ci, event);
+                this.veOpenPicker(li, ci);
             },
 
-            veOpenPicker(li, ci, event) {
-                const picker = document.getElementById('ve-chord-picker');
+            // ── Chord picker: now a centered modal overlay ──────────────
+
+            veOpenPicker(li, ci) {
                 const currentChord = (this.veLines[li]?.chords || {})[ci];
                 const key = document.getElementById('edit-key').value || 'G';
                 const si = CHROMATIC_SHARP.indexOf(key) !== -1 ? CHROMATIC_SHARP.indexOf(key) : CHROMATIC_FLAT.indexOf(key);
+
+                // Build quick chord suggestions based on the current key
                 const quickChords = [
                     key, key+'m', key+'7', key+'maj7',
                     ...([2,4,5,7,9,11].map(iv => {
@@ -1989,21 +2027,26 @@
                     'Cadd9','Dsus2','Esus4','Fsus2'
                 ].slice(0,18);
 
+                // Context label: show which lyric character was clicked
+                const line = this.veLines[li];
+                const charLabel = line ? `"${line.lyric[ci] || '…'}" — Line ${li+1}, pos ${ci+1}` : '';
+                document.getElementById('ve-picker-context').textContent = charLabel;
+
                 document.getElementById('ve-quick-chords').innerHTML = quickChords.map(c => `
                     <button class="ve-quick-chord-btn${c===currentChord?' is-current':''}"
                         onclick="app.veSetChord(${li},${ci},'${this.escHtml(c)}')">${this.escHtml(c)}</button>
                 `).join('');
 
                 document.getElementById('ve-custom-chord').value = currentChord || '';
-                picker.style.display = 'block';
-                const rect = event.target.getBoundingClientRect();
-                let top = rect.bottom + 6 + window.scrollY;
-                let left = rect.left + window.scrollX;
-                const pickerW = 280;
-                if (left + pickerW > window.innerWidth - 10) left = window.innerWidth - pickerW - 10;
-                picker.style.top = top + 'px';
-                picker.style.left = left + 'px';
-                setTimeout(() => document.getElementById('ve-custom-chord').focus(), 50);
+                document.getElementById('ve-chord-picker-overlay').classList.remove('hidden');
+                setTimeout(() => document.getElementById('ve-custom-chord').focus(), 80);
+            },
+
+            // Close picker when clicking the dark overlay background
+            veOverlayClick(event) {
+                if (event.target === document.getElementById('ve-chord-picker-overlay')) {
+                    this.veClosePicker();
+                }
             },
 
             veSetChord(li, ci, chord) {
@@ -2032,8 +2075,7 @@
             },
 
             veClosePicker() {
-                const picker = document.getElementById('ve-chord-picker');
-                if (picker) picker.style.display = 'none';
+                document.getElementById('ve-chord-picker-overlay').classList.add('hidden');
                 this.veActiveLine = null;
                 this.veActiveChar = null;
             },
