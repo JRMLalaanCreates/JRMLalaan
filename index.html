@@ -566,11 +566,36 @@
             padding: 40px;
             border-radius: 8px;
             overflow-x: auto;
-            white-space: pre;
             font-family: var(--font-mono);
             font-size: 1.1rem;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
+
+        /* Character-based chord rendering — chord sits exactly above its char */
+        .cv-line {
+            display: block;
+            margin-bottom: 2.8em;
+            white-space: pre;
+            line-height: 1;
+        }
+        .cv-line:last-child { margin-bottom: 0.6em; }
+        .cv-char {
+            display: inline-block;
+            position: relative;
+            line-height: 1;
+        }
+        .cv-chord {
+            position: absolute;
+            top: -1.6em;
+            left: 0;
+            color: #b45309;
+            font-weight: 700;
+            font-size: 1em;
+            white-space: nowrap;
+            line-height: 1;
+            pointer-events: none;
+        }
+        /* Keep legacy selectors so any old saved songs still look fine */
         .chord { color: #b45309; font-weight: bold; position: relative; display: inline-block; height: 0; vertical-align: top; top: -1.2em; }
         .lyric-line { display: block; margin-bottom: 1.5em; position: relative; }
 
@@ -705,12 +730,13 @@
         .ve-lyric-line {
             display: block;
             margin-bottom: 2.8em;
-            position: relative;
             white-space: pre;
+            line-height: 1;
         }
         .ve-char {
             display: inline-block;
             position: relative;
+            line-height: 1;
             cursor: pointer;
             border-radius: 2px;
             transition: background 0.1s;
@@ -728,11 +754,11 @@
         }
         .ve-chord-label {
             position: absolute;
-            top: -1.5em;
+            top: -1.6em;
             left: 0;
             color: #b45309;
             font-weight: 700;
-            font-size: 0.95em;
+            font-size: 1em;
             white-space: nowrap;
             pointer-events: none;
             line-height: 1;
@@ -1572,20 +1598,46 @@
                 let ti = CHROMATIC_SHARP.indexOf(targetKey);
                 if (ti === -1) ti = CHROMATIC_FLAT.indexOf(targetKey);
                 const steps = ti - si;
+
                 let html = '';
                 song.chordChart.split('\n').forEach(line => {
-                    if (line.trim() === '') { html += '<br/>'; return; }
-                    let lyricLine = `<span class="lyric-line">`;
-                    let lastIndex = 0;
-                    const regex = /\[(.*?)\]/g;
-                    let match;
-                    while ((match = regex.exec(line)) !== null) {
-                        lyricLine += line.substring(lastIndex, match.index);
-                        lyricLine += `<span class="chord">${this.transposeChord(match[1], steps)}</span>`;
-                        lastIndex = regex.lastIndex;
+                    if (line.trim() === '') { html += '<span class="cv-line">&nbsp;</span>'; return; }
+
+                    // Parse the line into {lyric, chords:{charIndex: chordName}}
+                    const chords = {};
+                    let lyric = '';
+                    let i = 0;
+                    while (i < line.length) {
+                        if (line[i] === '[') {
+                            const close = line.indexOf(']', i);
+                            if (close !== -1) {
+                                chords[lyric.length] = line.slice(i + 1, close);
+                                i = close + 1;
+                                continue;
+                            }
+                        }
+                        lyric += line[i++];
                     }
-                    lyricLine += line.substring(lastIndex) + `</span>`;
-                    html += lyricLine;
+
+                    // Render each character; attach chord label on the character it lands on
+                    let lineHtml = '<span class="cv-line">';
+                    for (let ci = 0; ci < lyric.length; ci++) {
+                        const chord = chords[ci];
+                        const transposed = chord ? this.transposeChord(chord, steps) : null;
+                        const ch = lyric[ci] === ' ' ? '&nbsp;' : this.escHtml(lyric[ci]);
+                        if (transposed) {
+                            lineHtml += `<span class="cv-char"><span class="cv-chord">${this.escHtml(transposed)}</span>${ch}</span>`;
+                        } else {
+                            lineHtml += `<span class="cv-char">${ch}</span>`;
+                        }
+                    }
+                    // Handle chords placed at the very end of a line (after last char)
+                    if (chords[lyric.length]) {
+                        const transposed = this.transposeChord(chords[lyric.length], steps);
+                        lineHtml += `<span class="cv-char"><span class="cv-chord">${this.escHtml(transposed)}</span>&nbsp;</span>`;
+                    }
+                    lineHtml += '</span>';
+                    html += lineHtml;
                 });
                 return html;
             },
