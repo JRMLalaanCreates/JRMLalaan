@@ -256,6 +256,7 @@
         .lineup-section-header {
             display: flex; align-items: center; gap: 14px;
             margin-bottom: 30px;
+            flex-wrap: wrap;
         }
         .lineup-section-header h1 { font-size: 2.2rem; }
         .lineup-date-badge {
@@ -267,6 +268,7 @@
             font-size: 0.78rem;
             font-weight: 600;
         }
+
         /* --- UNIFIED LINEUP PANEL --- */
         .lineup-unified-panel {
             background: #fff;
@@ -279,6 +281,9 @@
         }
         .lineup-song-section {
             padding: 36px 40px;
+        }
+        @media (max-width: 600px) {
+            .lineup-song-section { padding: 20px 16px; }
         }
         .lineup-song-section + .lineup-song-section {
             border-top: 3px solid #e2e8f0;
@@ -327,7 +332,9 @@
         }
         .lineup-open-btn:hover { background: #eef2ff; }
 
-        /* --- LINEUP FONT TOOLBAR --- */
+        /* ================================================================
+           LINEUP TOOLBAR — redesigned for mobile-first
+        ================================================================ */
         .lineup-toolbar {
             position: sticky;
             top: 0;
@@ -336,35 +343,46 @@
             border-bottom: 1px solid #334155;
             padding: 10px 0;
             margin-bottom: 20px;
+        }
+
+        /* Row 1: font size */
+        .toolbar-row {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
+            margin-bottom: 8px;
         }
-        .lineup-toolbar label {
-            font-size: 0.75rem;
+        .toolbar-row:last-child { margin-bottom: 0; }
+
+        .toolbar-label {
+            font-size: 0.7rem;
             color: var(--text-dim);
-            font-weight: 600;
-            letter-spacing: 0.05em;
+            font-weight: 700;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
             white-space: nowrap;
+            min-width: 68px;
         }
+
+        /* Font size presets */
         .font-size-presets {
             display: flex;
-            gap: 4px;
+            gap: 3px;
             background: var(--bg-card);
             border: 1px solid #334155;
             border-radius: 8px;
             padding: 3px;
+            flex-shrink: 0;
         }
         .font-size-presets button {
             background: transparent;
             border: none;
             color: var(--text-main);
-            padding: 5px 12px;
+            padding: 5px 10px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 0.82rem;
+            font-size: 0.78rem;
             font-family: var(--font-sans);
             font-weight: 600;
             transition: background 0.15s, color 0.15s;
@@ -372,14 +390,17 @@
         }
         .font-size-presets button:hover { background: #334155; }
         .font-size-presets button.active { background: var(--accent); color: var(--bg-deep); }
+
+        /* Nudge +/- */
         .font-nudge-wrap {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             background: var(--bg-card);
             border: 1px solid #334155;
             border-radius: 8px;
-            padding: 3px 8px;
+            padding: 3px 6px;
+            flex-shrink: 0;
         }
         .font-nudge {
             background: transparent;
@@ -395,15 +416,77 @@
         }
         .font-nudge:hover { background: #334155; }
         #lineup-font-display {
-            font-size: 0.78rem;
+            font-size: 0.75rem;
             color: var(--accent);
             font-weight: 700;
-            min-width: 34px;
+            min-width: 32px;
             text-align: center;
         }
-        .lineup-unified-panel {
+
+        /* Row 2: wrap toggle + zoom */
+        .wrap-toggle-group {
+            display: flex;
+            gap: 3px;
+            background: var(--bg-card);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 3px;
+        }
+        .wrap-toggle-group button {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            padding: 5px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-family: var(--font-sans);
+            font-weight: 600;
+            transition: background 0.15s, color 0.15s;
+            white-space: nowrap;
+        }
+        .wrap-toggle-group button:hover { background: #334155; }
+        .wrap-toggle-group button.active { background: #6366f1; color: #fff; }
+
+        /* Zoom slider row */
+        .zoom-slider-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 120px;
+        }
+        .zoom-slider-wrap input[type="range"] {
+            flex: 1;
+            margin: 0;
+            padding: 0;
+            height: 4px;
+            accent-color: var(--accent);
+            background: transparent;
+            border: none;
+        }
+        .zoom-pct {
+            font-size: 0.75rem;
+            color: var(--accent);
+            font-weight: 700;
+            min-width: 36px;
+            text-align: right;
+        }
+
+        /* Chart content: wrapping vs scrolling */
+        .lineup-chart-content {
             overflow-x: auto;
         }
+        .lineup-chart-content.wrap-on {
+            overflow-x: visible;
+            white-space: pre-wrap !important;
+            word-break: break-word;
+        }
+        .lineup-chart-content .lyric-line {
+            white-space: inherit;
+        }
+
+        /* ================================================================ */
 
         /* --- SONG DETAIL --- */
         .controls-panel {
@@ -548,9 +631,7 @@
         .modal-close-btn { width: 100%; margin-top: 20px; }
 
         /* --- LINEUP MODAL --- */
-        .lineup-modal-box {
-            max-width: 640px;
-        }
+        .lineup-modal-box { max-width: 640px; }
         .lineup-modal-box input[type="text"] { margin-bottom: 8px; }
         .lineup-song-picker {
             border: 1px solid #334155;
@@ -576,9 +657,7 @@
             flex-shrink: 0; font-size: 0.75rem;
             transition: all 0.15s;
         }
-        .picker-song-row.selected .picker-check {
-            background: #6366f1; border-color: #6366f1; color: #fff;
-        }
+        .picker-song-row.selected .picker-check { background: #6366f1; border-color: #6366f1; color: #fff; }
         .picker-song-info { flex: 1; }
         .picker-song-info strong { display: block; font-size: 0.9rem; }
         .picker-song-info span { font-size: 0.78rem; color: var(--text-dim); }
@@ -588,9 +667,7 @@
             display: flex; align-items: center; justify-content: center;
             font-size: 0.72rem; font-weight: 700;
         }
-        .selected-order-list {
-            margin-bottom: 16px;
-        }
+        .selected-order-list { margin-bottom: 16px; }
         .order-item {
             display: flex; align-items: center; gap: 10px;
             padding: 8px 12px;
@@ -608,22 +685,21 @@
         }
         .order-item-title { flex: 1; font-weight: 600; }
         .order-item-artist { color: var(--text-dim); font-size: 0.78rem; }
-        .order-remove {
-            background: none; border: none; color: #f87171;
-            cursor: pointer; font-size: 1rem; padding: 0 4px;
-        }
-        .modal-divider {
-            border: none; border-top: 1px solid #334155;
-            margin: 16px 0;
-        }
+        .order-remove { background: none; border: none; color: #f87171; cursor: pointer; font-size: 1rem; padding: 0 4px; }
+        .modal-divider { border: none; border-top: 1px solid #334155; margin: 16px 0; }
         .modal-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
         .modal-row .btn { flex: 1; }
         .modal-row .btn-outline { flex: 1; }
 
         .hidden { display: none; }
-
         .empty-state { text-align: center; color: var(--text-dim); padding: 60px 20px; }
         .empty-state p { font-size: 1.1rem; margin-top: 10px; }
+
+        /* Mobile tweaks */
+        @media (max-width: 480px) {
+            .lineup-section-header h1 { font-size: 1.5rem; }
+            .toolbar-label { min-width: 52px; font-size: 0.65rem; }
+        }
     </style>
 </head>
 <body>
@@ -697,12 +773,8 @@
 
     <!-- VIEW: SONG LIST (home) -->
     <div id="view-list" class="container view">
-        <!-- Lineup Hero -->
         <div id="lineup-hero-section"></div>
-
-        <div class="section-header">
-            <h3>All Songs</h3>
-        </div>
+        <div class="section-header"><h3>All Songs</h3></div>
         <div class="search-bar">
             <input type="text" id="song-search" placeholder="Search by title, artist, or tag…" oninput="app.filterSongs()">
         </div>
@@ -719,25 +791,42 @@
             <span class="lineup-date-badge" id="lineup-view-date"></span>
         </div>
 
-        <!-- Sticky font size toolbar -->
+        <!-- ── Redesigned sticky toolbar ── -->
         <div class="lineup-toolbar">
-            <label>Text Size:</label>
-            <div class="font-size-presets">
-                <button onclick="app.setLineupFont(11)" id="lf-xs">XS</button>
-                <button onclick="app.setLineupFont(13)" id="lf-sm">S</button>
-                <button onclick="app.setLineupFont(15)" id="lf-md" class="active">M</button>
-                <button onclick="app.setLineupFont(18)" id="lf-lg">L</button>
-                <button onclick="app.setLineupFont(22)" id="lf-xl">XL</button>
+            <!-- Row 1: Font size -->
+            <div class="toolbar-row">
+                <span class="toolbar-label">Font Size</span>
+                <div class="font-size-presets">
+                    <button onclick="app.setLineupFont(10)" id="lf-xs">XS</button>
+                    <button onclick="app.setLineupFont(12)" id="lf-sm">S</button>
+                    <button onclick="app.setLineupFont(15)" id="lf-md" class="active">M</button>
+                    <button onclick="app.setLineupFont(18)" id="lf-lg">L</button>
+                    <button onclick="app.setLineupFont(22)" id="lf-xl">XL</button>
+                </div>
+                <div class="font-nudge-wrap">
+                    <button class="font-nudge" onclick="app.nudgeLineupFont(-1)" title="Decrease">−</button>
+                    <span id="lineup-font-display">15px</span>
+                    <button class="font-nudge" onclick="app.nudgeLineupFont(1)" title="Increase">+</button>
+                </div>
             </div>
-            <div class="font-nudge-wrap">
-                <button class="font-nudge" onclick="app.nudgeLineupFont(-1)" title="Decrease">−</button>
-                <span id="lineup-font-display">15px</span>
-                <button class="font-nudge" onclick="app.nudgeLineupFont(1)" title="Increase">+</button>
+            <!-- Row 2: Wrap mode + zoom -->
+            <div class="toolbar-row">
+                <span class="toolbar-label">Layout</span>
+                <div class="wrap-toggle-group">
+                    <button id="wrap-off-btn" onclick="app.setWrapMode(false)" class="active" title="Scroll sideways — chords stay aligned">↔ Scroll</button>
+                    <button id="wrap-on-btn"  onclick="app.setWrapMode(true)"  title="Wrap to screen — best for phones">↩ Wrap</button>
+                </div>
+                <div class="zoom-slider-wrap">
+                    <span style="font-size:0.7rem;color:var(--text-dim);white-space:nowrap">Zoom</span>
+                    <input type="range" id="lineup-zoom-slider" min="50" max="150" value="100"
+                           oninput="app.setLineupZoom(this.value)">
+                    <span class="zoom-pct" id="lineup-zoom-pct">100%</span>
+                </div>
             </div>
         </div>
 
         <div id="lineup-charts-container"></div>
-        <div style="margin-top:20px; display:flex; gap:10px;">
+        <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
             <button class="btn" onclick="app.openLineupModal(true)" style="background:#6366f1;color:#fff">✏️ Edit Lineup</button>
             <button class="btn-outline" style="color:#f87171;border-color:#f87171" onclick="app.deleteLineup()">Delete Lineup</button>
         </div>
@@ -870,16 +959,25 @@
         const app = {
             songs: [],
             leaders: [],
-            lineup: null,           // current active lineup doc
-            lineupSelectedIds: [],  // for modal picker (ordered)
+            lineup: null,
+            lineupSelectedIds: [],
             currentSongId: null,
             currentKey: 'C',
             useFlats: false,
             pendingKeyChange: false,
 
+            // Lineup display state
+            lineupFontSize: 15,
+            lineupWrapMode: false,
+            lineupZoom: 100,
+
             async init() {
                 this.populateKeyDropdowns();
                 this.setSyncStatus('syncing', 'Connecting…');
+                // Auto-enable wrap mode on narrow screens
+                if (window.innerWidth < 600) {
+                    this.lineupWrapMode = true;
+                }
                 try {
                     await this.seedIfEmpty();
                     this.listenSongs();
@@ -944,7 +1042,6 @@
                 }, err => console.error(err));
             },
 
-            // ── Lineup Firestore (single doc: lineups/current) ─────────────
             listenLineup() {
                 const lineupDoc = doc(db, 'lineups', 'current');
                 onSnapshot(lineupDoc, snap => {
@@ -958,12 +1055,7 @@
                 const date = document.getElementById('lineup-date-input').value;
                 if (!name) { alert('Please enter a lineup title.'); return; }
                 if (this.lineupSelectedIds.length === 0) { alert('Please select at least one song.'); return; }
-
-                const data = {
-                    name,
-                    date: date || '',
-                    songIds: this.lineupSelectedIds
-                };
+                const data = { name, date: date || '', songIds: this.lineupSelectedIds };
                 this.setSyncStatus('syncing', 'Saving…');
                 try {
                     await setDoc(doc(db, 'lineups', 'current'), data);
@@ -988,7 +1080,64 @@
                 }
             },
 
-            // ── Lineup Hero (homepage) ─────────────────────────────────────
+            // ── Lineup Display Controls ──────────────────────────────────
+
+            setLineupFont(size) {
+                this.lineupFontSize = size;
+                this._applyLineupStyles();
+                // Update active button
+                const map = { 10:'lf-xs', 12:'lf-sm', 15:'lf-md', 18:'lf-lg', 22:'lf-xl' };
+                ['lf-xs','lf-sm','lf-md','lf-lg','lf-xl'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.classList.remove('active');
+                });
+                if (map[size]) document.getElementById(map[size])?.classList.add('active');
+                document.getElementById('lineup-font-display').textContent = size + 'px';
+            },
+
+            nudgeLineupFont(delta) {
+                this.lineupFontSize = Math.max(8, Math.min(36, this.lineupFontSize + delta));
+                // Clear all preset actives since we're in custom size
+                ['lf-xs','lf-sm','lf-md','lf-lg','lf-xl'].forEach(id => {
+                    document.getElementById(id)?.classList.remove('active');
+                });
+                document.getElementById('lineup-font-display').textContent = this.lineupFontSize + 'px';
+                this._applyLineupStyles();
+            },
+
+            setWrapMode(on) {
+                this.lineupWrapMode = on;
+                document.getElementById('wrap-on-btn').classList.toggle('active', on);
+                document.getElementById('wrap-off-btn').classList.toggle('active', !on);
+                this._applyLineupStyles();
+            },
+
+            setLineupZoom(pct) {
+                this.lineupZoom = parseInt(pct);
+                document.getElementById('lineup-zoom-pct').textContent = pct + '%';
+                this._applyLineupStyles();
+            },
+
+            _applyLineupStyles() {
+                const panel = document.querySelector('.lineup-unified-panel');
+                if (!panel) return;
+                // Apply font size + zoom together via transform scale on the panel
+                const effectiveFontSize = this.lineupFontSize;
+                panel.style.fontSize = effectiveFontSize + 'px';
+                // Apply zoom via CSS zoom (broadly supported) with fallback to transform
+                panel.style.zoom = (this.lineupZoom / 100);
+                // Apply wrap mode to each chart content div
+                document.querySelectorAll('.lineup-chart-content').forEach(el => {
+                    if (this.lineupWrapMode) {
+                        el.classList.add('wrap-on');
+                    } else {
+                        el.classList.remove('wrap-on');
+                    }
+                });
+            },
+
+            // ── Lineup Hero ──────────────────────────────────────────────
+
             renderLineupHero() {
                 const section = document.getElementById('lineup-hero-section');
                 if (!section) return;
@@ -1007,7 +1156,6 @@
                 const dateStr = this.lineup.date
                     ? new Date(this.lineup.date + 'T00:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' })
                     : '';
-
                 section.innerHTML = `
                     <div class="lineup-hero">
                         <div class="lineup-hero-label">🎵 This Week's Lineup</div>
@@ -1023,7 +1171,8 @@
                     </div>`;
             },
 
-            // ── Lineup View (grouped chords) ───────────────────────────────
+            // ── Lineup View ──────────────────────────────────────────────
+
             viewLineup() {
                 if (!this.lineup) return;
                 const songs = (this.lineup.songIds || []).map(id => this.songs.find(s => s.id === id)).filter(Boolean);
@@ -1048,15 +1197,25 @@
                                 </div>
                                 <button class="lineup-open-btn" onclick="app.viewSong('${song.id}')">Open Song →</button>
                             </div>
-                            <div style="white-space:pre;overflow-x:auto;">${chartHtml}</div>
+                            <div class="lineup-chart-content${this.lineupWrapMode ? ' wrap-on' : ''}">${chartHtml}</div>
                         </div>`;
                 }).join('');
                 container.innerHTML = `<div class="lineup-unified-panel">${sectionsHtml}</div>`;
 
+                // Apply current display settings
+                this._applyLineupStyles();
+                // Sync toolbar state
+                this.setLineupFont(this.lineupFontSize);
+                document.getElementById('wrap-on-btn').classList.toggle('active', this.lineupWrapMode);
+                document.getElementById('wrap-off-btn').classList.toggle('active', !this.lineupWrapMode);
+                document.getElementById('lineup-zoom-slider').value = this.lineupZoom;
+                document.getElementById('lineup-zoom-pct').textContent = this.lineupZoom + '%';
+
                 this.showView('view-lineup');
             },
 
-            // ── Lineup Modal ───────────────────────────────────────────────
+            // ── Lineup Modal ─────────────────────────────────────────────
+
             openLineupModal(editing = false) {
                 this.lineupSelectedIds = editing && this.lineup ? [...(this.lineup.songIds || [])] : [];
                 document.getElementById('lineup-name-input').value = editing && this.lineup ? this.lineup.name : '';
@@ -1068,9 +1227,7 @@
                 document.getElementById('lineup-modal').classList.remove('hidden');
             },
 
-            closeLineupModal() {
-                document.getElementById('lineup-modal').classList.add('hidden');
-            },
+            closeLineupModal() { document.getElementById('lineup-modal').classList.add('hidden'); },
 
             filterLineupPicker() {
                 const term = document.getElementById('lineup-search-input').value.toLowerCase();
@@ -1099,11 +1256,8 @@
 
             toggleLineupSong(songId) {
                 const idx = this.lineupSelectedIds.indexOf(songId);
-                if (idx === -1) {
-                    this.lineupSelectedIds.push(songId);
-                } else {
-                    this.lineupSelectedIds.splice(idx, 1);
-                }
+                if (idx === -1) this.lineupSelectedIds.push(songId);
+                else this.lineupSelectedIds.splice(idx, 1);
                 const term = document.getElementById('lineup-search-input').value.toLowerCase();
                 const filtered = this.songs.filter(s =>
                     s.title.toLowerCase().includes(term) || s.artist.toLowerCase().includes(term)
@@ -1115,10 +1269,7 @@
             renderSelectedOrder() {
                 const wrap = document.getElementById('selected-order-wrap');
                 const list = document.getElementById('selected-order-list');
-                if (this.lineupSelectedIds.length === 0) {
-                    wrap.classList.add('hidden');
-                    return;
-                }
+                if (this.lineupSelectedIds.length === 0) { wrap.classList.add('hidden'); return; }
                 wrap.classList.remove('hidden');
                 list.innerHTML = this.lineupSelectedIds.map((id, idx) => {
                     const song = this.songs.find(s => s.id === id);
@@ -1133,7 +1284,8 @@
                 }).join('');
             },
 
-            // ── Views ──────────────────────────────────────────────────────
+            // ── Views ────────────────────────────────────────────────────
+
             showView(viewId) {
                 document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
                 document.getElementById(viewId).classList.remove('hidden');
@@ -1177,15 +1329,11 @@
                 this.currentKey = song.defaultKey;
                 this.pendingKeyChange = false;
                 this.showView('view-detail');
-
                 document.getElementById('detail-title').innerText = song.title;
-                document.getElementById('detail-meta').innerText =
-                    `${song.artist} | ${song.tempo} BPM | ${song.timeSignature}`;
-
+                document.getElementById('detail-meta').innerText = `${song.artist} | ${song.tempo} BPM | ${song.timeSignature}`;
                 const lSelect = document.getElementById('leader-select');
                 lSelect.innerHTML = `<option value="">Original Key (${song.defaultKey})</option>` +
                     this.leaders.map(l => `<option value="${l.id}">${this.escHtml(l.name)}</option>`).join('');
-
                 document.getElementById('key-select').value = this.currentKey;
                 this.updateLeaderKeyUI();
                 this.renderChart();
@@ -1221,17 +1369,14 @@
                 const saveDesc = document.getElementById('save-key-desc');
                 const removeBtn = document.getElementById('remove-key-btn');
                 const leaderId = document.getElementById('leader-select').value;
-
                 if (!leaderId) {
                     indicator.className = 'hidden'; indicator.style.display = 'none';
-                    savePanel.classList.remove('visible');
-                    return;
+                    savePanel.classList.remove('visible'); return;
                 }
                 const leader = this.leaders.find(l => l.id === leaderId);
                 if (!leader) return;
                 const savedKey = (leader.preferredKeys || {})[this.currentSongId];
                 const song = this.songs.find(s => s.id === this.currentSongId);
-
                 indicator.style.display = '';
                 if (savedKey) {
                     indicator.className = 'has-key';
@@ -1273,7 +1418,8 @@
                 } catch (err) { console.error(err); this.setSyncStatus('error', 'Remove failed'); }
             },
 
-            // ── Chord Rendering ────────────────────────────────────────────
+            // ── Chord Rendering ──────────────────────────────────────────
+
             toggleFlats() { this.useFlats = !this.useFlats; this.renderChart(); },
 
             transposeChord(chordName, steps) {
@@ -1355,7 +1501,8 @@
                 });
             },
 
-            // ── CRUD: Songs ────────────────────────────────────────────────
+            // ── CRUD: Songs ──────────────────────────────────────────────
+
             showAddSong() {
                 this.showView('view-edit');
                 document.getElementById('edit-view-title').innerText = 'Add New Song';
@@ -1409,7 +1556,8 @@
                 } catch (err) { console.error(err); this.setSyncStatus('error', 'Delete failed'); }
             },
 
-            // ── CRUD: Leaders ──────────────────────────────────────────────
+            // ── CRUD: Leaders ────────────────────────────────────────────
+
             showLeaders() {
                 this.showView('view-leaders');
                 this.renderLeadersList();
@@ -1459,9 +1607,7 @@
                 document.getElementById('leader-keys-modal').classList.remove('hidden');
             },
 
-            closeLeaderModal() {
-                document.getElementById('leader-keys-modal').classList.add('hidden');
-            },
+            closeLeaderModal() { document.getElementById('leader-keys-modal').classList.add('hidden'); },
 
             async addLeader() {
                 const name = prompt('Enter leader name:');
@@ -1485,7 +1631,8 @@
                 } catch (err) { console.error(err); this.setSyncStatus('error', 'Remove failed'); }
             },
 
-            // ── Utility ────────────────────────────────────────────────────
+            // ── Utility ──────────────────────────────────────────────────
+
             escHtml(str) {
                 return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
             }
