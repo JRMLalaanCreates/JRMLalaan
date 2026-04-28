@@ -15,6 +15,7 @@
             --text-main: #fef3c7;
             --text-dim: #94a3b8;
             --forest: #064e3b;
+            --indigo: #3730a3;
             --white: #ffffff;
             --font-serif: 'Playfair Display', serif;
             --font-sans: 'Inter', sans-serif;
@@ -121,13 +122,8 @@
             align-items: center;
             gap: 6px;
             z-index: 100;
-            transition: opacity 0.5s;
         }
-        .sync-dot {
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            background: #64748b;
-        }
+        .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #64748b; }
         .sync-dot.synced { background: #22c55e; }
         .sync-dot.syncing { background: #fbbf24; animation: pulse 1s infinite; }
         .sync-dot.error { background: #ef4444; }
@@ -135,15 +131,9 @@
 
         /* --- LOADING OVERLAY --- */
         #loading-overlay {
-            position: fixed;
-            inset: 0;
-            background: var(--bg-deep);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            gap: 16px;
+            position: fixed; inset: 0; background: var(--bg-deep);
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; z-index: 9999; gap: 16px;
         }
         #loading-overlay h2 { font-family: var(--font-serif); color: var(--accent); font-size: 2rem; }
         #loading-overlay p { color: var(--text-dim); }
@@ -156,8 +146,89 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* --- LINEUP HERO --- */
+        .lineup-hero {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #1e293b 100%);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            border-radius: 16px;
+            padding: 28px 30px;
+            margin-bottom: 36px;
+            position: relative;
+            overflow: hidden;
+        }
+        .lineup-hero::before {
+            content: '🎵';
+            position: absolute;
+            right: 24px; top: 50%; transform: translateY(-50%);
+            font-size: 5rem;
+            opacity: 0.08;
+        }
+        .lineup-hero-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #a5b4fc;
+            margin-bottom: 6px;
+        }
+        .lineup-hero h2 {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+        .lineup-hero-date {
+            font-size: 0.82rem;
+            color: #a5b4fc;
+            margin-bottom: 18px;
+        }
+        .lineup-song-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+        .lineup-song-pill {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #e0e7ff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        .lineup-hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .lineup-hero-actions .btn { background: #6366f1; color: #fff; }
+        .lineup-hero-actions .btn:hover { background: #4f46e5; }
+        .lineup-hero-actions .btn-sm {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.25);
+            color: #e0e7ff;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font-sans);
+        }
+        .lineup-hero-actions .btn-sm:hover { background: rgba(255,255,255,0.1); }
+        .lineup-hero.empty {
+            background: var(--bg-card);
+            border: 2px dashed #334155;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .lineup-hero.empty::before { display: none; }
+        .lineup-hero.empty p { color: var(--text-dim); font-size: 0.9rem; flex: 1; }
+
         /* --- SONG LIST --- */
-        .search-bar { margin-bottom: 30px; }
+        .section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 16px;
+        }
+        .section-header h3 { font-family: var(--font-serif); font-size: 1.2rem; color: var(--text-dim); }
+        .search-bar { margin-bottom: 20px; }
         .song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
         .song-card {
             background: var(--bg-card);
@@ -179,6 +250,58 @@
             font-size: 0.75rem;
             margin-right: 5px;
             margin-top: 10px;
+        }
+
+        /* --- LINEUP VIEW --- */
+        .lineup-section-header {
+            display: flex; align-items: center; gap: 14px;
+            margin-bottom: 30px;
+        }
+        .lineup-section-header h1 { font-size: 2.2rem; }
+        .lineup-date-badge {
+            background: rgba(99,102,241,0.15);
+            border: 1px solid rgba(99,102,241,0.3);
+            color: #a5b4fc;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .lineup-song-block {
+            background: var(--bg-card);
+            border-radius: 14px;
+            margin-bottom: 30px;
+            overflow: hidden;
+            border: 1px solid #334155;
+        }
+        .lineup-song-block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 22px;
+            background: rgba(99,102,241,0.08);
+            border-bottom: 1px solid #334155;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .lineup-song-num {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #6366f1;
+            margin-bottom: 2px;
+        }
+        .lineup-song-block-header h3 { color: var(--text-main); font-size: 1.2rem; }
+        .lineup-song-block-header p { color: var(--text-dim); font-size: 0.85rem; }
+        .lineup-chart-wrap {
+            padding: 30px;
+            background: #fff;
+            overflow-x: auto;
+            white-space: pre;
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            color: #333;
         }
 
         /* --- SONG DETAIL --- */
@@ -219,9 +342,7 @@
             color: var(--text-dim);
         }
         #leader-key-indicator .indicator-dot {
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            flex-shrink: 0;
+            width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
         }
         #leader-key-indicator.has-key .indicator-dot { background: #22c55e; }
         #leader-key-indicator.no-key .indicator-dot { background: #64748b; }
@@ -244,12 +365,7 @@
         #save-key-panel .btn { padding: 8px 16px; font-size: 0.85rem; }
         #save-key-panel .btn-outline { padding: 8px 16px; font-size: 0.85rem; color: #f87171; border-color: #f87171; }
 
-        .diatonic-helper {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
+        .diatonic-helper { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .diatonic-pill {
             background: rgba(251, 191, 36, 0.1);
             border: 1px solid rgba(251, 191, 36, 0.3);
@@ -276,109 +392,136 @@
 
         /* --- PERFORMANCE VIEW --- */
         .performance-mode {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: white; color: black;
-            z-index: 1000; padding: 50px;
-            overflow-y: auto;
+            z-index: 1000; padding: 50px; overflow-y: auto;
         }
         .perf-close { position: fixed; top: 20px; right: 20px; }
 
         /* --- LEADERS --- */
         .leader-card {
-            background: var(--bg-card);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            background: var(--bg-card); padding: 20px; border-radius: 12px;
+            margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;
         }
         .avatar {
-            width: 40px; height: 40px;
-            background: var(--accent);
-            color: var(--bg-deep);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-right: 15px;
+            width: 40px; height: 40px; background: var(--accent); color: var(--bg-deep);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: bold; margin-right: 15px;
         }
         .keys-badge {
             display: inline-block;
             background: rgba(251,191,36,0.12);
             border: 1px solid rgba(251,191,36,0.3);
             color: var(--accent);
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 0.78rem;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-top: 4px;
+            padding: 2px 10px; border-radius: 12px;
+            font-size: 0.78rem; cursor: pointer;
+            transition: background 0.2s; margin-top: 4px;
         }
         .keys-badge:hover { background: rgba(251,191,36,0.25); }
-        .keys-badge.zero {
-            color: var(--text-dim);
-            border-color: #334155;
-            background: transparent;
-            cursor: default;
-        }
+        .keys-badge.zero { color: var(--text-dim); border-color: #334155; background: transparent; cursor: default; }
 
-        /* --- LEADER KEYS MODAL --- */
-        #leader-keys-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.7);
-            z-index: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+        /* --- MODALS --- */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            z-index: 500; display: flex; align-items: center; justify-content: center; padding: 20px;
         }
-        #leader-keys-modal.hidden { display: none; }
+        .modal-overlay.hidden { display: none; }
         .modal-box {
-            background: var(--bg-card);
-            border-radius: 16px;
-            padding: 30px;
-            max-width: 480px;
-            width: 100%;
-            max-height: 80vh;
-            overflow-y: auto;
+            background: var(--bg-card); border-radius: 16px; padding: 30px;
+            max-width: 560px; width: 100%; max-height: 85vh; overflow-y: auto;
             border: 1px solid #334155;
         }
         .modal-box h3 { font-family: var(--font-serif); color: var(--accent); margin-bottom: 6px; }
         .modal-box .modal-sub { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 20px; }
         .modal-song-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #1e293b;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; border-bottom: 1px solid #1e293b;
         }
         .modal-song-row:last-child { border-bottom: none; }
         .modal-song-row .song-name { font-weight: 600; font-size: 0.9rem; }
         .modal-song-row .song-artist { font-size: 0.78rem; color: var(--text-dim); }
         .key-chip {
-            background: var(--accent);
-            color: var(--bg-deep);
-            font-weight: bold;
-            padding: 3px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
+            background: var(--accent); color: var(--bg-deep);
+            font-weight: bold; padding: 3px 12px; border-radius: 20px; font-size: 0.85rem;
         }
-        .modal-close-btn {
-            width: 100%;
-            margin-top: 20px;
+        .modal-close-btn { width: 100%; margin-top: 20px; }
+
+        /* --- LINEUP MODAL --- */
+        .lineup-modal-box {
+            max-width: 640px;
         }
+        .lineup-modal-box input[type="text"] { margin-bottom: 8px; }
+        .lineup-song-picker {
+            border: 1px solid #334155;
+            border-radius: 8px;
+            max-height: 320px;
+            overflow-y: auto;
+            margin-bottom: 16px;
+        }
+        .picker-song-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 16px;
+            border-bottom: 1px solid #0f172a;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .picker-song-row:last-child { border-bottom: none; }
+        .picker-song-row:hover { background: rgba(255,255,255,0.04); }
+        .picker-song-row.selected { background: rgba(99,102,241,0.12); }
+        .picker-check {
+            width: 20px; height: 20px; border-radius: 5px;
+            border: 2px solid #334155;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 0.75rem;
+            transition: all 0.15s;
+        }
+        .picker-song-row.selected .picker-check {
+            background: #6366f1; border-color: #6366f1; color: #fff;
+        }
+        .picker-song-info { flex: 1; }
+        .picker-song-info strong { display: block; font-size: 0.9rem; }
+        .picker-song-info span { font-size: 0.78rem; color: var(--text-dim); }
+        .picker-order-badge {
+            background: #6366f1; color: #fff;
+            width: 22px; height: 22px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.72rem; font-weight: 700;
+        }
+        .selected-order-list {
+            margin-bottom: 16px;
+        }
+        .order-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 12px;
+            background: rgba(99,102,241,0.08);
+            border: 1px solid rgba(99,102,241,0.2);
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 0.88rem;
+        }
+        .order-num {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: #6366f1; color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.72rem; font-weight: 700; flex-shrink: 0;
+        }
+        .order-item-title { flex: 1; font-weight: 600; }
+        .order-item-artist { color: var(--text-dim); font-size: 0.78rem; }
+        .order-remove {
+            background: none; border: none; color: #f87171;
+            cursor: pointer; font-size: 1rem; padding: 0 4px;
+        }
+        .modal-divider {
+            border: none; border-top: 1px solid #334155;
+            margin: 16px 0;
+        }
+        .modal-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+        .modal-row .btn { flex: 1; }
+        .modal-row .btn-outline { flex: 1; }
 
         .hidden { display: none; }
 
-        .empty-state {
-            text-align: center;
-            color: var(--text-dim);
-            padding: 60px 20px;
-        }
+        .empty-state { text-align: center; color: var(--text-dim); padding: 60px 20px; }
         .empty-state p { font-size: 1.1rem; margin-top: 10px; }
     </style>
 </head>
@@ -391,14 +534,14 @@
         <p>Loading worship songs…</p>
     </div>
 
-    <!-- Sync Status Indicator -->
+    <!-- Sync Status -->
     <div id="sync-status">
         <div class="sync-dot syncing" id="sync-dot"></div>
         <span id="sync-label">Connecting…</span>
     </div>
 
     <!-- Leader Keys Modal -->
-    <div id="leader-keys-modal" class="hidden">
+    <div id="leader-keys-modal" class="modal-overlay hidden">
         <div class="modal-box">
             <h3 id="modal-leader-name"></h3>
             <p class="modal-sub">Saved preferred keys</p>
@@ -407,6 +550,38 @@
         </div>
     </div>
 
+    <!-- Create / Edit Lineup Modal -->
+    <div id="lineup-modal" class="modal-overlay hidden">
+        <div class="modal-box lineup-modal-box">
+            <h3 id="lineup-modal-title">Create This Week's Lineup</h3>
+            <p class="modal-sub">Give it a name, pick a date, then select and order your songs.</p>
+
+            <label style="font-size:0.8rem;color:var(--text-dim)">Lineup Title</label>
+            <input type="text" id="lineup-name-input" placeholder="e.g. Sunday Morning Service">
+
+            <label style="font-size:0.8rem;color:var(--text-dim)">Date</label>
+            <input type="date" id="lineup-date-input">
+
+            <hr class="modal-divider">
+
+            <label style="font-size:0.8rem;color:var(--text-dim);margin-bottom:8px;display:block">Select Songs (click to add in order)</label>
+            <input type="text" id="lineup-search-input" placeholder="Search songs…" oninput="app.filterLineupPicker()" style="margin-bottom:8px;">
+            <div class="lineup-song-picker" id="lineup-song-picker"></div>
+
+            <div id="selected-order-wrap" class="hidden">
+                <hr class="modal-divider">
+                <label style="font-size:0.8rem;color:var(--text-dim);margin-bottom:8px;display:block">Song Order</label>
+                <div id="selected-order-list" class="selected-order-list"></div>
+            </div>
+
+            <div class="modal-row">
+                <button class="btn" onclick="app.saveLineup()" style="background:#6366f1;color:#fff">Save Lineup</button>
+                <button class="btn-outline" onclick="app.closeLineupModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAV -->
     <div class="container" id="main-nav">
         <nav>
             <span class="logo" onclick="app.showSongs()">JRM Lalaan Worship Team</span>
@@ -414,16 +589,39 @@
                 <button onclick="app.showSongs()">Songs</button>
                 <button onclick="app.showLeaders()">Leaders</button>
                 <button onclick="app.showAddSong()">+ Add Song</button>
+                <button onclick="app.openLineupModal()" style="background:rgba(99,102,241,0.15);border-color:#6366f1;color:#a5b4fc;">📋 Lineup</button>
             </div>
         </nav>
     </div>
 
-    <!-- VIEW: SONG LIST -->
+    <!-- VIEW: SONG LIST (home) -->
     <div id="view-list" class="container view">
+        <!-- Lineup Hero -->
+        <div id="lineup-hero-section"></div>
+
+        <div class="section-header">
+            <h3>All Songs</h3>
+        </div>
         <div class="search-bar">
             <input type="text" id="song-search" placeholder="Search by title, artist, or tag…" oninput="app.filterSongs()">
         </div>
         <div id="song-grid" class="song-grid"></div>
+    </div>
+
+    <!-- VIEW: LINEUP (grouped chords) -->
+    <div id="view-lineup" class="container view hidden">
+        <div style="margin-bottom:20px">
+            <button class="btn-outline" onclick="app.showSongs()">← Back</button>
+        </div>
+        <div class="lineup-section-header">
+            <h1 id="lineup-view-title"></h1>
+            <span class="lineup-date-badge" id="lineup-view-date"></span>
+        </div>
+        <div id="lineup-charts-container"></div>
+        <div style="margin-top:20px; display:flex; gap:10px;">
+            <button class="btn" onclick="app.openLineupModal(true)" style="background:#6366f1;color:#fff">✏️ Edit Lineup</button>
+            <button class="btn-outline" style="color:#f87171;border-color:#f87171" onclick="app.deleteLineup()">Delete Lineup</button>
+        </div>
     </div>
 
     <!-- VIEW: SONG DETAIL -->
@@ -458,13 +656,11 @@
             </div>
         </div>
 
-        <!-- Leader saved-key indicator -->
         <div id="leader-key-indicator">
             <div class="indicator-dot"></div>
             <span id="indicator-text"></span>
         </div>
 
-        <!-- Save / Remove key panel -->
         <div id="save-key-panel">
             <p id="save-key-desc"></p>
             <button class="btn" onclick="app.saveKeyForLeader()">💾 Save Key</button>
@@ -486,32 +682,14 @@
         <div id="song-form">
             <input type="hidden" id="edit-id">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div>
-                    <label>Title</label>
-                    <input type="text" id="edit-title">
-                </div>
-                <div>
-                    <label>Artist</label>
-                    <input type="text" id="edit-artist">
-                </div>
+                <div><label>Title</label><input type="text" id="edit-title"></div>
+                <div><label>Artist</label><input type="text" id="edit-artist"></div>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px; flex-wrap: wrap;">
-                <div>
-                    <label>Default Key</label>
-                    <select id="edit-key"></select>
-                </div>
-                <div>
-                    <label>BPM</label>
-                    <input type="number" id="edit-bpm">
-                </div>
-                <div>
-                    <label>Time Sig</label>
-                    <input type="text" id="edit-time" placeholder="4/4">
-                </div>
-                <div>
-                    <label>Tags (comma separated)</label>
-                    <input type="text" id="edit-tags" placeholder="Worship, Praise">
-                </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px;">
+                <div><label>Default Key</label><select id="edit-key"></select></div>
+                <div><label>BPM</label><input type="number" id="edit-bpm"></div>
+                <div><label>Time Sig</label><input type="text" id="edit-time" placeholder="4/4"></div>
+                <div><label>Tags (comma separated)</label><input type="text" id="edit-tags" placeholder="Worship, Praise"></div>
             </div>
             <label>Chord Chart (Use [Chord] before lyrics)</label>
             <textarea id="edit-chart" rows="15" style="font-family: var(--font-mono);"></textarea>
@@ -538,18 +716,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
         import {
-            getFirestore,
-            collection,
-            doc,
-            getDocs,
-            addDoc,
-            updateDoc,
-            deleteDoc,
-            onSnapshot,
-            orderBy,
-            query,
-            limit,
-            writeBatch
+            getFirestore, collection, doc, getDocs, addDoc, updateDoc, deleteDoc,
+            onSnapshot, orderBy, query, limit, writeBatch, setDoc
         } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -583,10 +751,11 @@
         const app = {
             songs: [],
             leaders: [],
+            lineup: null,           // current active lineup doc
+            lineupSelectedIds: [],  // for modal picker (ordered)
             currentSongId: null,
             currentKey: 'C',
             useFlats: false,
-            // Tracks pending key change before explicit save
             pendingKeyChange: false,
 
             async init() {
@@ -596,6 +765,7 @@
                     await this.seedIfEmpty();
                     this.listenSongs();
                     this.listenLeaders();
+                    this.listenLineup();
                 } catch (err) {
                     console.error('Init error:', err);
                     this.setSyncStatus('error', 'Connection failed');
@@ -604,8 +774,7 @@
             },
 
             setSyncStatus(state, label) {
-                const dot = document.getElementById('sync-dot');
-                dot.className = 'sync-dot ' + state;
+                document.getElementById('sync-dot').className = 'sync-dot ' + state;
                 document.getElementById('sync-label').textContent = label;
             },
 
@@ -639,9 +808,9 @@
                     }
                     this.setSyncStatus('synced', 'Synced ✓');
                     this.hideLoading();
-                    this.showSongs();
+                    if (document.querySelectorAll('.view:not(.hidden)').length === 0) this.showSongs();
                 }, err => {
-                    console.error('Songs listener error:', err);
+                    console.error(err);
                     this.setSyncStatus('error', 'Sync error');
                     this.hideLoading();
                 });
@@ -651,23 +820,200 @@
                 const q = query(collection(db, 'leaders'), orderBy('name'));
                 onSnapshot(q, snap => {
                     this.leaders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                    if (!document.getElementById('view-leaders').classList.contains('hidden')) {
-                        this.renderLeadersList();
-                    }
-                    // Refresh indicator if detail view is open
-                    if (!document.getElementById('view-detail').classList.contains('hidden')) {
-                        this.updateLeaderKeyUI();
-                    }
-                }, err => console.error('Leaders listener error:', err));
+                    if (!document.getElementById('view-leaders').classList.contains('hidden')) this.renderLeadersList();
+                    if (!document.getElementById('view-detail').classList.contains('hidden')) this.updateLeaderKeyUI();
+                }, err => console.error(err));
             },
 
-            populateKeyDropdowns() {
-                ['key-select','edit-key'].forEach(id => {
-                    document.getElementById(id).innerHTML =
-                        CHROMATIC_SHARP.map(k => `<option value="${k}">${k}</option>`).join('');
-                });
+            // ── Lineup Firestore (single doc: lineups/current) ─────────────
+            listenLineup() {
+                const lineupDoc = doc(db, 'lineups', 'current');
+                onSnapshot(lineupDoc, snap => {
+                    this.lineup = snap.exists() ? snap.data() : null;
+                    this.renderLineupHero();
+                }, err => console.error('Lineup listener:', err));
             },
 
+            async saveLineup() {
+                const name = document.getElementById('lineup-name-input').value.trim();
+                const date = document.getElementById('lineup-date-input').value;
+                if (!name) { alert('Please enter a lineup title.'); return; }
+                if (this.lineupSelectedIds.length === 0) { alert('Please select at least one song.'); return; }
+
+                const data = {
+                    name,
+                    date: date || '',
+                    songIds: this.lineupSelectedIds
+                };
+                this.setSyncStatus('syncing', 'Saving…');
+                try {
+                    await setDoc(doc(db, 'lineups', 'current'), data);
+                    this.setSyncStatus('synced', 'Saved ✓');
+                    this.closeLineupModal();
+                } catch (err) {
+                    console.error(err);
+                    this.setSyncStatus('error', 'Save failed');
+                }
+            },
+
+            async deleteLineup() {
+                if (!confirm('Remove this lineup?')) return;
+                this.setSyncStatus('syncing', 'Removing…');
+                try {
+                    await deleteDoc(doc(db, 'lineups', 'current'));
+                    this.setSyncStatus('synced', 'Removed ✓');
+                    this.showSongs();
+                } catch (err) {
+                    console.error(err);
+                    this.setSyncStatus('error', 'Remove failed');
+                }
+            },
+
+            // ── Lineup Hero (homepage) ─────────────────────────────────────
+            renderLineupHero() {
+                const section = document.getElementById('lineup-hero-section');
+                if (!section) return;
+                if (!this.lineup) {
+                    section.innerHTML = `
+                        <div class="lineup-hero empty">
+                            <div>
+                                <div style="font-size:1.5rem;margin-bottom:6px;">📋</div>
+                                <p>No lineup set for this week yet.</p>
+                            </div>
+                            <button class="btn" onclick="app.openLineupModal()" style="background:#6366f1;color:#fff;flex-shrink:0">+ Create Lineup</button>
+                        </div>`;
+                    return;
+                }
+                const songs = (this.lineup.songIds || []).map(id => this.songs.find(s => s.id === id)).filter(Boolean);
+                const dateStr = this.lineup.date
+                    ? new Date(this.lineup.date + 'T00:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' })
+                    : '';
+
+                section.innerHTML = `
+                    <div class="lineup-hero">
+                        <div class="lineup-hero-label">🎵 This Week's Lineup</div>
+                        <h2>${this.escHtml(this.lineup.name)}</h2>
+                        ${dateStr ? `<div class="lineup-hero-date">${dateStr}</div>` : ''}
+                        <div class="lineup-song-pills">
+                            ${songs.map((s,i) => `<span class="lineup-song-pill">${i+1}. ${this.escHtml(s.title)}</span>`).join('')}
+                        </div>
+                        <div class="lineup-hero-actions">
+                            <button class="btn" onclick="app.viewLineup()">View All Chords →</button>
+                            <button class="btn-sm" onclick="app.openLineupModal(true)">✏️ Edit</button>
+                        </div>
+                    </div>`;
+            },
+
+            // ── Lineup View (grouped chords) ───────────────────────────────
+            viewLineup() {
+                if (!this.lineup) return;
+                const songs = (this.lineup.songIds || []).map(id => this.songs.find(s => s.id === id)).filter(Boolean);
+                const dateStr = this.lineup.date
+                    ? new Date(this.lineup.date + 'T00:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' })
+                    : '';
+
+                document.getElementById('lineup-view-title').textContent = this.lineup.name;
+                document.getElementById('lineup-view-date').textContent = dateStr;
+                document.getElementById('lineup-view-date').style.display = dateStr ? '' : 'none';
+
+                const container = document.getElementById('lineup-charts-container');
+                container.innerHTML = songs.map((song, idx) => {
+                    const chartHtml = this.buildChartHtml(song, song.defaultKey);
+                    return `
+                        <div class="lineup-song-block">
+                            <div class="lineup-song-block-header">
+                                <div>
+                                    <div class="lineup-song-num">Song ${idx + 1}</div>
+                                    <h3>${this.escHtml(song.title)}</h3>
+                                    <p>${this.escHtml(song.artist)} &bull; Key of ${song.defaultKey} &bull; ${song.tempo} BPM &bull; ${song.timeSignature}</p>
+                                </div>
+                                <button class="btn-outline" style="font-size:0.82rem;padding:6px 14px" onclick="app.viewSong('${song.id}')">Open Song →</button>
+                            </div>
+                            <div class="lineup-chart-wrap">${chartHtml}</div>
+                        </div>`;
+                }).join('');
+
+                this.showView('view-lineup');
+            },
+
+            // ── Lineup Modal ───────────────────────────────────────────────
+            openLineupModal(editing = false) {
+                this.lineupSelectedIds = editing && this.lineup ? [...(this.lineup.songIds || [])] : [];
+                document.getElementById('lineup-name-input').value = editing && this.lineup ? this.lineup.name : '';
+                document.getElementById('lineup-date-input').value = editing && this.lineup ? this.lineup.date : '';
+                document.getElementById('lineup-search-input').value = '';
+                document.getElementById('lineup-modal-title').textContent = editing ? 'Edit Lineup' : "Create This Week's Lineup";
+                this.renderLineupPicker(this.songs);
+                this.renderSelectedOrder();
+                document.getElementById('lineup-modal').classList.remove('hidden');
+            },
+
+            closeLineupModal() {
+                document.getElementById('lineup-modal').classList.add('hidden');
+            },
+
+            filterLineupPicker() {
+                const term = document.getElementById('lineup-search-input').value.toLowerCase();
+                const filtered = this.songs.filter(s =>
+                    s.title.toLowerCase().includes(term) || s.artist.toLowerCase().includes(term)
+                );
+                this.renderLineupPicker(filtered);
+            },
+
+            renderLineupPicker(list) {
+                const picker = document.getElementById('lineup-song-picker');
+                picker.innerHTML = list.map(s => {
+                    const idx = this.lineupSelectedIds.indexOf(s.id);
+                    const selected = idx !== -1;
+                    return `
+                        <div class="picker-song-row ${selected ? 'selected' : ''}" onclick="app.toggleLineupSong('${s.id}')">
+                            <div class="picker-check">${selected ? '✓' : ''}</div>
+                            <div class="picker-song-info">
+                                <strong>${this.escHtml(s.title)}</strong>
+                                <span>${this.escHtml(s.artist)} &bull; ${s.defaultKey}</span>
+                            </div>
+                            ${selected ? `<div class="picker-order-badge">${idx + 1}</div>` : ''}
+                        </div>`;
+                }).join('');
+            },
+
+            toggleLineupSong(songId) {
+                const idx = this.lineupSelectedIds.indexOf(songId);
+                if (idx === -1) {
+                    this.lineupSelectedIds.push(songId);
+                } else {
+                    this.lineupSelectedIds.splice(idx, 1);
+                }
+                const term = document.getElementById('lineup-search-input').value.toLowerCase();
+                const filtered = this.songs.filter(s =>
+                    s.title.toLowerCase().includes(term) || s.artist.toLowerCase().includes(term)
+                );
+                this.renderLineupPicker(filtered);
+                this.renderSelectedOrder();
+            },
+
+            renderSelectedOrder() {
+                const wrap = document.getElementById('selected-order-wrap');
+                const list = document.getElementById('selected-order-list');
+                if (this.lineupSelectedIds.length === 0) {
+                    wrap.classList.add('hidden');
+                    return;
+                }
+                wrap.classList.remove('hidden');
+                list.innerHTML = this.lineupSelectedIds.map((id, idx) => {
+                    const song = this.songs.find(s => s.id === id);
+                    if (!song) return '';
+                    return `
+                        <div class="order-item">
+                            <div class="order-num">${idx + 1}</div>
+                            <div class="order-item-title">${this.escHtml(song.title)}</div>
+                            <div class="order-item-artist">${this.escHtml(song.artist)}</div>
+                            <button class="order-remove" onclick="app.toggleLineupSong('${id}')" title="Remove">✕</button>
+                        </div>`;
+                }).join('');
+            },
+
+            // ── Views ──────────────────────────────────────────────────────
             showView(viewId) {
                 document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
                 document.getElementById(viewId).classList.remove('hidden');
@@ -677,6 +1023,7 @@
             showSongs() {
                 this.showView('view-list');
                 this.renderSongList(this.songs);
+                this.renderLineupHero();
             },
 
             filterSongs() {
@@ -697,11 +1044,10 @@
                 }
                 grid.innerHTML = list.map(s => `
                     <div class="song-card" onclick="app.viewSong('${s.id}')">
-                        <h3>${s.title}</h3>
-                        <p>${s.artist} • ${s.defaultKey}</p>
-                        <div>${(s.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
-                    </div>
-                `).join('');
+                        <h3>${this.escHtml(s.title)}</h3>
+                        <p>${this.escHtml(s.artist)} • ${s.defaultKey}</p>
+                        <div>${(s.tags||[]).map(t => `<span class="tag">${this.escHtml(t)}</span>`).join('')}</div>
+                    </div>`).join('');
             },
 
             viewSong(id) {
@@ -718,7 +1064,7 @@
 
                 const lSelect = document.getElementById('leader-select');
                 lSelect.innerHTML = `<option value="">Original Key (${song.defaultKey})</option>` +
-                    this.leaders.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
+                    this.leaders.map(l => `<option value="${l.id}">${this.escHtml(l.name)}</option>`).join('');
 
                 document.getElementById('key-select').value = this.currentKey;
                 this.updateLeaderKeyUI();
@@ -729,13 +1075,11 @@
                 const leaderId = document.getElementById('leader-select').value;
                 const song = this.songs.find(s => s.id === this.currentSongId);
                 this.pendingKeyChange = false;
-
                 if (!leaderId) {
                     this.currentKey = song.defaultKey;
                 } else {
                     const leader = this.leaders.find(l => l.id === leaderId);
                     const savedKey = (leader.preferredKeys || {})[this.currentSongId];
-                    // Apply saved key silently; don't change if no saved key
                     this.currentKey = savedKey || song.defaultKey;
                 }
                 document.getElementById('key-select').value = this.currentKey;
@@ -745,60 +1089,42 @@
 
             handleManualKeyChange() {
                 this.currentKey = document.getElementById('key-select').value;
-                const leaderId = document.getElementById('leader-select').value;
-                if (leaderId) {
-                    this.pendingKeyChange = true;
-                }
+                if (document.getElementById('leader-select').value) this.pendingKeyChange = true;
                 this.updateLeaderKeyUI();
                 this.renderChart();
             },
 
-            // ── Leader Key UI ──────────────────────────────────────────────
             updateLeaderKeyUI() {
                 const indicator = document.getElementById('leader-key-indicator');
                 const indicatorText = document.getElementById('indicator-text');
                 const savePanel = document.getElementById('save-key-panel');
                 const saveDesc = document.getElementById('save-key-desc');
                 const removeBtn = document.getElementById('remove-key-btn');
-
                 const leaderId = document.getElementById('leader-select').value;
+
                 if (!leaderId) {
-                    indicator.className = 'hidden';
-                    indicator.style.display = 'none';
+                    indicator.className = 'hidden'; indicator.style.display = 'none';
                     savePanel.classList.remove('visible');
                     return;
                 }
-
                 const leader = this.leaders.find(l => l.id === leaderId);
                 if (!leader) return;
-
                 const savedKey = (leader.preferredKeys || {})[this.currentSongId];
                 const song = this.songs.find(s => s.id === this.currentSongId);
 
-                // Show indicator
                 indicator.style.display = '';
                 if (savedKey) {
                     indicator.className = 'has-key';
-                    if (savedKey === this.currentKey) {
-                        indicatorText.textContent = `${leader.name} has a saved key for this song: ${savedKey}`;
-                    } else {
-                        indicatorText.textContent = `${leader.name}'s saved key is ${savedKey} — currently viewing: ${this.currentKey}`;
-                    }
+                    indicatorText.textContent = savedKey === this.currentKey
+                        ? `${leader.name} has a saved key for this song: ${savedKey}`
+                        : `${leader.name}'s saved key is ${savedKey} — currently viewing: ${this.currentKey}`;
                 } else {
                     indicator.className = 'no-key';
                     indicatorText.textContent = `No saved key for ${leader.name} on this song`;
                 }
-
-                // Show save/remove panel
                 savePanel.classList.add('visible');
                 saveDesc.innerHTML = `Set <strong>${this.currentKey}</strong> as ${leader.name}'s preferred key for "<strong>${song.title}</strong>"?`;
-
-                // Show or hide remove button
-                if (savedKey) {
-                    removeBtn.style.display = '';
-                } else {
-                    removeBtn.style.display = 'none';
-                }
+                removeBtn.style.display = savedKey ? '' : 'none';
             },
 
             async saveKeyForLeader() {
@@ -811,10 +1137,7 @@
                     await updateDoc(doc(db, 'leaders', leaderId), { preferredKeys: updatedKeys });
                     this.setSyncStatus('synced', 'Saved ✓');
                     this.pendingKeyChange = false;
-                } catch (err) {
-                    console.error('Save key error:', err);
-                    this.setSyncStatus('error', 'Save failed');
-                }
+                } catch (err) { console.error(err); this.setSyncStatus('error', 'Save failed'); }
             },
 
             async removeKeyForLeader() {
@@ -827,47 +1150,33 @@
                 try {
                     await updateDoc(doc(db, 'leaders', leaderId), { preferredKeys: updatedKeys });
                     this.setSyncStatus('synced', 'Removed ✓');
-                    this.pendingKeyChange = false;
-                } catch (err) {
-                    console.error('Remove key error:', err);
-                    this.setSyncStatus('error', 'Remove failed');
-                }
+                } catch (err) { console.error(err); this.setSyncStatus('error', 'Remove failed'); }
             },
 
-            toggleFlats() {
-                this.useFlats = !this.useFlats;
-                this.renderChart();
-            },
+            // ── Chord Rendering ────────────────────────────────────────────
+            toggleFlats() { this.useFlats = !this.useFlats; this.renderChart(); },
 
             transposeChord(chordName, steps) {
                 return chordName.split('/').map(part => {
                     const match = part.match(/^([A-G][#b]?)(.*)/);
                     if (!match) return part;
-                    const root = match[1];
-                    const quality = match[2];
+                    const root = match[1], quality = match[2];
                     let index = CHROMATIC_SHARP.indexOf(root);
                     if (index === -1) index = CHROMATIC_FLAT.indexOf(root);
                     if (index === -1) return part;
-                    let newIndex = (index + steps) % 12;
-                    if (newIndex < 0) newIndex += 12;
-                    const newRoot = this.useFlats ? CHROMATIC_FLAT[newIndex] : CHROMATIC_SHARP[newIndex];
-                    return newRoot + quality;
+                    let ni = ((index + steps) % 12 + 12) % 12;
+                    return (this.useFlats ? CHROMATIC_FLAT[ni] : CHROMATIC_SHARP[ni]) + quality;
                 }).join('/');
             },
 
-            renderChart() {
-                const song = this.songs.find(s => s.id === this.currentSongId);
-                if (!song) return;
-
-                let startIndex = CHROMATIC_SHARP.indexOf(song.defaultKey);
-                if (startIndex === -1) startIndex = CHROMATIC_FLAT.indexOf(song.defaultKey);
-                let targetIndex = CHROMATIC_SHARP.indexOf(this.currentKey);
-                if (targetIndex === -1) targetIndex = CHROMATIC_FLAT.indexOf(this.currentKey);
-                const steps = targetIndex - startIndex;
-
-                const lines = song.chordChart.split('\n');
+            buildChartHtml(song, targetKey) {
+                let si = CHROMATIC_SHARP.indexOf(song.defaultKey);
+                if (si === -1) si = CHROMATIC_FLAT.indexOf(song.defaultKey);
+                let ti = CHROMATIC_SHARP.indexOf(targetKey);
+                if (ti === -1) ti = CHROMATIC_FLAT.indexOf(targetKey);
+                const steps = ti - si;
                 let html = '';
-                lines.forEach(line => {
+                song.chordChart.split('\n').forEach(line => {
                     if (line.trim() === '') { html += '<br/>'; return; }
                     let lyricLine = `<span class="lyric-line">`;
                     let lastIndex = 0;
@@ -875,27 +1184,30 @@
                     let match;
                     while ((match = regex.exec(line)) !== null) {
                         lyricLine += line.substring(lastIndex, match.index);
-                        const transposed = this.transposeChord(match[1], steps);
-                        lyricLine += `<span class="chord">${transposed}</span>`;
+                        lyricLine += `<span class="chord">${this.transposeChord(match[1], steps)}</span>`;
                         lastIndex = regex.lastIndex;
                     }
                     lyricLine += line.substring(lastIndex) + `</span>`;
                     html += lyricLine;
                 });
+                return html;
+            },
 
+            renderChart() {
+                const song = this.songs.find(s => s.id === this.currentSongId);
+                if (!song) return;
+                const html = this.buildChartHtml(song, this.currentKey);
                 document.getElementById('chord-chart-container').innerHTML = html;
                 document.getElementById('performance-content').innerHTML = html;
                 this.renderDiatonic(this.currentKey);
             },
 
             renderDiatonic(key) {
-                const formulas = [
-                    {label:'I',type:'Maj'},{label:'ii',type:'m'},
-                    {label:'iii',type:'m'},{label:'IV',type:'Maj'},
-                    {label:'V',type:'Maj'},{label:'vi',type:'m'},
-                    {label:'vii°',type:'dim'}
-                ];
+                const formulas = [{label:'I',type:'Maj'},{label:'ii',type:'m'},{label:'iii',type:'m'},
+                    {label:'IV',type:'Maj'},{label:'V',type:'Maj'},{label:'vi',type:'m'},{label:'vii°',type:'dim'}];
                 const intervals = [0,2,4,5,7,9,11];
+                let si = CHROMATIC_SHARP.indexOf(key);
+                if (si === -1) si = CHROMATIC_FLAT.indexOf(key);
                 document.getElementById('diatonic-helper').innerHTML = intervals.map((interval, idx) => {
                     const note = this.transposeChord(key, interval);
                     const suffix = formulas[idx].type === 'm' ? 'm' : (formulas[idx].type === 'dim' ? 'dim' : '');
@@ -911,24 +1223,25 @@
                 document.getElementById('performance-view').classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
             },
-
             exitPerformanceMode() {
                 document.getElementById('performance-view').classList.add('hidden');
                 document.body.style.overflow = 'auto';
+            },
+
+            populateKeyDropdowns() {
+                ['key-select','edit-key'].forEach(id => {
+                    document.getElementById(id).innerHTML =
+                        CHROMATIC_SHARP.map(k => `<option value="${k}">${k}</option>`).join('');
+                });
             },
 
             // ── CRUD: Songs ────────────────────────────────────────────────
             showAddSong() {
                 this.showView('view-edit');
                 document.getElementById('edit-view-title').innerText = 'Add New Song';
-                document.getElementById('edit-id').value = '';
-                document.getElementById('edit-title').value = '';
-                document.getElementById('edit-artist').value = '';
+                ['edit-id','edit-title','edit-artist','edit-bpm','edit-tags','edit-chart'].forEach(id => document.getElementById(id).value = '');
                 document.getElementById('edit-key').value = 'G';
-                document.getElementById('edit-bpm').value = '';
                 document.getElementById('edit-time').value = '4/4';
-                document.getElementById('edit-tags').value = '';
-                document.getElementById('edit-chart').value = '';
             },
 
             editCurrentSong() {
@@ -949,33 +1262,21 @@
                 const title = document.getElementById('edit-title').value.trim();
                 const artist = document.getElementById('edit-artist').value.trim();
                 if (!title || !artist) { alert('Title and Artist are required.'); return; }
-
                 const id = document.getElementById('edit-id').value;
                 const data = {
-                    title,
-                    artist,
+                    title, artist,
                     defaultKey: document.getElementById('edit-key').value,
                     tempo: parseInt(document.getElementById('edit-bpm').value) || 0,
                     timeSignature: document.getElementById('edit-time').value || '4/4',
                     tags: document.getElementById('edit-tags').value.split(',').map(t => t.trim()).filter(Boolean),
                     chordChart: document.getElementById('edit-chart').value
                 };
-
                 this.setSyncStatus('syncing', 'Saving…');
                 try {
-                    if (id) {
-                        await updateDoc(doc(db, 'songs', id), data);
-                        this.viewSong(id);
-                    } else {
-                        const ref = await addDoc(collection(db, 'songs'), data);
-                        this.viewSong(ref.id);
-                    }
+                    if (id) { await updateDoc(doc(db, 'songs', id), data); this.viewSong(id); }
+                    else { const ref = await addDoc(collection(db, 'songs'), data); this.viewSong(ref.id); }
                     this.setSyncStatus('synced', 'Synced ✓');
-                } catch (err) {
-                    console.error('Save error:', err);
-                    this.setSyncStatus('error', 'Save failed');
-                    alert('Error saving song. Check console.');
-                }
+                } catch (err) { console.error(err); this.setSyncStatus('error', 'Save failed'); alert('Error saving.'); }
             },
 
             async deleteCurrentSong() {
@@ -985,10 +1286,7 @@
                     await deleteDoc(doc(db, 'songs', this.currentSongId));
                     this.setSyncStatus('synced', 'Synced ✓');
                     this.showSongs();
-                } catch (err) {
-                    console.error('Delete error:', err);
-                    this.setSyncStatus('error', 'Delete failed');
-                }
+                } catch (err) { console.error(err); this.setSyncStatus('error', 'Delete failed'); }
             },
 
             // ── CRUD: Leaders ──────────────────────────────────────────────
@@ -1000,61 +1298,44 @@
             renderLeadersList() {
                 const list = document.getElementById('leaders-list');
                 if (this.leaders.length === 0) {
-                    list.innerHTML = `<div class="empty-state"><p>No leaders yet. Add one!</p></div>`;
-                    return;
+                    list.innerHTML = `<div class="empty-state"><p>No leaders yet. Add one!</p></div>`; return;
                 }
                 list.innerHTML = this.leaders.map(l => {
                     const keyCount = Object.keys(l.preferredKeys || {}).length;
                     const badgeClass = keyCount === 0 ? 'keys-badge zero' : 'keys-badge';
-                    const badgeClick = keyCount === 0
-                        ? ''
-                        : `onclick="app.openLeaderModal('${l.id}')"`;
-                    const badgeLabel = keyCount === 0
-                        ? 'No custom keys'
-                        : `${keyCount} custom key${keyCount !== 1 ? 's' : ''} saved →`;
+                    const badgeClick = keyCount === 0 ? '' : `onclick="app.openLeaderModal('${l.id}')"`;
+                    const badgeLabel = keyCount === 0 ? 'No custom keys' : `${keyCount} custom key${keyCount !== 1 ? 's' : ''} saved →`;
                     return `
                         <div class="leader-card">
                             <div style="display:flex; align-items:center;">
                                 <div class="avatar">${l.initials}</div>
                                 <div>
-                                    <strong>${l.name}</strong><br/>
+                                    <strong>${this.escHtml(l.name)}</strong><br/>
                                     <span class="${badgeClass}" ${badgeClick}>${badgeLabel}</span>
                                 </div>
                             </div>
                             <button class="btn-outline" onclick="app.deleteLeader('${l.id}')">Remove</button>
-                        </div>
-                    `;
+                        </div>`;
                 }).join('');
             },
 
             openLeaderModal(leaderId) {
                 const leader = this.leaders.find(l => l.id === leaderId);
                 if (!leader) return;
-
                 document.getElementById('modal-leader-name').textContent = `${leader.name}'s Preferred Keys`;
-
                 const keys = leader.preferredKeys || {};
                 const songIds = Object.keys(keys);
-
-                if (songIds.length === 0) {
-                    document.getElementById('modal-keys-list').innerHTML =
-                        `<p style="color:var(--text-dim); font-size:0.9rem;">No custom keys saved yet.</p>`;
-                } else {
-                    document.getElementById('modal-keys-list').innerHTML = songIds.map(songId => {
+                document.getElementById('modal-keys-list').innerHTML = songIds.length === 0
+                    ? `<p style="color:var(--text-dim);font-size:0.9rem;">No custom keys saved yet.</p>`
+                    : songIds.map(songId => {
                         const song = this.songs.find(s => s.id === songId);
                         if (!song) return '';
-                        return `
-                            <div class="modal-song-row">
-                                <div>
-                                    <div class="song-name">${song.title}</div>
-                                    <div class="song-artist">${song.artist} • Default: ${song.defaultKey}</div>
-                                </div>
-                                <div class="key-chip">${keys[songId]}</div>
-                            </div>
-                        `;
+                        return `<div class="modal-song-row">
+                            <div><div class="song-name">${this.escHtml(song.title)}</div>
+                            <div class="song-artist">${this.escHtml(song.artist)} • Default: ${song.defaultKey}</div></div>
+                            <div class="key-chip">${keys[songId]}</div>
+                        </div>`;
                     }).filter(Boolean).join('');
-                }
-
                 document.getElementById('leader-keys-modal').classList.remove('hidden');
             },
 
@@ -1068,17 +1349,10 @@
                 const trimmed = name.trim();
                 this.setSyncStatus('syncing', 'Saving…');
                 try {
-                    await addDoc(collection(db, 'leaders'), {
-                        name: trimmed,
-                        initials: trimmed.charAt(0).toUpperCase(),
-                        preferredKeys: {}
-                    });
+                    await addDoc(collection(db, 'leaders'), { name: trimmed, initials: trimmed.charAt(0).toUpperCase(), preferredKeys: {} });
                     this.setSyncStatus('synced', 'Synced ✓');
                     this.showLeaders();
-                } catch (err) {
-                    console.error('Add leader error:', err);
-                    this.setSyncStatus('error', 'Save failed');
-                }
+                } catch (err) { console.error(err); this.setSyncStatus('error', 'Save failed'); }
             },
 
             async deleteLeader(id) {
@@ -1088,10 +1362,12 @@
                     await deleteDoc(doc(db, 'leaders', id));
                     this.setSyncStatus('synced', 'Synced ✓');
                     this.showLeaders();
-                } catch (err) {
-                    console.error('Delete leader error:', err);
-                    this.setSyncStatus('error', 'Remove failed');
-                }
+                } catch (err) { console.error(err); this.setSyncStatus('error', 'Remove failed'); }
+            },
+
+            // ── Utility ────────────────────────────────────────────────────
+            escHtml(str) {
+                return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
             }
         };
 
