@@ -607,18 +607,24 @@
             color: #333;
             padding: 40px;
             border-radius: 8px;
-            overflow-x: auto;
+            overflow-x: hidden;
             font-family: var(--font-mono);
             font-size: 1.1rem;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        @media (max-width: 600px) {
+            #chord-chart-container { padding: 20px 16px; }
         }
 
         /* Character-based chord rendering */
         .cv-line {
             display: block;
             margin-bottom: 2.8em;
-            white-space: pre;
+            white-space: pre-wrap;
+            word-break: break-word;
             line-height: 1;
+            padding-top: 1.8em; /* space for chords above first wrapped line */
         }
         .cv-line:last-child { margin-bottom: 0.6em; }
         .cv-char {
@@ -644,7 +650,7 @@
         .performance-mode {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: white; color: black;
-            z-index: 1000; padding: 50px; overflow-y: auto;
+            z-index: 1000; padding: 50px; overflow-y: auto; overflow-x: hidden;
         }
         .perf-close { position: fixed; top: 20px; right: 20px; }
 
@@ -670,17 +676,45 @@
         .keys-badge:hover { background: rgba(251,191,36,0.25); }
         .keys-badge.zero { color: var(--text-dim); border-color: #334155; background: transparent; cursor: default; }
 
-        /* --- MODALS --- */
+        /* ================================================================
+           SHARED MODAL OVERLAY SYSTEM
+           Used by: Leader Keys modal, Chord Picker modal, Lineup modal
+        ================================================================ */
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-            z-index: 500; display: flex; align-items: center; justify-content: center; padding: 20px;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeInOverlay 0.18s ease;
         }
         .modal-overlay.hidden { display: none; }
-        .modal-box {
-            background: var(--bg-card); border-radius: 16px; padding: 30px;
-            max-width: 560px; width: 100%; max-height: 85vh; overflow-y: auto;
-            border: 1px solid #334155;
+
+        @keyframes fadeInOverlay {
+            from { opacity: 0; }
+            to   { opacity: 1; }
         }
+
+        .modal-box {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 560px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            border: 1px solid #334155;
+            animation: slideUpModal 0.2s ease;
+        }
+
+        @keyframes slideUpModal {
+            from { transform: translateY(24px); opacity: 0; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+
         .modal-box h3 { font-family: var(--font-serif); color: var(--accent); margin-bottom: 6px; }
         .modal-box .modal-sub { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 20px; }
         .modal-song-row {
@@ -785,7 +819,7 @@
         .ve-char:hover { background: rgba(99,102,241,0.15); }
         .ve-char.has-chord { border-bottom: 2px solid #6366f1; }
         .ve-char.active-cursor {
-            background: rgba(251,191,36,0.2);
+            background: rgba(251,191,36,0.25);
             outline: 2px solid var(--accent);
             border-radius: 2px;
         }
@@ -800,85 +834,181 @@
             pointer-events: none;
             line-height: 1;
         }
+
+        /* ── Chord Picker: centered modal matching Leaders panel ─────── */
+
+        /* The overlay — same z-index layer as other modals */
+        #ve-chord-picker-overlay {
+            z-index: 850; /* above lineup toolbar (50), below loading (9999) */
+        }
+
+        /* The card inside the overlay */
+        #ve-chord-picker {
+            background: var(--bg-card);
+            border: 1px solid #475569;
+            border-radius: 16px;
+            padding: 24px 26px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.85);
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .ve-picker-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .ve-picker-title {
+            font-family: var(--font-serif);
+            font-size: 1.15rem;
+            color: var(--accent);
+            line-height: 1.3;
+        }
+
+        .ve-picker-close {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 6px;
+            line-height: 1;
+            transition: background 0.15s, color 0.15s;
+            flex-shrink: 0;
+        }
+        .ve-picker-close:hover { background: #334155; color: var(--text-main); }
+
+        .ve-picker-context-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #334155;
+        }
+        .ve-picker-context-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #6366f1;
+            flex-shrink: 0;
+        }
+        .ve-picker-context {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            font-family: var(--font-mono);
+        }
+
+        .ve-picker-section-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+        }
+
         .ve-quick-chord-btn {
-            background: rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.05);
             border: 1px solid #334155;
             color: var(--text-main);
-            padding: 5px 0;
-            border-radius: 6px;
+            padding: 7px 4px;
+            border-radius: 7px;
             cursor: pointer;
-            font-size: 0.78rem;
+            font-size: 0.8rem;
             font-weight: 700;
             font-family: var(--font-mono);
-            transition: background 0.15s, border-color 0.15s;
+            transition: background 0.15s, border-color 0.15s, color 0.15s;
             text-align: center;
         }
         .ve-quick-chord-btn:hover {
-            background: rgba(99,102,241,0.2);
-            border-color: #6366f1;
-            color: #a5b4fc;
-        }
-        .ve-quick-chord-btn.is-current {
             background: rgba(99,102,241,0.25);
             border-color: #6366f1;
             color: #a5b4fc;
         }
-
-        /* ── Chord Picker MODAL (replaces floating popup) ── */
-        #ve-chord-picker-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.72);
-            z-index: 900;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            /* subtle fade-in */
-            animation: fadeInOverlay 0.15s ease;
-        }
-        #ve-chord-picker-overlay.hidden { display: none; }
-        @keyframes fadeInOverlay {
-            from { opacity: 0; }
-            to   { opacity: 1; }
-        }
-        #ve-chord-picker {
-            background: var(--bg-card);
-            border: 1px solid #334155;
-            border-radius: 16px;
-            padding: 22px 24px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-            width: 100%;
-            max-width: 360px;
-            /* slide-up */
-            animation: slideUpPicker 0.18s ease;
-        }
-        @keyframes slideUpPicker {
-            from { transform: translateY(20px); opacity: 0; }
-            to   { transform: translateY(0);    opacity: 1; }
-        }
-        .ve-picker-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 14px;
-        }
-        .ve-picker-title {
-            font-size: 0.7rem;
-            color: var(--text-dim);
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-        .ve-picker-context {
-            font-size: 0.72rem;
+        .ve-quick-chord-btn.is-current {
+            background: rgba(99,102,241,0.3);
+            border-color: #6366f1;
             color: #a5b4fc;
-            font-weight: 600;
-            background: rgba(99,102,241,0.15);
-            border: 1px solid rgba(99,102,241,0.3);
-            padding: 2px 10px;
-            border-radius: 20px;
+            box-shadow: 0 0 0 1px #6366f1;
         }
+
+        .ve-picker-divider {
+            border: none;
+            border-top: 1px solid #334155;
+            margin: 16px 0 14px;
+        }
+
+        .ve-custom-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .ve-custom-row input {
+            flex: 1;
+            padding: 8px 12px;
+            margin: 0;
+            font-size: 0.88rem;
+            border-radius: 8px;
+            background: #0f172a;
+            border: 1px solid #475569;
+            color: var(--text-main);
+            font-family: var(--font-mono);
+        }
+        .ve-custom-row input:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+        .ve-add-btn {
+            background: var(--accent);
+            color: var(--bg-deep);
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            white-space: nowrap;
+            font-family: var(--font-sans);
+        }
+        .ve-add-btn:hover { background: #f59e0b; }
+
+        .ve-action-row {
+            display: flex;
+            gap: 8px;
+        }
+        .ve-remove-btn {
+            flex: 1;
+            background: rgba(248,113,113,0.1);
+            border: 1px solid rgba(248,113,113,0.3);
+            color: #f87171;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 600;
+            font-family: var(--font-sans);
+            transition: background 0.15s;
+        }
+        .ve-remove-btn:hover { background: rgba(248,113,113,0.2); }
+        .ve-cancel-btn {
+            flex: 1;
+            background: transparent;
+            border: 1px solid #334155;
+            color: var(--text-dim);
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-family: var(--font-sans);
+            transition: background 0.15s;
+        }
+        .ve-cancel-btn:hover { background: #1e293b; }
+
     </style>
 </head>
 <body>
@@ -897,7 +1027,7 @@
     </div>
 
     <!-- Leader Keys Modal -->
-    <div id="leader-keys-modal" class="modal-overlay hidden">
+    <div id="leader-keys-modal" class="modal-overlay hidden" onclick="if(event.target===this)app.closeLeaderModal()">
         <div class="modal-box">
             <h3 id="modal-leader-name"></h3>
             <p class="modal-sub">Saved preferred keys</p>
@@ -906,29 +1036,52 @@
         </div>
     </div>
 
-    <!-- Chord Picker Modal (centered overlay, same style as leader modal) -->
-    <div id="ve-chord-picker-overlay" class="hidden" onclick="app.veOverlayClick(event)">
+    <!--
+        ╔══════════════════════════════════════════════════════╗
+        ║  CHORD PICKER MODAL                                  ║
+        ║  Centered overlay — same pattern as Leader Keys      ║
+        ╚══════════════════════════════════════════════════════╝
+    -->
+    <div id="ve-chord-picker-overlay" class="modal-overlay hidden" onclick="if(event.target===this)app.veClosePicker()">
         <div id="ve-chord-picker">
+
+            <!-- Header -->
             <div class="ve-picker-header">
-                <span class="ve-picker-title">Place chord here</span>
-                <span class="ve-picker-context" id="ve-picker-context"></span>
+                <span class="ve-picker-title">Place Chord</span>
+                <button class="ve-picker-close" onclick="app.veClosePicker()" title="Close">✕</button>
             </div>
-            <div id="ve-quick-chords" style="display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:14px;"></div>
-            <div style="display:flex;gap:6px;align-items:center;border-top:1px solid #334155;padding-top:12px;">
-                <input id="ve-custom-chord" type="text" placeholder="Custom… e.g. Gmaj7"
-                    style="flex:1;padding:7px 10px;margin:0;font-size:0.85rem;border-radius:6px;"
+
+            <!-- Context: which character was clicked -->
+            <div class="ve-picker-context-row">
+                <div class="ve-picker-context-dot"></div>
+                <span class="ve-picker-context" id="ve-picker-context">—</span>
+            </div>
+
+            <!-- Quick chord grid -->
+            <div class="ve-picker-section-label">Quick Chords</div>
+            <div id="ve-quick-chords" style="display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:0;"></div>
+
+            <hr class="ve-picker-divider">
+
+            <!-- Custom chord input -->
+            <div class="ve-picker-section-label">Custom Chord</div>
+            <div class="ve-custom-row">
+                <input id="ve-custom-chord" type="text" placeholder="e.g. Gmaj7, Dsus4…"
                     onkeydown="if(event.key==='Enter')app.veConfirmCustomChord()">
-                <button onclick="app.veConfirmCustomChord()" style="background:var(--accent);color:var(--bg-deep);border:none;padding:7px 12px;border-radius:6px;font-weight:700;cursor:pointer;font-size:0.82rem;white-space:nowrap;">✓ Add</button>
+                <button class="ve-add-btn" onclick="app.veConfirmCustomChord()">✓ Add</button>
             </div>
-            <div style="display:flex;gap:6px;margin-top:10px;">
-                <button onclick="app.veRemoveChordAtCursor()" style="flex:1;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:7px;border-radius:6px;cursor:pointer;font-size:0.8rem;font-weight:600;">✕ Remove chord</button>
-                <button onclick="app.veClosePicker()" style="flex:1;background:transparent;border:1px solid #334155;color:var(--text-dim);padding:7px;border-radius:6px;cursor:pointer;font-size:0.8rem;">Cancel</button>
+
+            <!-- Actions -->
+            <div class="ve-action-row">
+                <button class="ve-remove-btn" onclick="app.veRemoveChordAtCursor()">✕ Remove Chord</button>
+                <button class="ve-cancel-btn" onclick="app.veClosePicker()">Cancel</button>
             </div>
+
         </div>
     </div>
 
     <!-- Create / Edit Lineup Modal -->
-    <div id="lineup-modal" class="modal-overlay hidden">
+    <div id="lineup-modal" class="modal-overlay hidden" onclick="if(event.target===this)app.closeLineupModal()">
         <div class="modal-box lineup-modal-box">
             <h3 id="lineup-modal-title">Create This Week's Lineup</h3>
             <p class="modal-sub">Give it a name, pick a date, then select and order your songs.</p>
@@ -2006,53 +2159,61 @@
                 this.veOpenPicker(li, ci);
             },
 
-            // ── Chord picker: now a centered modal overlay ──────────────
+            // ── Chord picker: centered modal, same pattern as Leaders ────
 
             veOpenPicker(li, ci) {
                 const currentChord = (this.veLines[li]?.chords || {})[ci];
                 const key = document.getElementById('edit-key').value || 'G';
                 const si = CHROMATIC_SHARP.indexOf(key) !== -1 ? CHROMATIC_SHARP.indexOf(key) : CHROMATIC_FLAT.indexOf(key);
 
-                // Build quick chord suggestions based on the current key
+                // Build contextual quick chords from the current key
+                const root = CHROMATIC_SHARP[((si) % 12 + 12) % 12];
                 const quickChords = [
-                    key, key+'m', key+'7', key+'maj7',
-                    ...([2,4,5,7,9,11].map(iv => {
-                        const ni = ((si+iv)%12+12)%12;
-                        return CHROMATIC_SHARP[ni];
-                    })),
-                    ...([2,4,9].map(iv => {
-                        const ni = ((si+iv)%12+12)%12;
-                        return CHROMATIC_SHARP[ni]+'m';
-                    })),
-                    'Cadd9','Dsus2','Esus4','Fsus2'
-                ].slice(0,18);
+                    // Diatonic triads & 7ths (the most useful set)
+                    root,                                                         // I
+                    CHROMATIC_SHARP[((si+2)%12+12)%12] + 'm',                    // ii
+                    CHROMATIC_SHARP[((si+4)%12+12)%12] + 'm',                    // iii
+                    CHROMATIC_SHARP[((si+5)%12+12)%12],                          // IV
+                    CHROMATIC_SHARP[((si+7)%12+12)%12],                          // V
+                    CHROMATIC_SHARP[((si+9)%12+12)%12] + 'm',                    // vi
+                    CHROMATIC_SHARP[((si+11)%12+12)%12] + 'dim',                 // vii°
+                    root + 'maj7',
+                    CHROMATIC_SHARP[((si+5)%12+12)%12] + 'maj7',
+                    CHROMATIC_SHARP[((si+7)%12+12)%12] + '7',
+                    CHROMATIC_SHARP[((si+2)%12+12)%12] + 'm7',
+                    CHROMATIC_SHARP[((si+9)%12+12)%12] + 'm7',
+                ].slice(0, 12);
 
-                // Context label: show which lyric character was clicked
+                // Context: show the lyric character and position
                 const line = this.veLines[li];
-                const charLabel = line ? `"${line.lyric[ci] || '…'}" — Line ${li+1}, pos ${ci+1}` : '';
-                document.getElementById('ve-picker-context').textContent = charLabel;
+                const char = line?.lyric?.[ci];
+                const charLabel = char !== undefined
+                    ? `Line ${li + 1}, char ${ci + 1}  "${char === ' ' ? '␣' : char}"`
+                    : `Line ${li + 1}, position ${ci + 1}`;
+                const existingNote = currentChord ? `  ·  current: ${currentChord}` : '';
+                document.getElementById('ve-picker-context').textContent = charLabel + existingNote;
 
+                // Render quick chord buttons
                 document.getElementById('ve-quick-chords').innerHTML = quickChords.map(c => `
-                    <button class="ve-quick-chord-btn${c===currentChord?' is-current':''}"
+                    <button class="ve-quick-chord-btn${c === currentChord ? ' is-current' : ''}"
                         onclick="app.veSetChord(${li},${ci},'${this.escHtml(c)}')">${this.escHtml(c)}</button>
                 `).join('');
 
+                // Pre-fill custom input if there's already a chord
                 document.getElementById('ve-custom-chord').value = currentChord || '';
-                document.getElementById('ve-chord-picker-overlay').classList.remove('hidden');
-                setTimeout(() => document.getElementById('ve-custom-chord').focus(), 80);
-            },
 
-            // Close picker when clicking the dark overlay background
-            veOverlayClick(event) {
-                if (event.target === document.getElementById('ve-chord-picker-overlay')) {
-                    this.veClosePicker();
-                }
+                // Show the modal
+                document.getElementById('ve-chord-picker-overlay').classList.remove('hidden');
+
+                // Focus custom input after short delay (allows modal to render)
+                setTimeout(() => document.getElementById('ve-custom-chord').focus(), 80);
             },
 
             veSetChord(li, ci, chord) {
                 if (!this.veLines[li]) return;
                 this.veLines[li].chords[ci] = chord;
-                this.veActiveLine = null; this.veActiveChar = null;
+                this.veActiveLine = null;
+                this.veActiveChar = null;
                 this.veRenderCanvas();
                 this.veClosePicker();
             },
@@ -2069,7 +2230,8 @@
                 if (this.veActiveLine === null || this.veActiveChar === null) return;
                 const line = this.veLines[this.veActiveLine];
                 if (line) delete line.chords[this.veActiveChar];
-                this.veActiveLine = null; this.veActiveChar = null;
+                this.veActiveLine = null;
+                this.veActiveChar = null;
                 this.veRenderCanvas();
                 this.veClosePicker();
             },
