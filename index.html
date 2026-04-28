@@ -294,7 +294,7 @@
             align-items: flex-start;
             flex-wrap: wrap;
             gap: 10px;
-            margin-bottom: 24px;
+            margin-bottom: 12px;
             padding-bottom: 16px;
             border-bottom: 1px solid #e2e8f0;
         }
@@ -331,6 +331,56 @@
             white-space: nowrap;
         }
         .lineup-open-btn:hover { background: #eef2ff; }
+
+        /* --- LEADER SELECTOR ROW (in lineup panel) --- */
+        .lineup-leader-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+            padding: 10px 14px;
+            background: #f8f7ff;
+            border: 1px solid #e0e7ff;
+            border-radius: 8px;
+            font-family: var(--font-sans);
+        }
+        .lineup-leader-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #6366f1;
+            white-space: nowrap;
+        }
+        .lineup-leader-select {
+            margin: 0;
+            padding: 5px 10px;
+            font-size: 0.82rem;
+            background: #fff;
+            border: 1px solid #c7d2fe;
+            color: #1e1b4b;
+            border-radius: 6px;
+            width: auto;
+            cursor: pointer;
+            font-family: var(--font-sans);
+            flex: 1;
+            min-width: 160px;
+            max-width: 280px;
+        }
+        .lineup-key-badge {
+            display: none;
+            font-size: 0.72rem;
+            font-weight: 700;
+            background: #6366f1;
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
+        .lineup-key-badge.no-saved {
+            background: #94a3b8;
+        }
 
         /* ================================================================
            LINEUP TOOLBAR — redesigned for mobile-first
@@ -571,7 +621,7 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
 
-        /* Character-based chord rendering — chord sits exactly above its char */
+        /* Character-based chord rendering */
         .cv-line {
             display: block;
             margin-bottom: 2.8em;
@@ -595,7 +645,6 @@
             line-height: 1;
             pointer-events: none;
         }
-        /* Keep legacy selectors so any old saved songs still look fine */
         .chord { color: #b45309; font-weight: bold; position: relative; display: inline-block; height: 0; vertical-align: top; top: -1.2em; }
         .lyric-line { display: block; margin-bottom: 1.5em; position: relative; }
 
@@ -741,12 +790,8 @@
             border-radius: 2px;
             transition: background 0.1s;
         }
-        .ve-char:hover {
-            background: rgba(99,102,241,0.15);
-        }
-        .ve-char.has-chord {
-            border-bottom: 2px solid #6366f1;
-        }
+        .ve-char:hover { background: rgba(99,102,241,0.15); }
+        .ve-char.has-chord { border-bottom: 2px solid #6366f1; }
         .ve-char.active-cursor {
             background: rgba(251,191,36,0.2);
             outline: 2px solid var(--accent);
@@ -877,7 +922,7 @@
             <span class="lineup-date-badge" id="lineup-view-date"></span>
         </div>
 
-        <!-- ── Redesigned sticky toolbar ── -->
+        <!-- Sticky toolbar -->
         <div class="lineup-toolbar">
             <!-- Row 1: Font size -->
             <div class="toolbar-row">
@@ -1004,7 +1049,6 @@
 
                 <!-- VISUAL EDITOR -->
                 <div id="visual-editor-wrap">
-                    <!-- Lyric input area -->
                     <div style="margin-bottom:10px;">
                         <label style="font-size:0.75rem;color:var(--text-dim);display:block;margin-bottom:4px;">① Type your lyrics here (one line per row):</label>
                         <textarea id="ve-lyrics-input" rows="8"
@@ -1013,7 +1057,6 @@
                             oninput="app.veOnLyricsChange()"></textarea>
                     </div>
 
-                    <!-- Chord placement area -->
                     <div style="margin-bottom:10px;">
                         <label style="font-size:0.75rem;color:var(--text-dim);display:block;margin-bottom:6px;">② Click any character below to place a chord above it:</label>
                         <div id="ve-chord-canvas"
@@ -1022,12 +1065,10 @@
                         </div>
                     </div>
 
-                    <!-- Chord picker popup (hidden by default) -->
+                    <!-- Chord picker popup -->
                     <div id="ve-chord-picker" style="display:none;position:fixed;z-index:900;background:var(--bg-card);border:1px solid #334155;border-radius:12px;padding:14px;box-shadow:0 8px 32px rgba(0,0,0,0.6);min-width:260px;">
                         <div style="font-size:0.7rem;color:var(--text-dim);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;">Place chord at this position</div>
-                        <!-- Quick chord grid -->
                         <div id="ve-quick-chords" style="display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:10px;"></div>
-                        <!-- Custom input -->
                         <div style="display:flex;gap:6px;align-items:center;border-top:1px solid #334155;padding-top:10px;">
                             <input id="ve-custom-chord" type="text" placeholder="Custom… e.g. Gmaj7"
                                 style="flex:1;padding:7px 10px;margin:0;font-size:0.85rem;border-radius:6px;"
@@ -1121,11 +1162,9 @@
             async init() {
                 this.populateKeyDropdowns();
                 this.setSyncStatus('syncing', 'Connecting…');
-                // Auto-enable wrap mode on narrow screens
                 if (window.innerWidth < 600) {
                     this.lineupWrapMode = true;
                 }
-                // Close chord picker on outside click
                 document.addEventListener('click', (e) => {
                     const picker = document.getElementById('ve-chord-picker');
                     if (picker && picker.style.display !== 'none') {
@@ -1242,7 +1281,6 @@
             setLineupFont(size) {
                 this.lineupFontSize = size;
                 this._applyLineupStyles();
-                // Update active button
                 const map = { 10:'lf-xs', 12:'lf-sm', 15:'lf-md', 18:'lf-lg', 22:'lf-xl' };
                 ['lf-xs','lf-sm','lf-md','lf-lg','lf-xl'].forEach(id => {
                     const el = document.getElementById(id);
@@ -1254,7 +1292,6 @@
 
             nudgeLineupFont(delta) {
                 this.lineupFontSize = Math.max(8, Math.min(36, this.lineupFontSize + delta));
-                // Clear all preset actives since we're in custom size
                 ['lf-xs','lf-sm','lf-md','lf-lg','lf-xl'].forEach(id => {
                     document.getElementById(id)?.classList.remove('active');
                 });
@@ -1278,12 +1315,8 @@
             _applyLineupStyles() {
                 const panel = document.querySelector('.lineup-unified-panel');
                 if (!panel) return;
-                // Apply font size + zoom together via transform scale on the panel
-                const effectiveFontSize = this.lineupFontSize;
-                panel.style.fontSize = effectiveFontSize + 'px';
-                // Apply zoom via CSS zoom (broadly supported) with fallback to transform
+                panel.style.fontSize = this.lineupFontSize + 'px';
                 panel.style.zoom = (this.lineupZoom / 100);
-                // Apply wrap mode to each chart content div
                 document.querySelectorAll('.lineup-chart-content').forEach(el => {
                     if (this.lineupWrapMode) {
                         el.classList.add('wrap-on');
@@ -1342,26 +1375,48 @@
                 document.getElementById('lineup-view-date').style.display = dateStr ? '' : 'none';
 
                 const container = document.getElementById('lineup-charts-container');
+
                 const sectionsHtml = songs.map((song, idx) => {
                     const chartHtml = this.buildChartHtml(song, song.defaultKey);
+
+                    // Build leader options — show their saved key next to name if they have one
+                    const leaderOptions = this.leaders.map(l => {
+                        const savedKey = (l.preferredKeys || {})[song.id];
+                        const label = savedKey
+                            ? `${this.escHtml(l.name)} — Key of ${savedKey}`
+                            : `${this.escHtml(l.name)} (no saved key)`;
+                        return `<option value="${l.id}">${label}</option>`;
+                    }).join('');
+
                     return `
-                        <div class="lineup-song-section">
+                        <div class="lineup-song-section" id="lineup-section-${song.id}">
                             <div class="lineup-song-meta">
                                 <div>
                                     <div class="lineup-song-num">Song ${idx + 1} of ${songs.length}</div>
                                     <h3>${this.escHtml(song.title)}</h3>
-                                    <p>${this.escHtml(song.artist)} &bull; Key of ${song.defaultKey} &bull; ${song.tempo} BPM &bull; ${song.timeSignature}</p>
+                                    <p id="lineup-song-meta-p-${song.id}">${this.escHtml(song.artist)} &bull; Key of <strong>${song.defaultKey}</strong> &bull; ${song.tempo} BPM &bull; ${song.timeSignature}</p>
                                 </div>
                                 <button class="lineup-open-btn" onclick="app.viewSong('${song.id}')">Open Song →</button>
                             </div>
-                            <div class="lineup-chart-content${this.lineupWrapMode ? ' wrap-on' : ''}">${chartHtml}</div>
+
+                            <!-- Leader selector row -->
+                            <div class="lineup-leader-row">
+                                <span class="lineup-leader-label">🎤 Song Leader</span>
+                                <select class="lineup-leader-select" id="lineup-leader-${song.id}"
+                                    onchange="app.changeLineupSongKey('${song.id}', this.value)">
+                                    <option value="">— Original Key (${song.defaultKey}) —</option>
+                                    ${leaderOptions}
+                                </select>
+                                <span class="lineup-key-badge" id="lineup-key-badge-${song.id}"></span>
+                            </div>
+
+                            <div class="lineup-chart-content${this.lineupWrapMode ? ' wrap-on' : ''}" id="lineup-chart-${song.id}">${chartHtml}</div>
                         </div>`;
                 }).join('');
+
                 container.innerHTML = `<div class="lineup-unified-panel">${sectionsHtml}</div>`;
 
-                // Apply current display settings
                 this._applyLineupStyles();
-                // Sync toolbar state
                 this.setLineupFont(this.lineupFontSize);
                 document.getElementById('wrap-on-btn').classList.toggle('active', this.lineupWrapMode);
                 document.getElementById('wrap-off-btn').classList.toggle('active', !this.lineupWrapMode);
@@ -1369,6 +1424,61 @@
                 document.getElementById('lineup-zoom-pct').textContent = this.lineupZoom + '%';
 
                 this.showView('view-lineup');
+            },
+
+            // ── Per-song leader key change in lineup view ────────────────
+
+            changeLineupSongKey(songId, leaderId) {
+                const song = this.songs.find(s => s.id === songId);
+                if (!song) return;
+
+                let targetKey = song.defaultKey;
+                let badgeText = '';
+                let badgeClass = 'lineup-key-badge';
+
+                if (leaderId) {
+                    const leader = this.leaders.find(l => l.id === leaderId);
+                    if (leader) {
+                        const savedKey = (leader.preferredKeys || {})[songId];
+                        if (savedKey) {
+                            targetKey = savedKey;
+                            badgeText = `Key of ${savedKey}`;
+                            badgeClass = 'lineup-key-badge';
+                        } else {
+                            // Leader has no saved key — stay on default, show warning badge
+                            targetKey = song.defaultKey;
+                            badgeText = `No saved key — using ${song.defaultKey}`;
+                            badgeClass = 'lineup-key-badge no-saved';
+                        }
+                    }
+                }
+
+                // Re-render chart in new key
+                const chartEl = document.getElementById(`lineup-chart-${songId}`);
+                if (chartEl) {
+                    chartEl.innerHTML = this.buildChartHtml(song, targetKey);
+                    // Reapply wrap mode
+                    if (this.lineupWrapMode) chartEl.classList.add('wrap-on');
+                    else chartEl.classList.remove('wrap-on');
+                }
+
+                // Update the meta paragraph to reflect active key
+                const metaEl = document.getElementById(`lineup-song-meta-p-${songId}`);
+                if (metaEl) {
+                    metaEl.innerHTML = `${this.escHtml(song.artist)} &bull; Key of <strong>${targetKey}</strong> &bull; ${song.tempo} BPM &bull; ${song.timeSignature}`;
+                }
+
+                // Show / hide the badge
+                const badge = document.getElementById(`lineup-key-badge-${songId}`);
+                if (badge) {
+                    badge.className = badgeClass;
+                    if (leaderId && badgeText) {
+                        badge.textContent = badgeText;
+                        badge.style.display = 'inline-block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
             },
 
             // ── Lineup Modal ─────────────────────────────────────────────
@@ -1603,7 +1713,6 @@
                 song.chordChart.split('\n').forEach(line => {
                     if (line.trim() === '') { html += '<span class="cv-line">&nbsp;</span>'; return; }
 
-                    // Parse the line into {lyric, chords:{charIndex: chordName}}
                     const chords = {};
                     let lyric = '';
                     let i = 0;
@@ -1619,7 +1728,6 @@
                         lyric += line[i++];
                     }
 
-                    // Render each character; attach chord label on the character it lands on
                     let lineHtml = '<span class="cv-line">';
                     for (let ci = 0; ci < lyric.length; ci++) {
                         const chord = chords[ci];
@@ -1631,7 +1739,6 @@
                             lineHtml += `<span class="cv-char">${ch}</span>`;
                         }
                     }
-                    // Handle chords placed at the very end of a line (after last char)
                     if (chords[lyric.length]) {
                         const transposed = this.transposeChord(chords[lyric.length], steps);
                         lineHtml += `<span class="cv-char"><span class="cv-chord">${this.escHtml(transposed)}</span>&nbsp;</span>`;
@@ -1715,7 +1822,6 @@
                 const artist = document.getElementById('edit-artist').value.trim();
                 if (!title || !artist) { alert('Title and Artist are required.'); return; }
                 const id = document.getElementById('edit-id').value;
-                // Always sync VE → raw textarea before saving
                 this.veSyncToRaw();
                 const data = {
                     title, artist,
@@ -1736,19 +1842,16 @@
             // ══════════════════════════════════════════════════════════════
             // VISUAL CHORD EDITOR
             // ══════════════════════════════════════════════════════════════
-            // State: veLines = array of { lyric: string, chords: {charIndex: 'ChordName'} }
-            // Format stored/loaded: [Chord]lyrics  (same bracket format as always)
 
-            veLines: [],          // [{lyric, chords:{idx:name}}]
-            veActiveLine: null,   // line index of open picker
-            veActiveChar: null,   // char index of open picker
+            veLines: [],
+            veActiveLine: null,
+            veActiveChar: null,
             veEditorTab: 'visual',
 
             veInit(rawChart) {
                 this.veEditorTab = 'visual';
                 this.veLines = this.veParseRaw(rawChart);
                 this.switchEditorTab('visual');
-                // Populate lyrics textarea from parsed lines
                 document.getElementById('ve-lyrics-input').value =
                     this.veLines.map(l => l.lyric).join('\n');
                 this.veRenderCanvas();
@@ -1767,32 +1870,22 @@
                     rBtn.style.background = 'transparent'; rBtn.style.color = 'var(--text-main)';
                     document.getElementById('editor-hint').textContent = 'Click any character in a lyric line to place a chord above it';
                 } else {
-                    // sync VE → raw on switch to raw
                     this.veSyncToRaw();
                     rBtn.style.background = 'var(--accent)'; rBtn.style.color = 'var(--bg-deep)';
                     vBtn.style.background = 'transparent'; vBtn.style.color = 'var(--text-main)';
                     document.getElementById('editor-hint').textContent = 'Edit the raw [Chord] notation directly';
-                    // also sync raw → VE state when switching back would need re-parse; handle in switchEditorTab
-                }
-                if (!isVisual) {
-                    // When returning to visual from raw later, we re-parse
-                    const rawTabActive = true;
-                    const origSwitch = this.switchEditorTab.bind(this);
-                    // One-time: if switching to visual, re-parse raw
                     const self = this;
                     document.getElementById('editor-tab-visual').onclick = () => {
                         const rawVal = document.getElementById('edit-chart').value;
                         self.veLines = self.veParseRaw(rawVal);
                         document.getElementById('ve-lyrics-input').value = self.veLines.map(l => l.lyric).join('\n');
                         self.veRenderCanvas();
-                        origSwitch('visual');
-                        // Restore onclick
-                        document.getElementById('editor-tab-visual').onclick = () => origSwitch('visual');
+                        self.switchEditorTab('visual');
+                        document.getElementById('editor-tab-visual').onclick = () => self.switchEditorTab('visual');
                     };
                 }
             },
 
-            // Parse "[G]Amazing grace [C]how [D]sweet" → {lyric:"Amazing grace how sweet", chords:{0:'G',14:'C',18:'D'}}
             veParseRaw(raw) {
                 if (!raw || !raw.trim()) return [];
                 return raw.split('\n').map(line => {
@@ -1816,7 +1909,6 @@
                 });
             },
 
-            // Serialize veLines back to [Chord]lyrics format
             veSerialize() {
                 return this.veLines.map(({ lyric, chords }) => {
                     let result = '';
@@ -1834,11 +1926,9 @@
 
             veOnLyricsChange() {
                 const newLines = document.getElementById('ve-lyrics-input').value.split('\n');
-                // Preserve chords for unchanged lines; reset chords for changed lines
                 const updated = newLines.map((newLyric, idx) => {
                     const old = this.veLines[idx];
                     if (old && old.lyric === newLyric) return old;
-                    // Line changed: keep chords whose indices still fall within bounds
                     const oldChords = (old && old.lyric.length === newLyric.length) ? old.chords : {};
                     return { lyric: newLyric, chords: oldChords };
                 });
@@ -1884,13 +1974,7 @@
             veOpenPicker(li, ci, event) {
                 const picker = document.getElementById('ve-chord-picker');
                 const currentChord = (this.veLines[li]?.chords || {})[ci];
-
-                // Build quick chord grid based on selected key
                 const key = document.getElementById('edit-key').value || 'G';
-                const intervals = [0,2,4,5,7,9,11,2,4,6];
-                const suffixes = ['','m','m','','','m','dim','7','m7','sus4'];
-                const roots    = [0,2,4,5,7,9,11,0,2,7];
-                // Build a nice set of common chords
                 const si = CHROMATIC_SHARP.indexOf(key) !== -1 ? CHROMATIC_SHARP.indexOf(key) : CHROMATIC_FLAT.indexOf(key);
                 const quickChords = [
                     key, key+'m', key+'7', key+'maj7',
@@ -1911,19 +1995,14 @@
                 `).join('');
 
                 document.getElementById('ve-custom-chord').value = currentChord || '';
-
-                // Position picker near the click
                 picker.style.display = 'block';
                 const rect = event.target.getBoundingClientRect();
                 let top = rect.bottom + 6 + window.scrollY;
                 let left = rect.left + window.scrollX;
-                // Keep within viewport
                 const pickerW = 280;
                 if (left + pickerW > window.innerWidth - 10) left = window.innerWidth - pickerW - 10;
                 picker.style.top = top + 'px';
                 picker.style.left = left + 'px';
-
-                // Focus custom input
                 setTimeout(() => document.getElementById('ve-custom-chord').focus(), 50);
             },
 
