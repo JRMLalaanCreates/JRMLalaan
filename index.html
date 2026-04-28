@@ -267,42 +267,65 @@
             font-size: 0.78rem;
             font-weight: 600;
         }
-        .lineup-song-block {
-            background: var(--bg-card);
-            border-radius: 14px;
-            margin-bottom: 30px;
-            overflow: hidden;
-            border: 1px solid #334155;
-        }
-        .lineup-song-block-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 22px;
-            background: rgba(99,102,241,0.08);
-            border-bottom: 1px solid #334155;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .lineup-song-num {
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: #6366f1;
-            margin-bottom: 2px;
-        }
-        .lineup-song-block-header h3 { color: var(--text-main); font-size: 1.2rem; }
-        .lineup-song-block-header p { color: var(--text-dim); font-size: 0.85rem; }
-        .lineup-chart-wrap {
-            padding: 30px;
+        /* --- UNIFIED LINEUP PANEL --- */
+        .lineup-unified-panel {
             background: #fff;
-            overflow-x: auto;
-            white-space: pre;
+            color: #333;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            overflow: hidden;
             font-family: var(--font-mono);
             font-size: 1rem;
-            color: #333;
         }
+        .lineup-song-section {
+            padding: 36px 40px;
+        }
+        .lineup-song-section + .lineup-song-section {
+            border-top: 3px solid #e2e8f0;
+        }
+        .lineup-song-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .lineup-song-num {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #6366f1;
+            margin-bottom: 3px;
+            font-family: var(--font-sans);
+        }
+        .lineup-song-meta h3 {
+            font-family: var(--font-serif);
+            font-size: 1.4rem;
+            color: #1e1b4b;
+            margin-bottom: 2px;
+        }
+        .lineup-song-meta p {
+            font-size: 0.8rem;
+            color: #64748b;
+            font-family: var(--font-sans);
+        }
+        .lineup-open-btn {
+            background: transparent;
+            border: 1px solid #c7d2fe;
+            color: #6366f1;
+            padding: 5px 13px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font-sans);
+            white-space: nowrap;
+        }
+        .lineup-open-btn:hover { background: #eef2ff; }
 
         /* --- SONG DETAIL --- */
         .controls-panel {
@@ -917,21 +940,22 @@
                 document.getElementById('lineup-view-date').style.display = dateStr ? '' : 'none';
 
                 const container = document.getElementById('lineup-charts-container');
-                container.innerHTML = songs.map((song, idx) => {
+                const sectionsHtml = songs.map((song, idx) => {
                     const chartHtml = this.buildChartHtml(song, song.defaultKey);
                     return `
-                        <div class="lineup-song-block">
-                            <div class="lineup-song-block-header">
+                        <div class="lineup-song-section">
+                            <div class="lineup-song-meta">
                                 <div>
-                                    <div class="lineup-song-num">Song ${idx + 1}</div>
+                                    <div class="lineup-song-num">Song ${idx + 1} of ${songs.length}</div>
                                     <h3>${this.escHtml(song.title)}</h3>
                                     <p>${this.escHtml(song.artist)} &bull; Key of ${song.defaultKey} &bull; ${song.tempo} BPM &bull; ${song.timeSignature}</p>
                                 </div>
-                                <button class="btn-outline" style="font-size:0.82rem;padding:6px 14px" onclick="app.viewSong('${song.id}')">Open Song →</button>
+                                <button class="lineup-open-btn" onclick="app.viewSong('${song.id}')">Open Song →</button>
                             </div>
-                            <div class="lineup-chart-wrap">${chartHtml}</div>
+                            <div style="white-space:pre;overflow-x:auto;">${chartHtml}</div>
                         </div>`;
                 }).join('');
+                container.innerHTML = `<div class="lineup-unified-panel">${sectionsHtml}</div>`;
 
                 this.showView('view-lineup');
             },
