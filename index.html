@@ -327,6 +327,84 @@
         }
         .lineup-open-btn:hover { background: #eef2ff; }
 
+        /* --- LINEUP FONT TOOLBAR --- */
+        .lineup-toolbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: var(--bg-deep);
+            border-bottom: 1px solid #334155;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .lineup-toolbar label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .font-size-presets {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-card);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 3px;
+        }
+        .font-size-presets button {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            padding: 5px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-family: var(--font-sans);
+            font-weight: 600;
+            transition: background 0.15s, color 0.15s;
+            white-space: nowrap;
+        }
+        .font-size-presets button:hover { background: #334155; }
+        .font-size-presets button.active { background: var(--accent); color: var(--bg-deep); }
+        .font-nudge-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-card);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 3px 8px;
+        }
+        .font-nudge {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            width: 28px; height: 28px;
+            border-radius: 5px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-family: var(--font-sans);
+        }
+        .font-nudge:hover { background: #334155; }
+        #lineup-font-display {
+            font-size: 0.78rem;
+            color: var(--accent);
+            font-weight: 700;
+            min-width: 34px;
+            text-align: center;
+        }
+        .lineup-unified-panel {
+            overflow-x: auto;
+        }
+
         /* --- SONG DETAIL --- */
         .controls-panel {
             background: var(--bg-card);
@@ -640,6 +718,24 @@
             <h1 id="lineup-view-title"></h1>
             <span class="lineup-date-badge" id="lineup-view-date"></span>
         </div>
+
+        <!-- Sticky font size toolbar -->
+        <div class="lineup-toolbar">
+            <label>Text Size:</label>
+            <div class="font-size-presets">
+                <button onclick="app.setLineupFont(11)" id="lf-xs">XS</button>
+                <button onclick="app.setLineupFont(13)" id="lf-sm">S</button>
+                <button onclick="app.setLineupFont(15)" id="lf-md" class="active">M</button>
+                <button onclick="app.setLineupFont(18)" id="lf-lg">L</button>
+                <button onclick="app.setLineupFont(22)" id="lf-xl">XL</button>
+            </div>
+            <div class="font-nudge-wrap">
+                <button class="font-nudge" onclick="app.nudgeLineupFont(-1)" title="Decrease">−</button>
+                <span id="lineup-font-display">15px</span>
+                <button class="font-nudge" onclick="app.nudgeLineupFont(1)" title="Increase">+</button>
+            </div>
+        </div>
+
         <div id="lineup-charts-container"></div>
         <div style="margin-top:20px; display:flex; gap:10px;">
             <button class="btn" onclick="app.openLineupModal(true)" style="background:#6366f1;color:#fff">✏️ Edit Lineup</button>
