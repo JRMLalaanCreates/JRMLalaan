@@ -602,41 +602,15 @@
         }
         .diatonic-pill span { display: block; font-size: 0.6rem; opacity: 0.7; }
 
-        /* --- SONG DETAIL CHART TOOLBAR --- */
-        .chart-toolbar {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            padding: 10px 14px;
-            background: var(--bg-card);
-            border: 1px solid #334155;
-            border-radius: 10px 10px 0 0;
-            border-bottom: none;
-        }
-        .chart-toolbar .toolbar-label { min-width: unset; }
-        .chart-toolbar-divider {
-            width: 1px; height: 22px;
-            background: #334155; flex-shrink: 0;
-        }
-
         #chord-chart-container {
             background: #fff;
             color: #333;
             padding: 40px;
-            border-radius: 0 0 8px 8px;
+            border-radius: 8px;
             overflow-x: auto;
             font-family: var(--font-mono);
             font-size: 1.1rem;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            transition: font-size 0.1s;
-        }
-        #chord-chart-container.wrap-on {
-            overflow-x: visible;
-        }
-        #chord-chart-container.wrap-on .cv-line {
-            white-space: pre-wrap !important;
-            word-break: break-word;
         }
 
         /* Character-based chord rendering */
@@ -1078,6 +1052,10 @@
                 <select id="key-select" onchange="app.handleManualKeyChange()"></select>
             </div>
             <div class="control-group">
+                <label>Font Size</label>
+                <input type="range" min="12" max="30" value="18" oninput="app.updateFontSize(this.value)">
+            </div>
+            <div class="control-group">
                 <button class="btn" onclick="app.enterPerformanceMode()">Performance View</button>
             </div>
             <div class="control-group">
@@ -1098,28 +1076,6 @@
         </div>
 
         <div id="diatonic-helper" class="diatonic-helper"></div>
-
-        <!-- Chart toolbar: font size + wrap toggle -->
-        <div class="chart-toolbar">
-            <span class="toolbar-label">Size</span>
-            <div class="font-size-presets">
-                <button onclick="app.setDetailFont(12)" id="df-sm">S</button>
-                <button onclick="app.setDetailFont(15)" id="df-md">M</button>
-                <button onclick="app.setDetailFont(18)" id="df-lg" class="active">L</button>
-                <button onclick="app.setDetailFont(22)" id="df-xl">XL</button>
-            </div>
-            <div class="font-nudge-wrap">
-                <button class="font-nudge" onclick="app.nudgeDetailFont(-1)">−</button>
-                <span id="detail-font-display" style="font-size:0.75rem;color:var(--accent);font-weight:700;min-width:32px;text-align:center;">18px</span>
-                <button class="font-nudge" onclick="app.nudgeDetailFont(1)">+</button>
-            </div>
-            <div class="chart-toolbar-divider"></div>
-            <span class="toolbar-label">Layout</span>
-            <div class="wrap-toggle-group">
-                <button id="detail-wrap-off-btn" onclick="app.setDetailWrap(false)" class="active">↔ Scroll</button>
-                <button id="detail-wrap-on-btn"  onclick="app.setDetailWrap(true)">↩ Wrap</button>
-            </div>
-        </div>
         <div id="chord-chart-container"></div>
 
         <div style="margin-top: 30px; display: flex; gap: 10px;">
@@ -1256,16 +1212,11 @@
             lineupWrapMode: false,
             lineupZoom: 100,
 
-            // Song detail display state
-            detailFontSize: 18,
-            detailWrapMode: false,
-
             async init() {
                 this.populateKeyDropdowns();
                 this.setSyncStatus('syncing', 'Connecting…');
                 if (window.innerWidth < 600) {
                     this.lineupWrapMode = true;
-                    this.detailWrapMode = true;
                 }
                 try {
                     await this.seedIfEmpty();
@@ -1687,16 +1638,10 @@
                     this.leaders.map(l => `<option value="${l.id}">${this.escHtml(l.name)}</option>`).join('');
                 document.getElementById('key-select').value = this.currentKey;
                 this.updateLeaderKeyUI();
-                // Sync the chart toolbar to current state
-                document.getElementById('detail-wrap-on-btn')?.classList.toggle('active', this.detailWrapMode);
-                document.getElementById('detail-wrap-off-btn')?.classList.toggle('active', !this.detailWrapMode);
-                const dfMap = { 12:'df-sm', 15:'df-md', 18:'df-lg', 22:'df-xl' };
-                ['df-sm','df-md','df-lg','df-xl'].forEach(id => document.getElementById(id)?.classList.remove('active'));
-                if (dfMap[this.detailFontSize]) document.getElementById(dfMap[this.detailFontSize])?.classList.add('active');
-                const disp = document.getElementById('detail-font-display');
-                if (disp) disp.textContent = this.detailFontSize + 'px';
                 this.renderChart();
             },
+
+            handleLeaderChange() {
                 const leaderId = document.getElementById('leader-select').value;
                 const song = this.songs.find(s => s.id === this.currentSongId);
                 this.pendingKeyChange = false;
@@ -1845,7 +1790,6 @@
                 const html = this.buildChartHtml(song, this.currentKey);
                 document.getElementById('chord-chart-container').innerHTML = html;
                 document.getElementById('performance-content').innerHTML = html;
-                this._applyDetailStyles();
                 this.renderDiatonic(this.currentKey);
             },
 
@@ -1862,42 +1806,7 @@
                 }).join('');
             },
 
-            // ── Song Detail Chart Controls ────────────────────────────────
-
-            setDetailFont(size) {
-                this.detailFontSize = size;
-                this._applyDetailStyles();
-                ['df-sm','df-md','df-lg','df-xl'].forEach(id => document.getElementById(id)?.classList.remove('active'));
-                const map = { 12:'df-sm', 15:'df-md', 18:'df-lg', 22:'df-xl' };
-                if (map[size]) document.getElementById(map[size])?.classList.add('active');
-                const disp = document.getElementById('detail-font-display');
-                if (disp) disp.textContent = size + 'px';
-            },
-
-            nudgeDetailFont(delta) {
-                this.detailFontSize = Math.max(8, Math.min(36, this.detailFontSize + delta));
-                ['df-sm','df-md','df-lg','df-xl'].forEach(id => document.getElementById(id)?.classList.remove('active'));
-                const disp = document.getElementById('detail-font-display');
-                if (disp) disp.textContent = this.detailFontSize + 'px';
-                this._applyDetailStyles();
-            },
-
-            setDetailWrap(on) {
-                this.detailWrapMode = on;
-                document.getElementById('detail-wrap-on-btn')?.classList.toggle('active', on);
-                document.getElementById('detail-wrap-off-btn')?.classList.toggle('active', !on);
-                this._applyDetailStyles();
-            },
-
-            _applyDetailStyles() {
-                const container = document.getElementById('chord-chart-container');
-                if (!container) return;
-                container.style.fontSize = this.detailFontSize + 'px';
-                container.classList.toggle('wrap-on', this.detailWrapMode);
-            },
-
             updateFontSize(size) {
-                // legacy — kept for performance view if needed
                 document.getElementById('chord-chart-container').style.fontSize = size + 'px';
             },
 
@@ -2125,8 +2034,7 @@
 
                 document.getElementById('ve-quick-chords').innerHTML = quickChords.map(c => `
                     <button class="ve-quick-chord-btn${c===currentChord?' is-current':''}"
-                        data-chord="${this.escHtml(c)}" data-line="${li}" data-char="${ci}"
-                        onclick="app.veSetChordFromBtn(this)">${this.escHtml(c)}</button>
+                        onclick="app.veSetChord(${li},${ci},'${this.escHtml(c)}')">${this.escHtml(c)}</button>
                 `).join('');
 
                 document.getElementById('ve-custom-chord').value = currentChord || '';
@@ -2139,13 +2047,6 @@
                 if (event.target === document.getElementById('ve-chord-picker-overlay')) {
                     this.veClosePicker();
                 }
-            },
-
-            veSetChordFromBtn(btn) {
-                const chord = btn.dataset.chord;
-                const li = parseInt(btn.dataset.line);
-                const ci = parseInt(btn.dataset.char);
-                this.veSetChord(li, ci, chord);
             },
 
             veSetChord(li, ci, chord) {
