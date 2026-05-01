@@ -147,6 +147,169 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* ═══════════════════════════════════════
+           AUTH MODAL
+        ═══════════════════════════════════════ */
+        #auth-modal {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.82);
+            z-index: 8000;
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(6px);
+        }
+        #auth-modal.hidden { display: none; }
+
+        .auth-modal-box {
+            background: var(--bg-card);
+            border: 1px solid rgba(251,191,36,0.25);
+            border-radius: 20px;
+            padding: 36px 32px 30px;
+            max-width: 380px;
+            width: 100%;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(251,191,36,0.08);
+            animation: authSlideUp 0.25s cubic-bezier(0.34,1.56,0.64,1);
+            text-align: center;
+        }
+        @keyframes authSlideUp {
+            from { transform: translateY(30px) scale(0.96); opacity: 0; }
+            to   { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        .auth-lock-icon {
+            width: 56px; height: 56px;
+            background: rgba(251,191,36,0.1);
+            border: 1px solid rgba(251,191,36,0.25);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem;
+            margin: 0 auto 18px;
+        }
+
+        .auth-modal-box h3 {
+            font-family: var(--font-serif);
+            color: var(--accent);
+            font-size: 1.4rem;
+            margin-bottom: 6px;
+        }
+        .auth-modal-box p {
+            font-size: 0.84rem;
+            color: var(--text-dim);
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .auth-input-wrap {
+            position: relative;
+            margin-bottom: 16px;
+        }
+        #auth-code-input {
+            width: 100%;
+            padding: 13px 44px 13px 16px;
+            margin: 0;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid #334155;
+            color: var(--text-main);
+            border-radius: 10px;
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            letter-spacing: 0.12em;
+            text-align: center;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        #auth-code-input:focus {
+            outline: none;
+            border-color: rgba(251,191,36,0.5);
+            box-shadow: 0 0 0 3px rgba(251,191,36,0.08);
+        }
+        #auth-code-input.error {
+            border-color: rgba(248,113,113,0.6);
+            box-shadow: 0 0 0 3px rgba(248,113,113,0.1);
+            animation: authShake 0.35s ease;
+        }
+        @keyframes authShake {
+            0%,100%{transform:translateX(0)}
+            20%{transform:translateX(-8px)}
+            40%{transform:translateX(8px)}
+            60%{transform:translateX(-5px)}
+            80%{transform:translateX(5px)}
+        }
+
+        #auth-toggle-vis {
+            position: absolute;
+            right: 12px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; cursor: pointer;
+            color: var(--text-dim); font-size: 1rem; padding: 4px;
+            line-height: 1;
+        }
+        #auth-toggle-vis:hover { color: var(--text-main); }
+
+        #auth-error-msg {
+            font-size: 0.78rem;
+            color: #f87171;
+            margin-bottom: 14px;
+            min-height: 18px;
+        }
+
+        .auth-btn-row {
+            display: flex; gap: 10px;
+        }
+        #auth-submit-btn {
+            flex: 1;
+            background: var(--accent);
+            color: var(--bg-deep);
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-family: var(--font-sans);
+            transition: background 0.2s, transform 0.1s;
+        }
+        #auth-submit-btn:hover { background: #f59e0b; }
+        #auth-submit-btn:active { transform: scale(0.98); }
+        #auth-cancel-btn {
+            background: transparent;
+            border: 1px solid #334155;
+            color: var(--text-dim);
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 0.84rem;
+            cursor: pointer;
+            font-family: var(--font-sans);
+            transition: background 0.2s;
+        }
+        #auth-cancel-btn:hover { background: rgba(255,255,255,0.04); color: var(--text-main); }
+
+        /* Lock status badge in nav */
+        #lock-status-btn {
+            background: transparent;
+            border: 1px solid #334155;
+            color: var(--text-dim);
+            padding: 6px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-left: 10px;
+            transition: 0.3s;
+            font-family: var(--font-sans);
+            display: flex; align-items: center; gap: 5px;
+            font-size: 0.82rem;
+        }
+        #lock-status-btn.unlocked {
+            border-color: rgba(34,197,94,0.4);
+            color: #86efac;
+            background: rgba(34,197,94,0.07);
+        }
+        #lock-status-btn:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        #lock-status-btn.unlocked:hover {
+            background: rgba(248,113,113,0.08);
+            border-color: rgba(248,113,113,0.4);
+            color: #f87171;
+        }
+
         /* --- LINEUP HERO --- */
         .lineup-hero {
             background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #1e293b 100%);
@@ -224,13 +387,12 @@
         .lineup-hero.empty p { color: var(--text-dim); font-size: 0.9rem; flex: 1; }
 
         /* ═══════════════════════════════════════════════════════
-           BIBLE VERSE CARD — Home screen postcard
+           BIBLE VERSE CARD
         ═══════════════════════════════════════════════════════ */
         #verse-card-section {
             margin-bottom: 36px;
         }
 
-        /* Empty state — "Add a Bible verse" prompt */
         .verse-card-empty {
             display: flex;
             align-items: center;
@@ -263,7 +425,6 @@
             color: var(--text-dim);
         }
 
-        /* The actual postcard when a verse is set */
         .verse-postcard {
             position: relative;
             border-radius: 16px;
@@ -278,13 +439,11 @@
             to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* Decorative top band */
         .verse-postcard-band {
             height: 4px;
             background: linear-gradient(90deg, #8b5cf6, #6366f1, #a78bfa, #c4b5fd);
         }
 
-        /* Decorative large quote mark */
         .verse-postcard-deco {
             position: absolute;
             top: 10px;
@@ -352,7 +511,6 @@
             text-transform: uppercase;
         }
 
-        /* Action bar below the postcard */
         .verse-postcard-actions {
             display: flex;
             align-items: center;
@@ -386,9 +544,7 @@
             color: #f87171;
         }
 
-        /* ══════════════════════════════════════════════════════════
-           VERSE MODAL — Manual text input (no API selectors)
-        ══════════════════════════════════════════════════════════ */
+        /* VERSE MODAL */
         #verse-modal {
             position: fixed; inset: 0;
             background: rgba(0,0,0,0.75);
@@ -427,7 +583,6 @@
             margin-bottom: 24px;
         }
 
-        /* Manual input fields */
         .vm-field-label {
             display: block;
             font-size: 0.72rem;
@@ -484,7 +639,6 @@
             font-weight: 400;
         }
 
-        /* Live preview inside modal */
         #vm-live-preview {
             background: rgba(124,58,237,0.08);
             border: 1px solid rgba(124,58,237,0.2);
@@ -1152,7 +1306,6 @@
         .empty-state { text-align: center; color: var(--text-dim); padding: 60px 20px; }
         .empty-state p { font-size: 1.1rem; margin-top: 10px; }
 
-        /* Mobile tweaks */
         @media (max-width: 480px) {
             .lineup-section-header h1 { font-size: 1.5rem; }
             .toolbar-label { min-width: 52px; font-size: 0.65rem; }
@@ -1324,6 +1477,28 @@
         <span id="sync-label">Connecting…</span>
     </div>
 
+    <!-- ═══════════════════════════════════════════
+         AUTH MODAL
+    ═══════════════════════════════════════════ -->
+    <div id="auth-modal" class="hidden">
+        <div class="auth-modal-box">
+            <div class="auth-lock-icon">🔒</div>
+            <h3>Team Access Required</h3>
+            <p id="auth-modal-desc">Enter the team code to make changes to songs, leaders, and lineups.</p>
+            <div class="auth-input-wrap">
+                <input id="auth-code-input" type="password" placeholder="Enter code…"
+                    autocomplete="off" spellcheck="false"
+                    onkeydown="if(event.key==='Enter')auth.submit()">
+                <button id="auth-toggle-vis" onclick="auth.toggleVis()" title="Show/hide">👁</button>
+            </div>
+            <div id="auth-error-msg"></div>
+            <div class="auth-btn-row">
+                <button id="auth-submit-btn" onclick="auth.submit()">Unlock</button>
+                <button id="auth-cancel-btn" onclick="auth.cancel()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Leader Keys Modal -->
     <div id="leader-keys-modal" class="modal-overlay hidden">
         <div class="modal-box">
@@ -1355,9 +1530,7 @@
         </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         BIBLE VERSE MODAL — Manual input, no API selectors
-    ═══════════════════════════════════════════════════════ -->
+    <!-- Bible Verse Modal -->
     <div id="verse-modal" class="hidden">
         <div class="verse-modal-box">
             <h3>📖 Bible Verse of the Week</h3>
@@ -1380,7 +1553,6 @@
                 oninput="app.vmUpdatePreview()"
             >
 
-            <!-- Live Preview -->
             <div id="vm-live-preview">
                 <div class="vm-preview-label">✨ Preview</div>
                 <div id="vm-preview-text"></div>
@@ -1432,8 +1604,9 @@
             <div class="nav-links">
                 <button onclick="app.showSongs()">Songs</button>
                 <button onclick="app.showLeaders()">Leaders</button>
-                <button onclick="app.showAddSong()">+ Add Song</button>
-                <button onclick="app.openLineupModal()" style="background:rgba(99,102,241,0.15);border-color:#6366f1;color:#a5b4fc;">📋 Lineup</button>
+                <button onclick="auth.guard(() => app.showAddSong())">+ Add Song</button>
+                <button onclick="auth.guard(() => app.openLineupModal())" style="background:rgba(99,102,241,0.15);border-color:#6366f1;color:#a5b4fc;">📋 Lineup</button>
+                <button id="lock-status-btn" onclick="auth.toggleLock()">🔒 Locked</button>
             </div>
         </nav>
     </div>
@@ -1441,7 +1614,6 @@
     <!-- VIEW: SONG LIST (home) -->
     <div id="view-list" class="container view">
         <div id="lineup-hero-section"></div>
-        <!-- Bible Verse Card Section -->
         <div id="verse-card-section"></div>
         <div class="section-header"><h3>All Songs</h3></div>
         <div class="search-bar">
@@ -1504,8 +1676,8 @@
 
         <div id="lineup-charts-container"></div>
         <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
-            <button class="btn" onclick="app.openLineupModal(true)" style="background:#6366f1;color:#fff">✏️ Edit Lineup</button>
-            <button class="btn-outline" style="color:#f87171;border-color:#f87171" onclick="app.deleteLineup()">Delete Lineup</button>
+            <button class="btn" onclick="auth.guard(() => app.openLineupModal(true))" style="background:#6366f1;color:#fff">✏️ Edit Lineup</button>
+            <button class="btn-outline" style="color:#f87171;border-color:#f87171" onclick="auth.guard(() => app.deleteLineup())">Delete Lineup</button>
         </div>
     </div>
 
@@ -1548,16 +1720,16 @@
 
         <div id="save-key-panel">
             <p id="save-key-desc"></p>
-            <button class="btn" onclick="app.saveKeyForLeader()">💾 Save Key</button>
-            <button class="btn-outline" onclick="app.removeKeyForLeader()" id="remove-key-btn">✕ Remove Saved Key</button>
+            <button class="btn" onclick="auth.guard(() => app.saveKeyForLeader())">💾 Save Key</button>
+            <button class="btn-outline" onclick="auth.guard(() => app.removeKeyForLeader())" id="remove-key-btn">✕ Remove Saved Key</button>
         </div>
 
         <div id="diatonic-helper" class="diatonic-helper"></div>
         <div id="chord-chart-container"></div>
 
         <div style="margin-top: 30px; display: flex; gap: 10px;">
-            <button class="btn-outline" onclick="app.editCurrentSong()">Edit Song</button>
-            <button class="btn-outline" style="color: #f87171; border-color: #f87171;" onclick="app.deleteCurrentSong()">Delete</button>
+            <button class="btn-outline" onclick="auth.guard(() => app.editCurrentSong())">Edit Song</button>
+            <button class="btn-outline" style="color: #f87171; border-color: #f87171;" onclick="auth.guard(() => app.deleteCurrentSong())">Delete</button>
         </div>
     </div>
 
@@ -1632,7 +1804,7 @@
     <div id="view-leaders" class="container view hidden">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
             <h2>Song Leaders</h2>
-            <button class="btn" onclick="app.addLeader()">+ Add Leader</button>
+            <button class="btn" onclick="auth.guard(() => app.addLeader())">+ Add Leader</button>
         </div>
         <div id="leaders-list"></div>
     </div>
@@ -1664,6 +1836,115 @@
 
         const CHROMATIC_SHARP = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
         const CHROMATIC_FLAT  = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+
+        const AUTH_CODE = 'bandkaba';
+        const SESSION_KEY = 'jrm_auth_unlocked';
+
+        // ═══════════════════════════════════════════════════
+        // AUTH SYSTEM
+        // ═══════════════════════════════════════════════════
+        const auth = {
+            _pendingCallback: null,
+
+            isUnlocked() {
+                return sessionStorage.getItem(SESSION_KEY) === '1';
+            },
+
+            // Call this before any write action. cb = the action to run if unlocked.
+            guard(cb) {
+                if (this.isUnlocked()) {
+                    cb();
+                } else {
+                    this._pendingCallback = cb;
+                    this._openModal();
+                }
+            },
+
+            _openModal() {
+                const input = document.getElementById('auth-code-input');
+                input.value = '';
+                input.type = 'password';
+                document.getElementById('auth-toggle-vis').textContent = '👁';
+                document.getElementById('auth-error-msg').textContent = '';
+                input.classList.remove('error');
+                document.getElementById('auth-modal').classList.remove('hidden');
+                setTimeout(() => input.focus(), 80);
+            },
+
+            submit() {
+                const val = document.getElementById('auth-code-input').value;
+                const errEl = document.getElementById('auth-error-msg');
+                const input = document.getElementById('auth-code-input');
+                if (val === AUTH_CODE) {
+                    sessionStorage.setItem(SESSION_KEY, '1');
+                    document.getElementById('auth-modal').classList.add('hidden');
+                    this._updateLockBtn();
+                    errEl.textContent = '';
+                    input.classList.remove('error');
+                    if (this._pendingCallback) {
+                        const cb = this._pendingCallback;
+                        this._pendingCallback = null;
+                        cb();
+                    }
+                } else {
+                    errEl.textContent = 'Incorrect code. Please try again.';
+                    input.classList.add('error');
+                    input.value = '';
+                    setTimeout(() => input.classList.remove('error'), 400);
+                }
+            },
+
+            cancel() {
+                this._pendingCallback = null;
+                document.getElementById('auth-modal').classList.add('hidden');
+            },
+
+            toggleVis() {
+                const input = document.getElementById('auth-code-input');
+                const btn = document.getElementById('auth-toggle-vis');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    btn.textContent = '🙈';
+                } else {
+                    input.type = 'password';
+                    btn.textContent = '👁';
+                }
+            },
+
+            // Lock button in nav: click when unlocked = lock; when locked = open modal to unlock
+            toggleLock() {
+                if (this.isUnlocked()) {
+                    sessionStorage.removeItem(SESSION_KEY);
+                    this._updateLockBtn();
+                } else {
+                    this._pendingCallback = null;
+                    this._openModal();
+                }
+            },
+
+            _updateLockBtn() {
+                const btn = document.getElementById('lock-status-btn');
+                if (!btn) return;
+                if (this.isUnlocked()) {
+                    btn.textContent = '🔓 Unlocked';
+                    btn.classList.add('unlocked');
+                    btn.title = 'Click to lock';
+                } else {
+                    btn.textContent = '🔒 Locked';
+                    btn.classList.remove('unlocked');
+                    btn.title = 'Click to unlock';
+                }
+            },
+
+            init() {
+                this._updateLockBtn();
+            }
+        };
+
+        window.auth = auth;
+        auth.init();
+
+        // ═══════════════════════════════════════════════════
 
         const SEED_SONGS = [
             { title: "Amazing Grace", artist: "John Newton", defaultKey: "G", tempo: 75, timeSignature: "3/4", tags: ["Hymn","Classic"], chordChart: "*Verse 1*\n[G]Amazing grace how [C]sweet the [G]sound\nThat saved a [G]wretch like [D]me\n\n*Verse 2*\nI [G]once was lost but [C]now am [G]found\nWas [G]blind but [D]now I [G]see" },
@@ -1781,7 +2062,6 @@
                 }, err => console.error('Lineup listener:', err));
             },
 
-            // ── Week Verse listener ──────────────────────────────────────
             listenWeekVerse() {
                 const verseDoc = doc(db, 'settings', 'weekVerse');
                 onSnapshot(verseDoc, snap => {
@@ -1790,14 +2070,13 @@
                 }, err => console.error('Verse listener:', err));
             },
 
-            // ── Verse Card Rendering (home screen) ───────────────────────
             renderVerseCard() {
                 const section = document.getElementById('verse-card-section');
                 if (!section) return;
 
                 if (!this.weekVerse) {
                     section.innerHTML = `
-                        <div class="verse-card-empty" onclick="app.vmOpenModal()">
+                        <div class="verse-card-empty" onclick="auth.guard(() => app.vmOpenModal())">
                             <div class="verse-card-empty-icon">📖</div>
                             <div class="verse-card-empty-text">
                                 <strong>Add a Bible Verse</strong>
@@ -1823,19 +2102,15 @@
                             </div>
                         </div>
                         <div class="verse-postcard-actions">
-                            <button class="verse-action-btn" onclick="app.vmOpenModal(true)">✏️ Edit</button>
-                            <button class="verse-action-btn danger" onclick="app.removeWeekVerse()">✕ Remove</button>
+                            <button class="verse-action-btn" onclick="auth.guard(() => app.vmOpenModal(true))">✏️ Edit</button>
+                            <button class="verse-action-btn danger" onclick="auth.guard(() => app.removeWeekVerse())">✕ Remove</button>
                         </div>
                     </div>`;
             },
 
-            // ── Verse Modal ─────────────────────────────────────────────
-            // Simple manual input — no Bible API, no dropdowns
             vmOpenModal(editing = false) {
                 const textInput = document.getElementById('vm-verse-text-input');
                 const refInput = document.getElementById('vm-verse-ref-input');
-
-                // Pre-fill if editing an existing verse
                 if (editing && this.weekVerse) {
                     textInput.value = this.weekVerse.text || '';
                     refInput.value = this.weekVerse.ref || '';
@@ -1843,12 +2118,8 @@
                     textInput.value = '';
                     refInput.value = '';
                 }
-
-                // Trigger preview update
                 this.vmUpdatePreview();
                 document.getElementById('verse-modal').classList.remove('hidden');
-
-                // Focus the text area
                 setTimeout(() => textInput.focus(), 80);
             },
 
@@ -1860,12 +2131,7 @@
                 const text = document.getElementById('vm-verse-text-input').value.trim();
                 const ref = document.getElementById('vm-verse-ref-input').value.trim();
                 const preview = document.getElementById('vm-live-preview');
-
-                if (!text && !ref) {
-                    preview.classList.remove('visible');
-                    return;
-                }
-
+                if (!text && !ref) { preview.classList.remove('visible'); return; }
                 preview.classList.add('visible');
                 document.getElementById('vm-preview-text').textContent = text || '…';
                 document.getElementById('vm-preview-ref').textContent = ref ? `— ${ref}` : '';
@@ -1874,12 +2140,9 @@
             async vmSaveVerse() {
                 const text = document.getElementById('vm-verse-text-input').value.trim();
                 const ref = document.getElementById('vm-verse-ref-input').value.trim();
-
                 if (!text) { alert('Please enter the verse text.'); return; }
                 if (!ref)  { alert('Please enter the verse reference (e.g. John 3:16).'); return; }
-
                 const verseData = { text, ref };
-
                 this.setSyncStatus('syncing', 'Saving…');
                 try {
                     await setDoc(doc(db, 'settings', 'weekVerse'), verseData);
@@ -1902,8 +2165,6 @@
                     this.setSyncStatus('error', 'Remove failed');
                 }
             },
-
-            // ── Lineup ───────────────────────────────────────────────────
 
             async saveLineup() {
                 const name = document.getElementById('lineup-name-input').value.trim();
@@ -1934,8 +2195,6 @@
                     this.setSyncStatus('error', 'Remove failed');
                 }
             },
-
-            // ── Lineup Display Controls ──────────────────────────────────
 
             setLineupFont(size) {
                 this.lineupFontSize = size;
@@ -1982,8 +2241,6 @@
                 });
             },
 
-            // ── Master Leader ────────────────────────────────────────────
-
             _populateMasterLeaderSelect() {
                 const sel = document.getElementById('master-leader-select');
                 if (!sel) return;
@@ -2019,8 +2276,6 @@
                 this.setMasterLeader('');
             },
 
-            // ── Lineup Hero ──────────────────────────────────────────────
-
             renderLineupHero() {
                 const section = document.getElementById('lineup-hero-section');
                 if (!section) return;
@@ -2031,7 +2286,7 @@
                                 <div style="font-size:1.5rem;margin-bottom:6px;">📋</div>
                                 <p>No lineup set for this week yet.</p>
                             </div>
-                            <button class="btn" onclick="app.openLineupModal()" style="background:#6366f1;color:#fff;flex-shrink:0">+ Create Lineup</button>
+                            <button class="btn" onclick="auth.guard(() => app.openLineupModal())" style="background:#6366f1;color:#fff;flex-shrink:0">+ Create Lineup</button>
                         </div>`;
                     return;
                 }
@@ -2049,12 +2304,10 @@
                         </div>
                         <div class="lineup-hero-actions">
                             <button class="btn" onclick="app.viewLineup()">View All Chords →</button>
-                            <button class="btn-sm" onclick="app.openLineupModal(true)">✏️ Edit</button>
+                            <button class="btn-sm" onclick="auth.guard(() => app.openLineupModal(true))">✏️ Edit</button>
                         </div>
                     </div>`;
             },
-
-            // ── Lineup View ──────────────────────────────────────────────
 
             viewLineup() {
                 if (!this.lineup) return;
@@ -2151,8 +2404,6 @@
                 }
             },
 
-            // ── Lineup Modal ─────────────────────────────────────────────
-
             openLineupModal(editing = false) {
                 this.lineupSelectedIds = editing && this.lineup ? [...(this.lineup.songIds || [])] : [];
                 document.getElementById('lineup-name-input').value = editing && this.lineup ? this.lineup.name : '';
@@ -2222,8 +2473,6 @@
                         </div>`;
                 }).join('');
             },
-
-            // ── Views ────────────────────────────────────────────────────
 
             showView(viewId) {
                 document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
@@ -2358,8 +2607,6 @@
                 } catch (err) { console.error(err); this.setSyncStatus('error', 'Remove failed'); }
             },
 
-            // ── Chord Rendering ──────────────────────────────────────────
-
             toggleFlats() { this.useFlats = !this.useFlats; this.renderChart(); },
 
             transposeChord(chordName, steps) {
@@ -2467,8 +2714,6 @@
                 });
             },
 
-            // ── CRUD: Songs ──────────────────────────────────────────────
-
             showAddSong() {
                 this.showView('view-edit');
                 document.getElementById('edit-view-title').innerText = 'Add New Song';
@@ -2514,8 +2759,6 @@
                     this.setSyncStatus('synced', 'Synced ✓');
                 } catch (err) { console.error(err); this.setSyncStatus('error', 'Save failed'); alert('Error saving.'); }
             },
-
-            // ── Visual Chord Editor ──────────────────────────────────────
 
             veLines: [],
             veActiveLine: null,
@@ -2711,8 +2954,6 @@
                 } catch (err) { console.error(err); this.setSyncStatus('error', 'Delete failed'); }
             },
 
-            // ── CRUD: Leaders ────────────────────────────────────────────
-
             showLeaders() {
                 this.showView('view-leaders');
                 this.renderLeadersList();
@@ -2737,7 +2978,7 @@
                                     <span class="${badgeClass}" ${badgeClick}>${badgeLabel}</span>
                                 </div>
                             </div>
-                            <button class="btn-outline" onclick="app.deleteLeader('${l.id}')">Remove</button>
+                            <button class="btn-outline" onclick="auth.guard(() => app.deleteLeader('${l.id}'))">Remove</button>
                         </div>`;
                 }).join('');
             },
