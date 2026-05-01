@@ -613,14 +613,15 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
 
-        /* Character-based chord rendering */
+        /* ── Character-based chord rendering ── */
         .cv-line {
             display: block;
-            margin-bottom: 2.8em;
+            /* TIGHTENED: was 2.8em */
+            margin-bottom: 1.8em;
             white-space: pre;
             line-height: 1;
         }
-        .cv-line:last-child { margin-bottom: 0.6em; }
+        .cv-line:last-child { margin-bottom: 0.4em; }
         .cv-char {
             display: inline-block;
             position: relative;
@@ -637,8 +638,48 @@
             line-height: 1;
             pointer-events: none;
         }
+
+        /* ── Section label line (e.g. *Verse 1*, *Chorus*) ── */
+        .cv-section-label {
+            display: block;
+            font-weight: 700;
+            font-style: italic;
+            color: #92400e;           /* amber/brown — warm gold on white panel */
+            font-family: var(--font-sans);
+            font-size: 0.82em;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            /* Tighter: above next block, below previous */
+            margin-top: 0.6em;
+            margin-bottom: 0.5em;
+            padding: 2px 8px;
+            border-left: 3px solid #d97706;
+            background: rgba(251,191,36,0.08);
+            border-radius: 0 4px 4px 0;
+            line-height: 1.4;
+        }
+        /* section label in dark (performance / detail) views */
+        .cv-section-label-dark {
+            display: block;
+            font-weight: 700;
+            font-style: italic;
+            color: #fbbf24;
+            font-family: var(--font-sans);
+            font-size: 0.82em;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-top: 0.6em;
+            margin-bottom: 0.5em;
+            padding: 2px 8px;
+            border-left: 3px solid #fbbf24;
+            background: rgba(251,191,36,0.08);
+            border-radius: 0 4px 4px 0;
+            line-height: 1.4;
+        }
+
         .chord { color: #b45309; font-weight: bold; position: relative; display: inline-block; height: 0; vertical-align: top; top: -1.2em; }
-        .lyric-line { display: block; margin-bottom: 1.5em; position: relative; }
+        /* TIGHTENED: was 1.5em */
+        .lyric-line { display: block; margin-bottom: 1em; position: relative; }
 
         /* --- PERFORMANCE VIEW --- */
         .performance-mode {
@@ -770,7 +811,8 @@
         /* ── Visual Chord Editor ─────────────────────────────────────── */
         .ve-lyric-line {
             display: block;
-            margin-bottom: 2.8em;
+            /* TIGHTENED: was 2.8em */
+            margin-bottom: 1.8em;
             white-space: pre;
             line-height: 1;
         }
@@ -800,6 +842,27 @@
             pointer-events: none;
             line-height: 1;
         }
+
+        /* section label in the visual editor canvas */
+        .ve-section-label {
+            display: block;
+            font-weight: 700;
+            font-style: italic;
+            color: #92400e;
+            font-family: var(--font-sans);
+            font-size: 0.82em;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+            padding: 2px 8px;
+            border-left: 3px solid #d97706;
+            background: rgba(251,191,36,0.1);
+            border-radius: 0 4px 4px 0;
+            line-height: 1.4;
+            cursor: default;
+        }
+
         .ve-quick-chord-btn {
             background: rgba(255,255,255,0.06);
             border: 1px solid #334155;
@@ -824,7 +887,7 @@
             color: #a5b4fc;
         }
 
-        /* ── Chord Picker MODAL (replaces floating popup) ── */
+        /* ── Chord Picker MODAL ── */
         #ve-chord-picker-overlay {
             position: fixed;
             inset: 0;
@@ -834,7 +897,6 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            /* subtle fade-in */
             animation: fadeInOverlay 0.15s ease;
         }
         #ve-chord-picker-overlay.hidden { display: none; }
@@ -850,7 +912,6 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
             width: 100%;
             max-width: 360px;
-            /* slide-up */
             animation: slideUpPicker 0.18s ease;
         }
         @keyframes slideUpPicker {
@@ -879,6 +940,27 @@
             padding: 2px 10px;
             border-radius: 20px;
         }
+
+        /* ── Raw editor hint for section labels ── */
+        .section-label-hint {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.73rem;
+            color: var(--text-dim);
+            background: rgba(251,191,36,0.07);
+            border: 1px solid rgba(251,191,36,0.2);
+            padding: 5px 10px;
+            border-radius: 6px;
+            margin-top: 6px;
+        }
+        .section-label-hint code {
+            background: rgba(255,255,255,0.08);
+            padding: 1px 5px;
+            border-radius: 3px;
+            color: var(--accent);
+            font-family: var(--font-mono);
+        }
     </style>
 </head>
 <body>
@@ -906,7 +988,7 @@
         </div>
     </div>
 
-    <!-- Chord Picker Modal (centered overlay, same style as leader modal) -->
+    <!-- Chord Picker Modal -->
     <div id="ve-chord-picker-overlay" class="hidden" onclick="app.veOverlayClick(event)">
         <div id="ve-chord-picker">
             <div class="ve-picker-header">
@@ -993,7 +1075,6 @@
 
         <!-- Sticky toolbar -->
         <div class="lineup-toolbar">
-            <!-- Row 1: Font size -->
             <div class="toolbar-row">
                 <span class="toolbar-label">Font Size</span>
                 <div class="font-size-presets">
@@ -1009,12 +1090,11 @@
                     <button class="font-nudge" onclick="app.nudgeLineupFont(1)" title="Increase">+</button>
                 </div>
             </div>
-            <!-- Row 2: Wrap mode + zoom -->
             <div class="toolbar-row">
                 <span class="toolbar-label">Layout</span>
                 <div class="wrap-toggle-group">
-                    <button id="wrap-off-btn" onclick="app.setWrapMode(false)" class="active" title="Scroll sideways — chords stay aligned">↔ Scroll</button>
-                    <button id="wrap-on-btn"  onclick="app.setWrapMode(true)"  title="Wrap to screen — best for phones">↩ Wrap</button>
+                    <button id="wrap-off-btn" onclick="app.setWrapMode(false)" class="active">↔ Scroll</button>
+                    <button id="wrap-on-btn"  onclick="app.setWrapMode(true)">↩ Wrap</button>
                 </div>
                 <div class="zoom-slider-wrap">
                     <span style="font-size:0.7rem;color:var(--text-dim);white-space:nowrap">Zoom</span>
@@ -1122,8 +1202,11 @@
                         <label style="font-size:0.75rem;color:var(--text-dim);display:block;margin-bottom:4px;">① Type your lyrics here (one line per row):</label>
                         <textarea id="ve-lyrics-input" rows="8"
                             style="font-family:var(--font-mono);font-size:1rem;line-height:1.7;background:var(--bg-card);border:1px solid #334155;color:var(--text-main);border-radius:8px;padding:14px;width:100%;resize:vertical;"
-                            placeholder="Amazing grace how sweet the sound&#10;That saved a wretch like me&#10;I once was lost but now am found&#10;Was blind but now I see"
+                            placeholder="*Verse 1*&#10;Amazing grace how sweet the sound&#10;That saved a wretch like me&#10;&#10;*Chorus*&#10;I once was lost but now am found&#10;Was blind but now I see"
                             oninput="app.veOnLyricsChange()"></textarea>
+                        <div class="section-label-hint">
+                            💡 Wrap a line in asterisks to make it a bold section label — e.g. <code>*Verse 1*</code>, <code>*Chorus*</code>, <code>*Bridge*</code>
+                        </div>
                     </div>
 
                     <div style="margin-bottom:10px;">
@@ -1137,7 +1220,12 @@
 
                 <!-- RAW TEXT EDITOR -->
                 <div id="raw-editor-wrap" style="display:none;">
-                    <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px;">Use <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;">[Chord]</code> right before the syllable it lands on. e.g. <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;">[G]Ama[C]zing [D]grace</code></div>
+                    <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px;">
+                        Use <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;">[Chord]</code> right before the syllable it lands on. e.g. <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;">[G]Ama[C]zing [D]grace</code>
+                    </div>
+                    <div class="section-label-hint" style="margin-bottom:8px;">
+                        💡 Wrap a line in asterisks to make it a bold section label — e.g. <code>*Verse 1*</code>, <code>*Chorus*</code>, <code>*Bridge*</code>
+                    </div>
                     <textarea id="edit-chart" rows="15" style="font-family: var(--font-mono);"></textarea>
                 </div>
             </div>
@@ -1185,17 +1273,25 @@
         const CHROMATIC_FLAT  = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
 
         const SEED_SONGS = [
-            { title: "Amazing Grace", artist: "John Newton", defaultKey: "G", tempo: 75, timeSignature: "3/4", tags: ["Hymn","Classic"], chordChart: "[G]Amazing grace how [C]sweet the [G]sound\nThat saved a [G]wretch like [D]me\nI [G]once was lost but [C]now am [G]found\nWas [G]blind but [D]now I [G]see" },
-            { title: "10,000 Reasons", artist: "Matt Redman", defaultKey: "G", tempo: 73, timeSignature: "4/4", tags: ["Worship","Bless"], chordChart: "[C]Bless the [G]Lord O my [D]soul [Em]O my [C]soul\n[G]Worship His [D]holy name\nSing like [C]never be[G]fore [C]O [D]my [Em]soul\nI'll [C]worship Your [D]holy [G]name" },
-            { title: "Way Maker", artist: "Sinach", defaultKey: "C", tempo: 68, timeSignature: "4/4", tags: ["Worship","Miracle"], chordChart: "You are [F]Way Maker, Miracle Worker\n[C]Promise Keeper, Light in the darkness\n[G]My God, that is who You [Am]are" },
-            { title: "Good Good Father", artist: "Chris Tomlin", defaultKey: "A", tempo: 72, timeSignature: "6/8", tags: ["Worship","Father"], chordChart: "You're a [A]good good Father\nIt's who You [D]are, it's who You [A]are\nAnd I'm [A]loved by You\nIt's who I [D]am, it's who I [A]am" },
-            { title: "What A Beautiful Name", artist: "Hillsong Worship", defaultKey: "D", tempo: 68, timeSignature: "4/4", tags: ["Worship","Jesus"], chordChart: "What a [D]beautiful Name it is\nWhat a [A]beautiful Name it is\nThe [Bm]Name of [A]Jesus [G]Christ my King" }
+            { title: "Amazing Grace", artist: "John Newton", defaultKey: "G", tempo: 75, timeSignature: "3/4", tags: ["Hymn","Classic"], chordChart: "*Verse 1*\n[G]Amazing grace how [C]sweet the [G]sound\nThat saved a [G]wretch like [D]me\n\n*Verse 2*\nI [G]once was lost but [C]now am [G]found\nWas [G]blind but [D]now I [G]see" },
+            { title: "10,000 Reasons", artist: "Matt Redman", defaultKey: "G", tempo: 73, timeSignature: "4/4", tags: ["Worship","Bless"], chordChart: "*Chorus*\n[C]Bless the [G]Lord O my [D]soul [Em]O my [C]soul\n[G]Worship His [D]holy name\nSing like [C]never be[G]fore [C]O [D]my [Em]soul\nI'll [C]worship Your [D]holy [G]name" },
+            { title: "Way Maker", artist: "Sinach", defaultKey: "C", tempo: 68, timeSignature: "4/4", tags: ["Worship","Miracle"], chordChart: "*Chorus*\nYou are [F]Way Maker, Miracle Worker\n[C]Promise Keeper, Light in the darkness\n[G]My God, that is who You [Am]are" },
+            { title: "Good Good Father", artist: "Chris Tomlin", defaultKey: "A", tempo: 72, timeSignature: "6/8", tags: ["Worship","Father"], chordChart: "*Chorus*\nYou're a [A]good good Father\nIt's who You [D]are, it's who You [A]are\nAnd I'm [A]loved by You\nIt's who I [D]am, it's who I [A]am" },
+            { title: "What A Beautiful Name", artist: "Hillsong Worship", defaultKey: "D", tempo: 68, timeSignature: "4/4", tags: ["Worship","Jesus"], chordChart: "*Chorus*\nWhat a [D]beautiful Name it is\nWhat a [A]beautiful Name it is\nThe [Bm]Name of [A]Jesus [G]Christ my King" }
         ];
 
         const SEED_LEADERS = [
             { name: "David",  initials: "D", preferredKeys: {} },
             { name: "Sarah",  initials: "S", preferredKeys: {} }
         ];
+
+        // ── Helper: detect section label line (*text*) ──────────────────
+        function isSectionLabel(line) {
+            return /^\*[^*]+\*$/.test(line.trim());
+        }
+        function sectionLabelText(line) {
+            return line.trim().replace(/^\*/, '').replace(/\*$/, '');
+        }
 
         const app = {
             songs: [],
@@ -1207,7 +1303,6 @@
             useFlats: false,
             pendingKeyChange: false,
 
-            // Lineup display state
             lineupFontSize: 15,
             lineupWrapMode: false,
             lineupZoom: 100,
@@ -1737,16 +1832,30 @@
                 }).join('/');
             },
 
-            buildChartHtml(song, targetKey) {
+            // ── buildChartHtml: handles *Section Label* lines ────────────
+            // darkMode = true → uses dark gold label (for detail/performance views)
+            // darkMode = false (default) → uses light amber label (for white lineup panel)
+            buildChartHtml(song, targetKey, darkMode = false) {
                 let si = CHROMATIC_SHARP.indexOf(song.defaultKey);
                 if (si === -1) si = CHROMATIC_FLAT.indexOf(song.defaultKey);
                 let ti = CHROMATIC_SHARP.indexOf(targetKey);
                 if (ti === -1) ti = CHROMATIC_FLAT.indexOf(targetKey);
                 const steps = ti - si;
 
+                const labelClass = darkMode ? 'cv-section-label-dark' : 'cv-section-label';
+
                 let html = '';
                 song.chordChart.split('\n').forEach(line => {
-                    if (line.trim() === '') { html += '<span class="cv-line">&nbsp;</span>'; return; }
+                    // ── Section label: *Verse 1*, *Chorus*, etc. ──
+                    if (isSectionLabel(line)) {
+                        html += `<span class="${labelClass}">${this.escHtml(sectionLabelText(line))}</span>`;
+                        return;
+                    }
+
+                    if (line.trim() === '') {
+                        html += '<span class="cv-line">&nbsp;</span>';
+                        return;
+                    }
 
                     const chords = {};
                     let lyric = '';
@@ -1787,7 +1896,8 @@
             renderChart() {
                 const song = this.songs.find(s => s.id === this.currentSongId);
                 if (!song) return;
-                const html = this.buildChartHtml(song, this.currentKey);
+                // Use darkMode=true for the song detail view (dark background)
+                const html = this.buildChartHtml(song, this.currentKey, true);
                 document.getElementById('chord-chart-container').innerHTML = html;
                 document.getElementById('performance-content').innerHTML = html;
                 this.renderDiatonic(this.currentKey);
@@ -1921,9 +2031,15 @@
                 }
             },
 
+            // veParseRaw: parse [Chord]lyric format into line objects
+            // Section-label lines (*text*) are stored with lyric = "*text*" and no chords
             veParseRaw(raw) {
                 if (!raw || !raw.trim()) return [];
                 return raw.split('\n').map(line => {
+                    // Section label — store as-is so the textarea shows the asterisks
+                    if (isSectionLabel(line)) {
+                        return { lyric: line.trim(), chords: {}, isLabel: true };
+                    }
                     const chords = {};
                     let lyric = '';
                     let i = 0;
@@ -1946,6 +2062,8 @@
 
             veSerialize() {
                 return this.veLines.map(({ lyric, chords }) => {
+                    // Section labels serialize as plain *text* (no chord brackets)
+                    if (isSectionLabel(lyric)) return lyric;
                     let result = '';
                     for (let i = 0; i <= lyric.length; i++) {
                         if (chords[i] !== undefined) result += `[${chords[i]}]`;
@@ -1962,9 +2080,13 @@
             veOnLyricsChange() {
                 const newLines = document.getElementById('ve-lyrics-input').value.split('\n');
                 const updated = newLines.map((newLyric, idx) => {
+                    // If the new line is a section label, mark it
+                    if (isSectionLabel(newLyric)) {
+                        return { lyric: newLyric.trim(), chords: {}, isLabel: true };
+                    }
                     const old = this.veLines[idx];
-                    if (old && old.lyric === newLyric) return old;
-                    const oldChords = (old && old.lyric.length === newLyric.length) ? old.chords : {};
+                    if (old && !old.isLabel && old.lyric === newLyric) return old;
+                    const oldChords = (old && !old.isLabel && old.lyric.length === newLyric.length) ? old.chords : {};
                     return { lyric: newLyric, chords: oldChords };
                 });
                 this.veLines = updated;
@@ -1980,6 +2102,10 @@
                     return;
                 }
                 canvas.innerHTML = this.veLines.map((line, li) => {
+                    // Section label: render as styled non-interactive label
+                    if (line.isLabel || isSectionLabel(line.lyric)) {
+                        return `<span class="ve-section-label">${this.escHtml(sectionLabelText(line.lyric))}</span>`;
+                    }
                     if (!line.lyric) return `<span class="ve-lyric-line">&nbsp;</span>`;
                     let chars = '';
                     for (let ci = 0; ci < line.lyric.length; ci++) {
@@ -2006,14 +2132,11 @@
                 this.veOpenPicker(li, ci);
             },
 
-            // ── Chord picker: now a centered modal overlay ──────────────
-
             veOpenPicker(li, ci) {
                 const currentChord = (this.veLines[li]?.chords || {})[ci];
                 const key = document.getElementById('edit-key').value || 'G';
                 const si = CHROMATIC_SHARP.indexOf(key) !== -1 ? CHROMATIC_SHARP.indexOf(key) : CHROMATIC_FLAT.indexOf(key);
 
-                // Build quick chord suggestions based on the current key
                 const quickChords = [
                     key, key+'m', key+'7', key+'maj7',
                     ...([2,4,5,7,9,11].map(iv => {
@@ -2027,7 +2150,6 @@
                     'Cadd9','Dsus2','Esus4','Fsus2'
                 ].slice(0,18);
 
-                // Context label: show which lyric character was clicked
                 const line = this.veLines[li];
                 const charLabel = line ? `"${line.lyric[ci] || '…'}" — Line ${li+1}, pos ${ci+1}` : '';
                 document.getElementById('ve-picker-context').textContent = charLabel;
@@ -2042,7 +2164,6 @@
                 setTimeout(() => document.getElementById('ve-custom-chord').focus(), 80);
             },
 
-            // Close picker when clicking the dark overlay background
             veOverlayClick(event) {
                 if (event.target === document.getElementById('ve-chord-picker-overlay')) {
                     this.veClosePicker();
