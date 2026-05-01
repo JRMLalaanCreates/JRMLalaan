@@ -6,7 +6,7 @@
     <title>JRM Lalaan Worship Team</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto+Mono&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Roboto+Mono&family=Inter:wght@400;600&family=Lora:ital,wght@0,500;1,400&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-deep: #0f172a;
@@ -20,6 +20,7 @@
             --font-serif: 'Playfair Display', serif;
             --font-sans: 'Inter', sans-serif;
             --font-mono: 'Roboto Mono', monospace;
+            --font-lora: 'Lora', serif;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -152,7 +153,7 @@
             border: 1px solid rgba(99, 102, 241, 0.4);
             border-radius: 16px;
             padding: 28px 30px;
-            margin-bottom: 36px;
+            margin-bottom: 20px;
             position: relative;
             overflow: hidden;
         }
@@ -222,28 +223,281 @@
         .lineup-hero.empty::before { display: none; }
         .lineup-hero.empty p { color: var(--text-dim); font-size: 0.9rem; flex: 1; }
 
-        /* --- HERO VERSE BLOCK --- */
-        .hero-verse-block {
-            margin-bottom: 18px;
-            padding: 14px 16px;
-            background: rgba(255,255,255,0.06);
-            border-left: 3px solid #a5b4fc;
-            border-radius: 0 8px 8px 0;
+        /* ═══════════════════════════════════════════════════════
+           BIBLE VERSE CARD — Home screen postcard
+        ═══════════════════════════════════════════════════════ */
+        #verse-card-section {
+            margin-bottom: 36px;
         }
-        .hero-verse-ref {
+
+        /* Empty state — "Add a Bible verse" prompt */
+        .verse-card-empty {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 22px;
+            background: rgba(99,102,241,0.05);
+            border: 2px dashed rgba(99,102,241,0.25);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .verse-card-empty:hover {
+            background: rgba(99,102,241,0.1);
+            border-color: rgba(99,102,241,0.45);
+        }
+        .verse-card-empty-icon {
+            font-size: 1.8rem;
+            flex-shrink: 0;
+            opacity: 0.7;
+        }
+        .verse-card-empty-text strong {
+            display: block;
+            font-size: 0.95rem;
+            color: #a5b4fc;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .verse-card-empty-text span {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        /* The actual postcard when a verse is set */
+        .verse-postcard {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+            animation: verseCardIn 0.5s ease forwards;
+        }
+        @keyframes verseCardIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Decorative top band */
+        .verse-postcard-band {
+            height: 4px;
+            background: linear-gradient(90deg, #8b5cf6, #6366f1, #a78bfa, #c4b5fd);
+        }
+
+        /* Decorative large quote mark */
+        .verse-postcard-deco {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-family: var(--font-serif);
+            font-size: 9rem;
+            color: rgba(139,92,246,0.08);
+            line-height: 1;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .verse-postcard-inner {
+            padding: 28px 32px 22px;
+            position: relative;
+        }
+
+        .verse-postcard-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             font-size: 0.65rem;
             font-weight: 700;
-            letter-spacing: 0.12em;
+            letter-spacing: 0.14em;
             text-transform: uppercase;
-            color: #a5b4fc;
-            margin-bottom: 6px;
+            color: #a78bfa;
+            margin-bottom: 18px;
         }
-        .hero-verse-text {
-            font-size: 0.92rem;
-            color: #e0e7ff;
-            line-height: 1.7;
+        .verse-postcard-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(167,139,250,0.4), transparent);
+        }
+
+        .verse-postcard-text {
+            font-family: var(--font-lora);
+            font-size: 1.15rem;
+            font-style: italic;
+            font-weight: 400;
+            color: #e8e0ff;
+            line-height: 1.85;
+            margin-bottom: 20px;
+            letter-spacing: 0.01em;
+        }
+
+        .verse-postcard-ref {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .verse-postcard-ref-dash {
+            width: 28px;
+            height: 2px;
+            background: linear-gradient(90deg, #8b5cf6, #6366f1);
+            border-radius: 1px;
+            flex-shrink: 0;
+        }
+        .verse-postcard-ref-text {
+            font-family: var(--font-sans);
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            color: #c4b5fd;
+            text-transform: uppercase;
+        }
+
+        /* Action bar below the postcard */
+        .verse-postcard-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px 14px;
+            justify-content: flex-end;
+        }
+        .verse-action-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #94a3b8;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font-sans);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+        }
+        .verse-action-btn:hover {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(255,255,255,0.2);
+            color: #e2e8f0;
+        }
+        .verse-action-btn.danger:hover {
+            background: rgba(248,113,113,0.1);
+            border-color: rgba(248,113,113,0.35);
+            color: #f87171;
+        }
+
+        /* ── VERSE MODAL ── */
+        #verse-modal {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.75);
+            z-index: 600;
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+        #verse-modal.hidden { display: none; }
+
+        .verse-modal-box {
+            background: var(--bg-card);
+            border: 1px solid #334155;
+            border-radius: 18px;
+            padding: 30px;
+            max-width: 520px;
+            width: 100%;
+            max-height: 88vh;
+            overflow-y: auto;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.7);
+            animation: modalSlideUp 0.22s ease;
+        }
+        @keyframes modalSlideUp {
+            from { transform: translateY(24px); opacity: 0; }
+            to   { transform: translateY(0); opacity: 1; }
+        }
+        .verse-modal-box h3 {
+            font-family: var(--font-serif);
+            color: #c4b5fd;
+            font-size: 1.4rem;
+            margin-bottom: 4px;
+        }
+        .verse-modal-sub {
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            margin-bottom: 22px;
+        }
+
+        /* verse selects row */
+        .vm-selects {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .vm-selects select {
+            margin: 0;
+            padding: 9px 10px;
+            font-size: 0.83rem;
+            background: var(--bg-deep);
+            border: 1px solid #334155;
+            color: var(--text-main);
+            border-radius: 8px;
+        }
+        .vm-selects select:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .vm-fetch-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .vm-fetch-btn {
+            background: #7c3aed;
+            color: #fff;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-size: 0.83rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: var(--font-sans);
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+        .vm-fetch-btn:hover { background: #6d28d9; }
+        #vm-fetch-status { font-size: 0.78rem; color: var(--text-dim); }
+
+        #vm-verse-preview {
+            background: rgba(124,58,237,0.1);
+            border: 1px solid rgba(124,58,237,0.3);
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        #vm-verse-ref {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #a78bfa;
+            margin-bottom: 8px;
+            font-family: var(--font-sans);
+        }
+        #vm-verse-text {
+            font-family: var(--font-lora);
+            font-size: 0.95rem;
+            color: #e8e0ff;
+            line-height: 1.75;
             font-style: italic;
         }
+
+        .vm-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .vm-actions .btn { flex: 1; background: #7c3aed; color: #fff; }
+        .vm-actions .btn:hover { background: #6d28d9; }
+        .vm-actions .btn-outline { flex: 1; }
 
         /* --- SONG LIST --- */
         .section-header {
@@ -405,9 +659,7 @@
             background: #94a3b8;
         }
 
-        /* ================================================================
-           LINEUP TOOLBAR
-        ================================================================ */
+        /* LINEUP TOOLBAR */
         .lineup-toolbar {
             position: sticky;
             top: 0;
@@ -553,7 +805,7 @@
             white-space: inherit;
         }
 
-        /* ── Master Leader Toolbar Row ── */
+        /* Master Leader Toolbar Row */
         .master-leader-wrap {
             display: flex;
             align-items: center;
@@ -688,7 +940,6 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
 
-        /* ── Character-based chord rendering ── */
         .cv-line {
             display: block;
             margin-bottom: 1.8em;
@@ -713,7 +964,6 @@
             pointer-events: none;
         }
 
-        /* ── Section label line (e.g. *Verse 1*, *Chorus*) ── */
         .cv-section-label {
             display: block;
             font-weight: 700;
@@ -869,99 +1119,6 @@
         .modal-row .btn { flex: 1; }
         .modal-row .btn-outline { flex: 1; }
 
-        /* --- BIBLE VERSE PICKER (in modal) --- */
-        .verse-picker-section {
-            background: rgba(99,102,241,0.05);
-            border: 1px solid rgba(99,102,241,0.2);
-            border-radius: 10px;
-            padding: 16px;
-            margin-bottom: 4px;
-        }
-        .verse-picker-label {
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: #a5b4fc;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .verse-selects-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-        .verse-selects-row select {
-            margin: 0;
-            padding: 8px 10px;
-            font-size: 0.82rem;
-            background: var(--bg-deep);
-            border: 1px solid #334155;
-            color: var(--text-main);
-            border-radius: 6px;
-        }
-        .verse-selects-row select:disabled { opacity: 0.45; cursor: not-allowed; }
-        .verse-fetch-row {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .verse-fetch-btn {
-            background: #6366f1;
-            color: #fff;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 0.82rem;
-            font-weight: 700;
-            cursor: pointer;
-            font-family: var(--font-sans);
-            white-space: nowrap;
-            flex-shrink: 0;
-            transition: background 0.2s;
-        }
-        .verse-fetch-btn:hover { background: #4f46e5; }
-        #verse-fetch-status {
-            font-size: 0.78rem;
-            color: var(--text-dim);
-        }
-        #verse-preview {
-            background: rgba(99,102,241,0.1);
-            border: 1px solid rgba(99,102,241,0.3);
-            border-radius: 8px;
-            padding: 14px 16px;
-        }
-        #verse-ref-label {
-            font-size: 0.68rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: #a5b4fc;
-            margin-bottom: 6px;
-            font-family: var(--font-sans);
-        }
-        #verse-text-preview {
-            font-size: 0.9rem;
-            color: var(--text-main);
-            line-height: 1.65;
-            font-style: italic;
-            font-family: var(--font-serif);
-        }
-        .verse-clear-btn {
-            background: none;
-            border: none;
-            color: #f87171;
-            font-size: 0.75rem;
-            cursor: pointer;
-            padding: 6px 0 0;
-            font-family: var(--font-sans);
-            display: block;
-        }
-
         .hidden { display: none; }
         .empty-state { text-align: center; color: var(--text-dim); padding: 60px 20px; }
         .empty-state p { font-size: 1.1rem; margin-top: 10px; }
@@ -970,11 +1127,11 @@
         @media (max-width: 480px) {
             .lineup-section-header h1 { font-size: 1.5rem; }
             .toolbar-label { min-width: 52px; font-size: 0.65rem; }
-            .verse-selects-row { grid-template-columns: 1fr 1fr; }
-            .verse-selects-row select:first-child { grid-column: 1 / -1; }
+            .vm-selects { grid-template-columns: 1fr 1fr; }
+            .vm-selects select:first-child { grid-column: 1 / -1; }
         }
 
-        /* ── Visual Chord Editor ─────────────────────────────────────── */
+        /* Visual Chord Editor */
         .ve-lyric-line {
             display: block;
             margin-bottom: 1.8em;
@@ -1051,7 +1208,6 @@
             color: #a5b4fc;
         }
 
-        /* ── Chord Picker MODAL ── */
         #ve-chord-picker-overlay {
             position: fixed;
             inset: 0;
@@ -1105,7 +1261,6 @@
             border-radius: 20px;
         }
 
-        /* ── Raw editor hint for section labels ── */
         .section-label-hint {
             display: inline-flex;
             align-items: center;
@@ -1173,46 +1328,54 @@
         </div>
     </div>
 
-    <!-- Create / Edit Lineup Modal -->
+    <!-- ══════════════════════════════════════════════════════
+         BIBLE VERSE MODAL
+    ═══════════════════════════════════════════════════════ -->
+    <div id="verse-modal" class="hidden">
+        <div class="verse-modal-box">
+            <h3>📖 Bible Verse of the Week</h3>
+            <p class="verse-modal-sub">Select a verse and it will appear as a beautiful quote card on the home screen.</p>
+
+            <div class="vm-selects">
+                <select id="vm-book" onchange="app.vmFetchChapters()">
+                    <option value="">— Pick a book —</option>
+                </select>
+                <select id="vm-chapter" onchange="app.vmFetchVerseList()" disabled>
+                    <option value="">Ch.</option>
+                </select>
+                <select id="vm-verse-num" disabled>
+                    <option value="">Vs.</option>
+                </select>
+            </div>
+
+            <div class="vm-fetch-row">
+                <button class="vm-fetch-btn" onclick="app.vmFetchVerse()">Fetch Verse</button>
+                <span id="vm-fetch-status"></span>
+            </div>
+
+            <div id="vm-verse-preview">
+                <div id="vm-verse-ref"></div>
+                <div id="vm-verse-text"></div>
+            </div>
+
+            <div class="vm-actions">
+                <button class="btn" onclick="app.vmSaveVerse()">✓ Set as Verse of the Week</button>
+                <button class="btn-outline" onclick="app.vmCloseModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lineup Modal -->
     <div id="lineup-modal" class="modal-overlay hidden">
         <div class="modal-box lineup-modal-box">
             <h3 id="lineup-modal-title">Create This Week's Lineup</h3>
-            <p class="modal-sub">Give it a name, pick a date, select songs, and add a meditation verse.</p>
+            <p class="modal-sub">Give it a name, pick a date, and select songs.</p>
 
             <label style="font-size:0.8rem;color:var(--text-dim)">Lineup Title</label>
             <input type="text" id="lineup-name-input" placeholder="e.g. Sunday Morning Service">
 
             <label style="font-size:0.8rem;color:var(--text-dim)">Date</label>
             <input type="date" id="lineup-date-input">
-
-            <hr class="modal-divider">
-
-            <!-- BIBLE VERSE PICKER -->
-            <div class="verse-picker-section">
-                <div class="verse-picker-label">
-                    📖 Meditation Verse <span style="font-weight:400;color:var(--text-dim);font-size:0.68rem;text-transform:none;letter-spacing:0;">(NLT)</span>
-                </div>
-                <div class="verse-selects-row">
-                    <select id="verse-book" onchange="app.fetchVerseChapters()">
-                        <option value="">— Pick a book —</option>
-                    </select>
-                    <select id="verse-chapter" onchange="app.fetchVerseList()" disabled>
-                        <option value="">Ch.</option>
-                    </select>
-                    <select id="verse-num" disabled>
-                        <option value="">Vs.</option>
-                    </select>
-                </div>
-                <div class="verse-fetch-row">
-                    <button class="verse-fetch-btn" onclick="app.fetchVerse()">Fetch Verse</button>
-                    <span id="verse-fetch-status"></span>
-                </div>
-                <div id="verse-preview" style="display:none;">
-                    <div id="verse-ref-label"></div>
-                    <div id="verse-text-preview"></div>
-                    <button class="verse-clear-btn" onclick="app.clearVerse()">✕ Remove verse</button>
-                </div>
-            </div>
 
             <hr class="modal-divider">
 
@@ -1249,6 +1412,8 @@
     <!-- VIEW: SONG LIST (home) -->
     <div id="view-list" class="container view">
         <div id="lineup-hero-section"></div>
+        <!-- Bible Verse Card Section -->
+        <div id="verse-card-section"></div>
         <div class="section-header"><h3>All Songs</h3></div>
         <div class="search-bar">
             <input type="text" id="song-search" placeholder="Search by title, artist, or tag…" oninput="app.filterSongs()">
@@ -1268,7 +1433,6 @@
 
         <!-- Sticky toolbar -->
         <div class="lineup-toolbar">
-            <!-- Row 1: Master Leader selector -->
             <div class="toolbar-row">
                 <span class="toolbar-label">🎤 Leader</span>
                 <div class="master-leader-wrap">
@@ -1279,7 +1443,6 @@
                     <button class="master-clear-btn" id="master-clear-btn" onclick="app.clearMasterLeader()">✕ Clear</button>
                 </div>
             </div>
-            <!-- Row 2: Font Size -->
             <div class="toolbar-row">
                 <span class="toolbar-label">Font Size</span>
                 <div class="font-size-presets">
@@ -1295,7 +1458,6 @@
                     <button class="font-nudge" onclick="app.nudgeLineupFont(1)" title="Increase">+</button>
                 </div>
             </div>
-            <!-- Row 3: Layout -->
             <div class="toolbar-row">
                 <span class="toolbar-label">Layout</span>
                 <div class="wrap-toggle-group">
@@ -1385,7 +1547,6 @@
                 <div><label>Time Sig</label><input type="text" id="edit-time" placeholder="4/4"></div>
                 <div><label>Tags (comma separated)</label><input type="text" id="edit-tags" placeholder="Worship, Praise"></div>
             </div>
-            <!-- Chord Chart Editor -->
             <div style="margin-bottom:8px;">
                 <label style="display:block;margin-bottom:6px;">Chord Chart</label>
                 <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
@@ -1402,7 +1563,6 @@
                     <span style="font-size:0.75rem;color:var(--text-dim)" id="editor-hint">Click any character in a lyric line to place a chord above it</span>
                 </div>
 
-                <!-- VISUAL EDITOR -->
                 <div id="visual-editor-wrap">
                     <div style="margin-bottom:10px;">
                         <label style="font-size:0.75rem;color:var(--text-dim);display:block;margin-bottom:4px;">① Type your lyrics here (one line per row):</label>
@@ -1414,7 +1574,6 @@
                             💡 Wrap a line in asterisks to make it a bold section label — e.g. <code>*Verse 1*</code>, <code>*Chorus*</code>, <code>*Bridge*</code>
                         </div>
                     </div>
-
                     <div style="margin-bottom:10px;">
                         <label style="font-size:0.75rem;color:var(--text-dim);display:block;margin-bottom:6px;">② Click any character below to place a chord above it:</label>
                         <div id="ve-chord-canvas"
@@ -1424,13 +1583,12 @@
                     </div>
                 </div>
 
-                <!-- RAW TEXT EDITOR -->
                 <div id="raw-editor-wrap" style="display:none;">
                     <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px;">
-                        Use <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;">[Chord]</code> right before the syllable it lands on. e.g. <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;">[G]Ama[C]zing [D]grace</code>
+                        Use <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;">[Chord]</code> right before the syllable it lands on.
                     </div>
                     <div class="section-label-hint" style="margin-bottom:8px;">
-                        💡 Wrap a line in asterisks to make it a bold section label — e.g. <code>*Verse 1*</code>, <code>*Chorus*</code>, <code>*Bridge*</code>
+                        💡 Wrap a line in asterisks — e.g. <code>*Verse 1*</code>, <code>*Chorus*</code>, <code>*Bridge*</code>
                     </div>
                     <textarea id="edit-chart" rows="15" style="font-family: var(--font-mono);"></textarea>
                 </div>
@@ -1460,7 +1618,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
         import {
             getFirestore, collection, doc, getDocs, addDoc, updateDoc, deleteDoc,
-            onSnapshot, orderBy, query, limit, writeBatch, setDoc
+            onSnapshot, orderBy, query, limit, writeBatch, setDoc, getDoc
         } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -1491,7 +1649,6 @@
             { name: "Sarah",  initials: "S", preferredKeys: {} }
         ];
 
-        // ── Helper: detect section label line (*text*) ──────────────────
         function isSectionLabel(line) {
             return /^\*[^*]+\*$/.test(line.trim());
         }
@@ -1503,6 +1660,8 @@
             songs: [],
             leaders: [],
             lineup: null,
+            weekVerse: null,          // ← standalone Bible verse of the week
+            vmPendingVerse: null,     // ← verse being previewed in modal
             lineupSelectedIds: [],
             currentSongId: null,
             currentKey: 'C',
@@ -1514,7 +1673,6 @@
             lineupZoom: 100,
 
             masterLeaderId: '',
-            verseData: null,
 
             BIBLE_BOOKS: [
                 'Genesis','Exodus','Leviticus','Numbers','Deuteronomy','Joshua','Judges','Ruth',
@@ -1542,59 +1700,35 @@
                 '1 Peter':5,'2 Peter':3,'1 John':5,'2 John':1,'3 John':1,'Jude':1,'Revelation':22
             },
 
-            // ── Verse counts per chapter — eliminates the need for a network call ──
             VERSE_COUNTS: {
                 'Genesis':{1:31,2:25,3:24,4:26,5:32,6:22,7:24,8:22,9:29,10:32,11:32,12:20,13:18,14:24,15:21,16:16,17:27,18:33,19:38,20:18,21:34,22:24,23:20,24:67,25:34,26:35,27:46,28:22,29:35,30:43,31:55,32:32,33:20,34:31,35:29,36:43,37:36,38:30,39:23,40:23,41:57,42:38,43:34,44:34,45:28,46:34,47:31,48:22,49:33,50:26},
                 'Exodus':{1:22,2:25,3:22,4:31,5:23,6:30,7:25,8:32,9:35,10:29,11:10,12:51,13:22,14:31,15:27,16:36,17:16,18:27,19:25,20:26,21:36,22:31,23:33,24:18,25:40,26:37,27:21,28:43,29:46,30:38,31:18,32:35,33:23,34:35,35:35,36:38,37:29,38:31,39:43,40:38},
-                'Leviticus':{1:17,2:16,3:17,4:35,5:19,6:30,7:38,8:36,9:24,10:20,11:47,12:8,13:59,14:57,15:33,16:34,17:16,18:30,19:37,20:27,21:24,22:33,23:44,24:23,25:55,26:46,27:34},
-                'Numbers':{1:54,2:34,3:51,4:49,5:31,6:27,7:89,8:26,9:23,10:36,11:35,12:16,13:33,14:45,15:41,16:50,17:13,18:32,19:22,20:29,21:35,22:41,23:30,24:25,25:18,26:65,27:23,28:31,29:40,30:16,31:54,32:42,33:56,34:29,35:34,36:13},
-                'Deuteronomy':{1:46,2:37,3:29,4:49,5:33,6:25,7:26,8:20,9:29,10:22,11:32,12:32,13:18,14:29,15:23,16:22,17:20,18:22,19:21,20:20,21:23,22:30,23:25,24:22,25:19,26:19,27:26,28:68,29:29,30:20,31:30,32:52,33:29,34:12},
-                'Joshua':{1:18,2:24,3:17,4:24,5:15,6:27,7:26,8:35,9:27,10:43,11:23,12:24,13:33,14:15,15:63,16:10,17:18,18:28,19:51,20:9,21:45,22:34,23:16,24:33},
-                'Judges':{1:36,2:23,3:31,4:24,5:31,6:40,7:25,8:35,9:57,10:18,11:40,12:15,13:25,14:20,15:20,16:31,17:13,18:31,19:30,20:48,21:25},
-                'Ruth':{1:22,2:23,3:18,4:22},
-                '1 Samuel':{1:28,2:36,3:21,4:22,5:12,6:21,7:17,8:22,9:27,10:27,11:15,12:25,13:23,14:52,15:35,16:23,17:58,18:30,19:24,20:42,21:15,22:23,23:29,24:22,25:44,26:25,27:12,28:25,29:11,30:31,31:13},
-                '2 Samuel':{1:27,2:32,3:39,4:12,5:25,6:23,7:29,8:18,9:13,10:19,11:27,12:31,13:39,14:33,15:37,16:23,17:29,18:33,19:43,20:26,21:22,22:51,23:39,24:25},
-                '1 Kings':{1:53,2:46,3:28,4:34,5:18,6:38,7:51,8:66,9:28,10:29,11:43,12:33,13:34,14:31,15:34,16:34,17:24,18:46,19:21,20:43,21:29,22:53},
-                '2 Kings':{1:18,2:25,3:27,4:44,5:27,6:33,7:20,8:29,9:37,10:36,11:21,12:21,13:25,14:29,15:38,16:20,17:41,18:37,19:37,20:21,21:26,22:20,23:37,24:20,25:30},
-                '1 Chronicles':{1:54,2:55,3:24,4:43,5:26,6:81,7:40,8:40,9:44,10:14,11:47,12:40,13:14,14:17,15:29,16:43,17:27,18:17,19:19,20:8,21:30,22:19,23:32,24:31,25:31,26:32,27:34,28:21,29:30},
-                '2 Chronicles':{1:17,2:18,3:17,4:22,5:14,6:42,7:22,8:18,9:31,10:19,11:23,12:16,13:22,14:15,15:19,16:14,17:19,18:34,19:11,20:37,21:20,22:12,23:21,24:27,25:28,26:23,27:9,28:27,29:36,30:27,31:21,32:33,33:25,34:33,35:27,36:23},
-                'Ezra':{1:11,2:70,3:13,4:24,5:17,6:22,7:28,8:36,9:15,10:44},
-                'Nehemiah':{1:11,2:20,3:32,4:23,5:19,6:19,7:73,8:18,9:38,10:39,11:36,12:47,13:31},
-                'Esther':{1:22,2:23,3:15,4:17,5:14,6:14,7:10,8:17,9:32,10:3},
-                'Job':{1:22,2:13,3:26,4:21,5:27,6:30,7:21,8:22,9:35,10:22,11:20,12:25,13:28,14:22,15:35,16:22,17:16,18:21,19:29,20:29,21:34,22:30,23:17,24:25,25:6,26:14,27:23,28:28,29:25,30:31,31:40,32:22,33:33,34:37,35:16,36:33,37:24,38:41,39:30,40:24,41:34,42:17},
                 'Psalms':{1:6,2:12,3:8,4:8,5:12,6:10,7:17,8:9,9:20,10:18,11:7,12:8,13:6,14:7,15:5,16:11,17:15,18:50,19:14,20:9,21:13,22:31,23:6,24:10,25:22,26:12,27:14,28:9,29:11,30:12,31:24,32:11,33:22,34:22,35:28,36:12,37:40,38:22,39:13,40:17,41:13,42:11,43:5,44:26,45:17,46:11,47:9,48:14,49:20,50:23,51:19,52:9,53:6,54:7,55:23,56:13,57:11,58:11,59:17,60:12,61:8,62:12,63:11,64:10,65:13,66:20,67:7,68:35,69:36,70:5,71:24,72:20,73:28,74:23,75:10,76:12,77:20,78:72,79:13,80:19,81:16,82:8,83:18,84:12,85:13,86:17,87:7,88:18,89:52,90:17,91:16,92:15,93:5,94:23,95:11,96:13,97:12,98:9,99:9,100:5,101:8,102:28,103:22,104:35,105:45,106:48,107:43,108:13,109:31,110:7,111:10,112:10,113:9,114:8,115:18,116:19,117:2,118:29,119:176,120:7,121:8,122:9,123:4,124:8,125:5,126:6,127:5,128:6,129:8,130:8,131:3,132:18,133:3,134:3,135:21,136:26,137:9,138:8,139:24,140:13,141:10,142:7,143:12,144:15,145:21,146:10,147:20,148:14,149:9,150:6},
-                'Proverbs':{1:33,2:22,3:35,4:27,5:23,6:35,7:27,8:36,9:18,10:32,11:31,12:28,13:25,14:35,15:33,16:33,17:28,18:24,19:29,20:30,21:31,22:29,23:35,24:34,25:28,26:28,27:27,28:28,29:27,30:33,31:31},
-                'Ecclesiastes':{1:18,2:26,3:22,4:16,5:20,6:12,7:29,8:17,9:18,10:20,11:10,12:14},
-                'Song of Solomon':{1:17,2:17,3:11,4:16,5:16,6:13,7:13,8:14},
+                'John':{1:51,2:25,3:36,4:54,5:47,6:71,7:53,8:59,9:41,10:42,11:57,12:50,13:38,14:31,15:27,16:33,17:26,18:40,19:42,20:31,21:25},
+                'Romans':{1:32,2:29,3:31,4:25,5:21,6:23,7:25,8:39,9:33,10:21,11:36,12:21,13:14,14:23,15:33,16:27},
+                'Philippians':{1:30,2:30,3:21,4:23},
+                'Matthew':{1:25,2:23,3:17,4:25,5:48,6:34,7:29,8:34,9:38,10:42,11:30,12:50,13:58,14:36,15:39,16:28,17:27,18:35,19:30,20:34,21:46,22:46,23:39,24:51,25:46,26:75,27:66,28:20},
                 'Isaiah':{1:31,2:22,3:26,4:6,5:30,6:13,7:25,8:23,9:21,10:34,11:16,12:6,13:22,14:32,15:9,16:14,17:14,18:7,19:25,20:6,21:17,22:25,23:18,24:23,25:12,26:21,27:13,28:29,29:24,30:33,31:9,32:20,33:24,34:17,35:10,36:22,37:38,38:22,39:8,40:31,41:29,42:25,43:28,44:28,45:25,46:13,47:15,48:22,49:26,50:11,51:23,52:15,53:12,54:17,55:13,56:12,57:21,58:14,59:21,60:22,61:11,62:12,63:19,64:12,65:25,66:24},
                 'Jeremiah':{1:19,2:37,3:25,4:31,5:31,6:30,7:34,8:22,9:26,10:25,11:23,12:17,13:27,14:22,15:21,16:21,17:27,18:23,19:15,20:18,21:14,22:30,23:40,24:10,25:38,26:24,27:22,28:17,29:32,30:24,31:40,32:44,33:26,34:22,35:19,36:32,37:21,38:28,39:18,40:16,41:18,42:22,43:13,44:30,45:5,46:28,47:7,48:47,49:39,50:46,51:64,52:34},
-                'Lamentations':{1:22,2:22,3:66,4:22,5:22},
-                'Ezekiel':{1:28,2:10,3:27,4:17,5:17,6:14,7:27,8:18,9:11,10:22,11:25,12:28,13:23,14:23,15:8,16:63,17:24,18:32,19:14,20:49,21:32,22:31,23:49,24:27,25:17,26:21,27:36,28:26,29:21,30:26,31:18,32:32,33:33,34:31,35:15,36:38,37:28,38:23,39:29,40:49,41:26,42:20,43:27,44:31,45:25,46:24,47:23,48:35},
-                'Daniel':{1:21,2:49,3:30,4:37,5:31,6:28,7:28,8:27,9:27,10:21,11:45,12:13},
-                'Hosea':{1:11,2:23,3:5,4:19,5:15,6:11,7:16,8:14,9:17,10:15,11:12,12:14,13:16,14:9},
-                'Joel':{1:20,2:32,3:21},'Amos':{1:15,2:16,3:15,4:13,5:27,6:14,7:17,8:14,9:15},
-                'Obadiah':{1:21},'Jonah':{1:17,2:10,3:10,4:11},'Micah':{1:16,2:13,3:12,4:13,5:15,6:16,7:20},
-                'Nahum':{1:15,2:13,3:19},'Habakkuk':{1:17,2:20,3:19},'Zephaniah':{1:18,2:15,3:20},
-                'Haggai':{1:15,2:23},'Zechariah':{1:21,2:13,3:10,4:14,5:11,6:15,7:14,8:23,9:17,10:12,11:17,12:14,13:9,14:21},
-                'Malachi':{1:14,2:17,3:18,4:6},
-                'Matthew':{1:25,2:23,3:17,4:25,5:48,6:34,7:29,8:34,9:38,10:42,11:30,12:50,13:58,14:36,15:39,16:28,17:27,18:35,19:30,20:34,21:46,22:46,23:39,24:51,25:46,26:75,27:66,28:20},
-                'Mark':{1:45,2:28,3:35,4:41,5:43,6:56,7:37,8:38,9:50,10:52,11:33,12:44,13:37,14:72,15:47,16:20},
+                'Hebrews':{1:14,2:18,3:19,4:16,5:14,6:20,7:28,8:13,9:28,10:39,11:40,12:29,13:25},
+                'James':{1:27,2:26,3:18,4:17,5:20},
+                'Revelation':{1:20,2:29,3:22,4:11,5:14,6:17,7:17,8:13,9:21,10:11,11:19,12:17,13:18,14:20,15:8,16:21,17:18,18:24,19:21,20:15,21:27,22:21},
+                'Proverbs':{1:33,2:22,3:35,4:27,5:23,6:35,7:27,8:36,9:18,10:32,11:31,12:28,13:25,14:35,15:33,16:33,17:28,18:24,19:29,20:30,21:31,22:29,23:35,24:34,25:28,26:28,27:27,28:28,29:27,30:33,31:31},
                 'Luke':{1:80,2:52,3:38,4:44,5:39,6:49,7:50,8:56,9:62,10:42,11:54,12:59,13:35,14:35,15:32,16:31,17:37,18:43,19:48,20:47,21:38,22:71,23:56,24:53},
-                'John':{1:51,2:25,3:36,4:54,5:47,6:71,7:53,8:59,9:41,10:42,11:57,12:50,13:38,14:31,15:27,16:33,17:26,18:40,19:42,20:31,21:25},
                 'Acts':{1:26,2:47,3:26,4:37,5:42,6:15,7:60,8:40,9:43,10:48,11:30,12:25,13:52,14:28,15:41,16:40,17:34,18:28,19:41,20:38,21:40,22:30,23:35,24:27,25:27,26:32,27:44,28:31},
-                'Romans':{1:32,2:29,3:31,4:25,5:21,6:23,7:25,8:39,9:33,10:21,11:36,12:21,13:14,14:23,15:33,16:27},
+                'Ephesians':{1:23,2:22,3:21,4:32,5:33,6:24},
                 '1 Corinthians':{1:31,2:16,3:23,4:21,5:13,6:20,7:40,8:13,9:27,10:33,11:34,12:31,13:13,14:40,15:58,16:24},
                 '2 Corinthians':{1:24,2:17,3:18,4:18,5:21,6:18,7:16,8:24,9:15,10:18,11:33,12:21,13:14},
-                'Galatians':{1:24,2:21,3:29,4:31,5:26,6:18},'Ephesians':{1:23,2:22,3:21,4:32,5:33,6:24},
-                'Philippians':{1:30,2:30,3:21,4:23},'Colossians':{1:29,2:23,3:25,4:18},
-                '1 Thessalonians':{1:10,2:20,3:13,4:18,5:28},'2 Thessalonians':{1:12,2:17,3:18},
-                '1 Timothy':{1:20,2:15,3:16,4:16,5:25,6:21},'2 Timothy':{1:18,2:26,3:17,4:22},
-                'Titus':{1:16,2:15,3:15},'Philemon':{1:25},
-                'Hebrews':{1:14,2:18,3:19,4:16,5:14,6:20,7:28,8:13,9:28,10:39,11:40,12:29,13:25},
-                'James':{1:27,2:26,3:18,4:17,5:20},'1 Peter':{1:25,2:25,3:22,4:19,5:14},
-                '2 Peter':{1:21,2:22,3:18},'1 John':{1:10,2:29,3:24,4:21,5:21},
-                '2 John':{1:13},'3 John':{1:14},'Jude':{1:25},
-                'Revelation':{1:20,2:29,3:22,4:11,5:14,6:17,7:17,8:13,9:21,10:11,11:19,12:17,13:18,14:20,15:8,16:21,17:18,18:24,19:21,20:15,21:27,22:21}
+                'Galatians':{1:24,2:21,3:29,4:31,5:26,6:18},
+                'Colossians':{1:29,2:23,3:25,4:18},
+                '1 John':{1:10,2:29,3:24,4:21,5:21},
+                'Mark':{1:45,2:28,3:35,4:41,5:43,6:56,7:37,8:38,9:50,10:52,11:33,12:44,13:37,14:72,15:47,16:20},
+                '1 Peter':{1:25,2:25,3:22,4:19,5:14},
+                '2 Timothy':{1:18,2:26,3:17,4:22},
+                '1 Timothy':{1:20,2:15,3:16,4:16,5:25,6:21},
+                'Titus':{1:16,2:15,3:15},
+                'Job':{1:22,2:13,3:26,4:21,5:27,6:30,7:21,8:22,9:35,10:22,11:20,12:25,13:28,14:22,15:35,16:22,17:16,18:21,19:29,20:29,21:34,22:30,23:17,24:25,25:6,26:14,27:23,28:28,29:25,30:31,31:40,32:22,33:33,34:37,35:16,36:33,37:24,38:41,39:30,40:24,41:34,42:17},
+                'Deuteronomy':{1:46,2:37,3:29,4:49,5:33,6:25,7:26,8:20,9:29,10:22,11:32,12:32,13:18,14:29,15:23,16:22,17:20,18:22,19:21,20:20,21:23,22:30,23:25,24:22,25:19,26:19,27:26,28:68,29:29,30:20,31:30,32:52,33:29,34:12},
             },
 
             async init() {
@@ -1608,6 +1742,7 @@
                     this.listenSongs();
                     this.listenLeaders();
                     this.listenLineup();
+                    this.listenWeekVerse();
                 } catch (err) {
                     console.error('Init error:', err);
                     this.setSyncStatus('error', 'Connection failed');
@@ -1675,17 +1810,198 @@
                 }, err => console.error('Lineup listener:', err));
             },
 
+            // ── Week Verse listener ──────────────────────────────────────
+            listenWeekVerse() {
+                const verseDoc = doc(db, 'settings', 'weekVerse');
+                onSnapshot(verseDoc, snap => {
+                    this.weekVerse = snap.exists() ? snap.data() : null;
+                    this.renderVerseCard();
+                }, err => console.error('Verse listener:', err));
+            },
+
+            // ── Verse Card Rendering (home screen) ───────────────────────
+            renderVerseCard() {
+                const section = document.getElementById('verse-card-section');
+                if (!section) return;
+
+                if (!this.weekVerse) {
+                    section.innerHTML = `
+                        <div class="verse-card-empty" onclick="app.vmOpenModal()">
+                            <div class="verse-card-empty-icon">📖</div>
+                            <div class="verse-card-empty-text">
+                                <strong>Add a Bible Verse</strong>
+                                <span>Set a meditation verse for this week — it will appear here as a beautiful quote card.</span>
+                            </div>
+                            <div style="flex-shrink:0;font-size:1.2rem;color:#a5b4fc;opacity:0.7">＋</div>
+                        </div>`;
+                    return;
+                }
+
+                section.innerHTML = `
+                    <div class="verse-postcard">
+                        <div class="verse-postcard-band"></div>
+                        <div class="verse-postcard-deco">"</div>
+                        <div class="verse-postcard-inner">
+                            <div class="verse-postcard-label">
+                                📖 Verse of the Week
+                            </div>
+                            <div class="verse-postcard-text">${this.escHtml(this.weekVerse.text)}</div>
+                            <div class="verse-postcard-ref">
+                                <div class="verse-postcard-ref-dash"></div>
+                                <div class="verse-postcard-ref-text">${this.escHtml(this.weekVerse.ref)}</div>
+                            </div>
+                        </div>
+                        <div class="verse-postcard-actions">
+                            <button class="verse-action-btn" onclick="app.vmOpenModal(true)">✏️ Edit</button>
+                            <button class="verse-action-btn danger" onclick="app.removeWeekVerse()">✕ Remove</button>
+                        </div>
+                    </div>`;
+            },
+
+            // ── Verse Modal ──────────────────────────────────────────────
+            vmOpenModal(editing = false) {
+                this.vmPendingVerse = null;
+                document.getElementById('vm-fetch-status').textContent = '';
+                document.getElementById('vm-verse-preview').style.display = 'none';
+                document.getElementById('vm-book').innerHTML = '<option value="">— Pick a book —</option>';
+                this.BIBLE_BOOKS.forEach(b => {
+                    const opt = document.createElement('option');
+                    opt.value = b; opt.textContent = b;
+                    document.getElementById('vm-book').appendChild(opt);
+                });
+                document.getElementById('vm-chapter').innerHTML = '<option value="">Ch.</option>';
+                document.getElementById('vm-chapter').disabled = true;
+                document.getElementById('vm-verse-num').innerHTML = '<option value="">Vs.</option>';
+                document.getElementById('vm-verse-num').disabled = true;
+
+                // Pre-fill if editing
+                if (editing && this.weekVerse) {
+                    document.getElementById('vm-verse-ref').textContent = this.weekVerse.ref;
+                    document.getElementById('vm-verse-text').textContent = this.weekVerse.text;
+                    document.getElementById('vm-verse-preview').style.display = '';
+                    document.getElementById('vm-fetch-status').textContent = '✓ Verse loaded';
+                    this.vmPendingVerse = { ...this.weekVerse };
+
+                    if (this.weekVerse.book) {
+                        document.getElementById('vm-book').value = this.weekVerse.book;
+                        this.vmFetchChapters();
+                        setTimeout(() => {
+                            if (this.weekVerse.chapter) {
+                                document.getElementById('vm-chapter').value = this.weekVerse.chapter;
+                                this.vmFetchVerseList();
+                                setTimeout(() => {
+                                    if (this.weekVerse.verse) document.getElementById('vm-verse-num').value = this.weekVerse.verse;
+                                }, 60);
+                            }
+                        }, 60);
+                    }
+                }
+
+                document.getElementById('verse-modal').classList.remove('hidden');
+            },
+
+            vmCloseModal() {
+                document.getElementById('verse-modal').classList.add('hidden');
+                this.vmPendingVerse = null;
+            },
+
+            vmFetchChapters() {
+                const book = document.getElementById('vm-book').value;
+                const chSel = document.getElementById('vm-chapter');
+                const vsSel = document.getElementById('vm-verse-num');
+                chSel.innerHTML = '<option value="">Ch.</option>';
+                vsSel.innerHTML = '<option value="">Vs.</option>';
+                chSel.disabled = true; vsSel.disabled = true;
+                if (!book) return;
+                const count = this.CHAPTER_COUNTS[book] || 50;
+                for (let i = 1; i <= count; i++) {
+                    const o = document.createElement('option');
+                    o.value = i; o.textContent = i;
+                    chSel.appendChild(o);
+                }
+                chSel.disabled = false;
+            },
+
+            vmFetchVerseList() {
+                const book = document.getElementById('vm-book').value;
+                const ch = document.getElementById('vm-chapter').value;
+                const vsSel = document.getElementById('vm-verse-num');
+                vsSel.innerHTML = '<option value="">Vs.</option>';
+                vsSel.disabled = true;
+                if (!book || !ch) return;
+                const count = (this.VERSE_COUNTS[book] || {})[parseInt(ch)] || 30;
+                for (let i = 1; i <= count; i++) {
+                    const o = document.createElement('option');
+                    o.value = i; o.textContent = i;
+                    vsSel.appendChild(o);
+                }
+                vsSel.disabled = false;
+                document.getElementById('vm-fetch-status').textContent = count + ' verses available';
+            },
+
+            async vmFetchVerse() {
+                const book = document.getElementById('vm-book').value;
+                const ch = document.getElementById('vm-chapter').value;
+                const vs = document.getElementById('vm-verse-num').value;
+                if (!book || !ch || !vs) { alert('Please select a book, chapter, and verse.'); return; }
+                const statusEl = document.getElementById('vm-fetch-status');
+                statusEl.textContent = 'Fetching…';
+                try {
+                    const bookSlug = encodeURIComponent(book.toLowerCase());
+                    const url = `https://bible-api.com/${bookSlug}+${ch}:${vs}?translation=nlt`;
+                    const res = await fetch(url);
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    const data = await res.json();
+                    if (data.text) {
+                        const cleanText = data.text.trim().replace(/\n/g, ' ');
+                        const ref = `${book} ${ch}:${vs} (NLT)`;
+                        this.vmPendingVerse = { ref, text: cleanText, book, chapter: ch, verse: vs };
+                        document.getElementById('vm-verse-ref').textContent = ref;
+                        document.getElementById('vm-verse-text').textContent = cleanText;
+                        document.getElementById('vm-verse-preview').style.display = '';
+                        statusEl.textContent = '✓ Verse ready';
+                    } else {
+                        statusEl.textContent = 'Verse not found';
+                    }
+                } catch(e) {
+                    console.error(e);
+                    statusEl.textContent = '✗ Fetch failed — try again';
+                }
+            },
+
+            async vmSaveVerse() {
+                if (!this.vmPendingVerse) { alert('Please fetch a verse first.'); return; }
+                this.setSyncStatus('syncing', 'Saving…');
+                try {
+                    await setDoc(doc(db, 'settings', 'weekVerse'), this.vmPendingVerse);
+                    this.setSyncStatus('synced', 'Saved ✓');
+                    this.vmCloseModal();
+                } catch (err) {
+                    console.error(err);
+                    this.setSyncStatus('error', 'Save failed');
+                }
+            },
+
+            async removeWeekVerse() {
+                if (!confirm('Remove the verse of the week?')) return;
+                this.setSyncStatus('syncing', 'Removing…');
+                try {
+                    await deleteDoc(doc(db, 'settings', 'weekVerse'));
+                    this.setSyncStatus('synced', 'Removed ✓');
+                } catch (err) {
+                    console.error(err);
+                    this.setSyncStatus('error', 'Remove failed');
+                }
+            },
+
+            // ── Lineup ───────────────────────────────────────────────────
+
             async saveLineup() {
                 const name = document.getElementById('lineup-name-input').value.trim();
                 const date = document.getElementById('lineup-date-input').value;
                 if (!name) { alert('Please enter a lineup title.'); return; }
                 if (this.lineupSelectedIds.length === 0) { alert('Please select at least one song.'); return; }
-                const data = {
-                    name,
-                    date: date || '',
-                    songIds: this.lineupSelectedIds,
-                    verse: this.verseData || null
-                };
+                const data = { name, date: date || '', songIds: this.lineupSelectedIds };
                 this.setSyncStatus('syncing', 'Saving…');
                 try {
                     await setDoc(doc(db, 'lineups', 'current'), data);
@@ -1708,101 +2024,6 @@
                     console.error(err);
                     this.setSyncStatus('error', 'Remove failed');
                 }
-            },
-
-            // ── Bible Verse Selector ─────────────────────────────────────
-
-            initVerseSelector() {
-                const bookSel = document.getElementById('verse-book');
-                if (!bookSel) return;
-                if (bookSel.options.length > 1) return;
-                this.BIBLE_BOOKS.forEach(b => {
-                    const opt = document.createElement('option');
-                    opt.value = b;
-                    opt.textContent = b;
-                    bookSel.appendChild(opt);
-                });
-            },
-
-            fetchVerseChapters() {
-                const book = document.getElementById('verse-book').value;
-                const chSel = document.getElementById('verse-chapter');
-                const vsSel = document.getElementById('verse-num');
-                chSel.innerHTML = '<option value="">Ch.</option>';
-                vsSel.innerHTML = '<option value="">Vs.</option>';
-                chSel.disabled = true;
-                vsSel.disabled = true;
-                if (!book) return;
-                const count = this.CHAPTER_COUNTS[book] || 50;
-                for (let i = 1; i <= count; i++) {
-                    const o = document.createElement('option');
-                    o.value = i; o.textContent = i;
-                    chSel.appendChild(o);
-                }
-                chSel.disabled = false;
-            },
-
-            // ── Now purely local — no network call needed ──
-            fetchVerseList() {
-                const book = document.getElementById('verse-book').value;
-                const ch = document.getElementById('verse-chapter').value;
-                const vsSel = document.getElementById('verse-num');
-                vsSel.innerHTML = '<option value="">Vs.</option>';
-                vsSel.disabled = true;
-                if (!book || !ch) return;
-                const count = (this.VERSE_COUNTS[book] || {})[parseInt(ch)] || 30;
-                for (let i = 1; i <= count; i++) {
-                    const o = document.createElement('option');
-                    o.value = i; o.textContent = i;
-                    vsSel.appendChild(o);
-                }
-                vsSel.disabled = false;
-                document.getElementById('verse-fetch-status').textContent = count + ' verses available';
-            },
-
-            async fetchVerse() {
-                const book = document.getElementById('verse-book').value;
-                const ch = document.getElementById('verse-chapter').value;
-                const vs = document.getElementById('verse-num').value;
-                if (!book || !ch || !vs) {
-                    alert('Please select a book, chapter, and verse first.');
-                    return;
-                }
-                const statusEl = document.getElementById('verse-fetch-status');
-                statusEl.textContent = 'Fetching…';
-                try {
-                    const bookSlug = encodeURIComponent(book.toLowerCase());
-                    const url = `https://bible-api.com/${bookSlug}+${ch}:${vs}?translation=nlt`;
-                    const res = await fetch(url);
-                    if (!res.ok) throw new Error('HTTP ' + res.status);
-                    const data = await res.json();
-                    if (data.text) {
-                        const cleanText = data.text.trim().replace(/\n/g, ' ');
-                        const ref = `${book} ${ch}:${vs} (NLT)`;
-                        this.verseData = { ref, text: cleanText, book, chapter: ch, verse: vs };
-                        document.getElementById('verse-ref-label').textContent = ref;
-                        document.getElementById('verse-text-preview').textContent = cleanText;
-                        document.getElementById('verse-preview').style.display = '';
-                        statusEl.textContent = '✓ Verse ready';
-                    } else {
-                        statusEl.textContent = 'Verse not found';
-                    }
-                } catch(e) {
-                    console.error(e);
-                    statusEl.textContent = '✗ Fetch failed — try again';
-                }
-            },
-
-            clearVerse() {
-                this.verseData = null;
-                document.getElementById('verse-preview').style.display = 'none';
-                document.getElementById('verse-fetch-status').textContent = '';
-                const bookSel = document.getElementById('verse-book');
-                if (bookSel) bookSel.value = '';
-                const chSel = document.getElementById('verse-chapter');
-                if (chSel) { chSel.innerHTML = '<option value="">Ch.</option>'; chSel.disabled = true; }
-                const vsSel = document.getElementById('verse-num');
-                if (vsSel) { vsSel.innerHTML = '<option value="">Vs.</option>'; vsSel.disabled = true; }
             },
 
             // ── Lineup Display Controls ──────────────────────────────────
@@ -1847,11 +2068,8 @@
                 panel.style.fontSize = this.lineupFontSize + 'px';
                 panel.style.zoom = (this.lineupZoom / 100);
                 document.querySelectorAll('.lineup-chart-content').forEach(el => {
-                    if (this.lineupWrapMode) {
-                        el.classList.add('wrap-on');
-                    } else {
-                        el.classList.remove('wrap-on');
-                    }
+                    if (this.lineupWrapMode) el.classList.add('wrap-on');
+                    else el.classList.remove('wrap-on');
                 });
             },
 
@@ -1866,19 +2084,17 @@
 
             setMasterLeader(leaderId) {
                 this.masterLeaderId = leaderId;
-                const badge  = document.getElementById('master-leader-badge');
+                const badge = document.getElementById('master-leader-badge');
                 const clearBtn = document.getElementById('master-clear-btn');
-
                 if (leaderId) {
                     const leader = this.leaders.find(l => l.id === leaderId);
-                    badge.textContent  = leader ? `${leader.name}'s keys applied` : '';
+                    badge.textContent = leader ? `${leader.name}'s keys applied` : '';
                     badge.classList.add('visible');
                     clearBtn.classList.add('visible');
                 } else {
                     badge.classList.remove('visible');
                     clearBtn.classList.remove('visible');
                 }
-
                 if (this.lineup) {
                     const songs = (this.lineup.songIds || []).map(id => this.songs.find(s => s.id === id)).filter(Boolean);
                     songs.forEach(song => {
@@ -1894,7 +2110,7 @@
                 this.setMasterLeader('');
             },
 
-            // ── Lineup Hero ── (verse ONLY shown here) ───────────────────
+            // ── Lineup Hero ──────────────────────────────────────────────
 
             renderLineupHero() {
                 const section = document.getElementById('lineup-hero-section');
@@ -1914,14 +2130,6 @@
                 const dateStr = this.lineup.date
                     ? new Date(this.lineup.date + 'T00:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' })
                     : '';
-
-                // Verse shown ONLY in the hero section on the home screen
-                const verseHtml = this.lineup.verse ? `
-                    <div class="hero-verse-block">
-                        <div class="hero-verse-ref">📖 ${this.escHtml(this.lineup.verse.ref)}</div>
-                        <div class="hero-verse-text">${this.escHtml(this.lineup.verse.text)}</div>
-                    </div>` : '';
-
                 section.innerHTML = `
                     <div class="lineup-hero">
                         <div class="lineup-hero-label">🎵 This Week's Lineup</div>
@@ -1930,7 +2138,6 @@
                         <div class="lineup-song-pills">
                             ${songs.map((s,i) => `<span class="lineup-song-pill">${i+1}. ${this.escHtml(s.title)}</span>`).join('')}
                         </div>
-                        ${verseHtml}
                         <div class="lineup-hero-actions">
                             <button class="btn" onclick="app.viewLineup()">View All Chords →</button>
                             <button class="btn-sm" onclick="app.openLineupModal(true)">✏️ Edit</button>
@@ -1938,13 +2145,11 @@
                     </div>`;
             },
 
-            // ── Lineup View ── (no verse display here) ───────────────────
+            // ── Lineup View ──────────────────────────────────────────────
 
             viewLineup() {
                 if (!this.lineup) return;
-
                 this.masterLeaderId = '';
-
                 const songs = (this.lineup.songIds || []).map(id => this.songs.find(s => s.id === id)).filter(Boolean);
                 const dateStr = this.lineup.date
                     ? new Date(this.lineup.date + 'T00:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' })
@@ -1956,18 +2161,13 @@
                 dateEl.style.display = dateStr ? '' : 'none';
 
                 const container = document.getElementById('lineup-charts-container');
-
                 const sectionsHtml = songs.map((song, idx) => {
                     const chartHtml = this.buildChartHtml(song, song.defaultKey);
-
                     const leaderOptions = this.leaders.map(l => {
                         const savedKey = (l.preferredKeys || {})[song.id];
-                        const label = savedKey
-                            ? `${this.escHtml(l.name)} — Key of ${savedKey}`
-                            : `${this.escHtml(l.name)} (no saved key)`;
+                        const label = savedKey ? `${this.escHtml(l.name)} — Key of ${savedKey}` : `${this.escHtml(l.name)} (no saved key)`;
                         return `<option value="${l.id}">${label}</option>`;
                     }).join('');
-
                     return `
                         <div class="lineup-song-section" id="lineup-section-${song.id}">
                             <div class="lineup-song-meta">
@@ -1978,7 +2178,6 @@
                                 </div>
                                 <button class="lineup-open-btn" onclick="app.viewSong('${song.id}')">Open Song →</button>
                             </div>
-
                             <div class="lineup-leader-row">
                                 <span class="lineup-leader-label">🎤 Song Leader</span>
                                 <select class="lineup-leader-select" id="lineup-leader-${song.id}"
@@ -1988,37 +2187,31 @@
                                 </select>
                                 <span class="lineup-key-badge" id="lineup-key-badge-${song.id}"></span>
                             </div>
-
                             <div class="lineup-chart-content${this.lineupWrapMode ? ' wrap-on' : ''}" id="lineup-chart-${song.id}">${chartHtml}</div>
                         </div>`;
                 }).join('');
 
                 container.innerHTML = `<div class="lineup-unified-panel">${sectionsHtml}</div>`;
-
                 this._populateMasterLeaderSelect();
                 const badge = document.getElementById('master-leader-badge');
                 const clearBtn = document.getElementById('master-clear-btn');
                 if (badge) badge.classList.remove('visible');
                 if (clearBtn) clearBtn.classList.remove('visible');
-
                 this._applyLineupStyles();
                 this.setLineupFont(this.lineupFontSize);
                 document.getElementById('wrap-on-btn').classList.toggle('active', this.lineupWrapMode);
                 document.getElementById('wrap-off-btn').classList.toggle('active', !this.lineupWrapMode);
                 document.getElementById('lineup-zoom-slider').value = this.lineupZoom;
                 document.getElementById('lineup-zoom-pct').textContent = this.lineupZoom + '%';
-
                 this.showView('view-lineup');
             },
 
             changeLineupSongKey(songId, leaderId) {
                 const song = this.songs.find(s => s.id === songId);
                 if (!song) return;
-
                 let targetKey = song.defaultKey;
                 let badgeText = '';
                 let badgeClass = 'lineup-key-badge';
-
                 if (leaderId) {
                     const leader = this.leaders.find(l => l.id === leaderId);
                     if (leader) {
@@ -2026,7 +2219,6 @@
                         if (savedKey) {
                             targetKey = savedKey;
                             badgeText = `Key of ${savedKey}`;
-                            badgeClass = 'lineup-key-badge';
                         } else {
                             targetKey = song.defaultKey;
                             badgeText = `No saved key — using ${song.defaultKey}`;
@@ -2034,28 +2226,19 @@
                         }
                     }
                 }
-
                 const chartEl = document.getElementById(`lineup-chart-${songId}`);
                 if (chartEl) {
                     chartEl.innerHTML = this.buildChartHtml(song, targetKey);
                     if (this.lineupWrapMode) chartEl.classList.add('wrap-on');
                     else chartEl.classList.remove('wrap-on');
                 }
-
                 const metaEl = document.getElementById(`lineup-song-meta-p-${songId}`);
-                if (metaEl) {
-                    metaEl.innerHTML = `${this.escHtml(song.artist)} &bull; Key of <strong>${targetKey}</strong> &bull; ${song.tempo} BPM &bull; ${song.timeSignature}`;
-                }
-
+                if (metaEl) metaEl.innerHTML = `${this.escHtml(song.artist)} &bull; Key of <strong>${targetKey}</strong> &bull; ${song.tempo} BPM &bull; ${song.timeSignature}`;
                 const badge = document.getElementById(`lineup-key-badge-${songId}`);
                 if (badge) {
                     badge.className = badgeClass;
-                    if (leaderId && badgeText) {
-                        badge.textContent = badgeText;
-                        badge.style.display = 'inline-block';
-                    } else {
-                        badge.style.display = 'none';
-                    }
+                    if (leaderId && badgeText) { badge.textContent = badgeText; badge.style.display = 'inline-block'; }
+                    else badge.style.display = 'none';
                 }
             },
 
@@ -2063,41 +2246,10 @@
 
             openLineupModal(editing = false) {
                 this.lineupSelectedIds = editing && this.lineup ? [...(this.lineup.songIds || [])] : [];
-                this.verseData = editing && this.lineup ? (this.lineup.verse || null) : null;
-
                 document.getElementById('lineup-name-input').value = editing && this.lineup ? this.lineup.name : '';
                 document.getElementById('lineup-date-input').value = editing && this.lineup ? this.lineup.date : '';
                 document.getElementById('lineup-search-input').value = '';
                 document.getElementById('lineup-modal-title').textContent = editing ? 'Edit Lineup' : "Create This Week's Lineup";
-
-                document.getElementById('verse-fetch-status').textContent = '';
-                document.getElementById('verse-preview').style.display = 'none';
-
-                this.initVerseSelector();
-
-                if (this.verseData) {
-                    document.getElementById('verse-ref-label').textContent = this.verseData.ref;
-                    document.getElementById('verse-text-preview').textContent = this.verseData.text;
-                    document.getElementById('verse-preview').style.display = '';
-                    document.getElementById('verse-fetch-status').textContent = '✓ Verse loaded';
-                    const bookSel = document.getElementById('verse-book');
-                    if (bookSel && this.verseData.book) {
-                        bookSel.value = this.verseData.book;
-                        this.fetchVerseChapters();
-                        setTimeout(() => {
-                            const chSel = document.getElementById('verse-chapter');
-                            if (chSel && this.verseData.chapter) {
-                                chSel.value = this.verseData.chapter;
-                                this.fetchVerseList();
-                                setTimeout(() => {
-                                    const vsSel = document.getElementById('verse-num');
-                                    if (vsSel && this.verseData.verse) vsSel.value = this.verseData.verse;
-                                }, 50);
-                            }
-                        }, 50);
-                    }
-                }
-
                 this.renderLineupPicker(this.songs);
                 this.renderSelectedOrder();
                 document.getElementById('lineup-modal').classList.remove('hidden');
@@ -2174,6 +2326,7 @@
                 this.showView('view-list');
                 this.renderSongList(this.songs);
                 this.renderLineupHero();
+                this.renderVerseCard();
             },
 
             filterSongs() {
@@ -2319,21 +2472,17 @@
                 let ti = CHROMATIC_SHARP.indexOf(targetKey);
                 if (ti === -1) ti = CHROMATIC_FLAT.indexOf(targetKey);
                 const steps = ti - si;
-
                 const labelClass = darkMode ? 'cv-section-label-dark' : 'cv-section-label';
-
                 let html = '';
                 song.chordChart.split('\n').forEach(line => {
                     if (isSectionLabel(line)) {
                         html += `<span class="${labelClass}">${this.escHtml(sectionLabelText(line))}</span>`;
                         return;
                     }
-
                     if (line.trim() === '') {
                         html += '<span class="cv-line">&nbsp;</span>';
                         return;
                     }
-
                     const chords = {};
                     let lyric = '';
                     let i = 0;
@@ -2348,7 +2497,6 @@
                         }
                         lyric += line[i++];
                     }
-
                     let lineHtml = '<span class="cv-line">';
                     for (let ci = 0; ci < lyric.length; ci++) {
                         const chord = chords[ci];
@@ -2383,8 +2531,6 @@
                 const formulas = [{label:'I',type:'Maj'},{label:'ii',type:'m'},{label:'iii',type:'m'},
                     {label:'IV',type:'Maj'},{label:'V',type:'Maj'},{label:'vi',type:'m'},{label:'vii°',type:'dim'}];
                 const intervals = [0,2,4,5,7,9,11];
-                let si = CHROMATIC_SHARP.indexOf(key);
-                if (si === -1) si = CHROMATIC_FLAT.indexOf(key);
                 document.getElementById('diatonic-helper').innerHTML = intervals.map((interval, idx) => {
                     const note = this.transposeChord(key, interval);
                     const suffix = formulas[idx].type === 'm' ? 'm' : (formulas[idx].type === 'dim' ? 'dim' : '');
@@ -2460,9 +2606,7 @@
                 } catch (err) { console.error(err); this.setSyncStatus('error', 'Save failed'); alert('Error saving.'); }
             },
 
-            // ══════════════════════════════════════════════════════════════
-            // VISUAL CHORD EDITOR
-            // ══════════════════════════════════════════════════════════════
+            // ── Visual Chord Editor ──────────────────────────────────────
 
             veLines: [],
             veActiveLine: null,
@@ -2473,8 +2617,7 @@
                 this.veEditorTab = 'visual';
                 this.veLines = this.veParseRaw(rawChart);
                 this.switchEditorTab('visual');
-                document.getElementById('ve-lyrics-input').value =
-                    this.veLines.map(l => l.lyric).join('\n');
+                document.getElementById('ve-lyrics-input').value = this.veLines.map(l => l.lyric).join('\n');
                 this.veRenderCanvas();
                 this.veClosePicker();
             },
@@ -2483,7 +2626,7 @@
                 this.veEditorTab = tab;
                 const isVisual = tab === 'visual';
                 document.getElementById('visual-editor-wrap').style.display = isVisual ? '' : 'none';
-                document.getElementById('raw-editor-wrap').style.display   = isVisual ? 'none' : '';
+                document.getElementById('raw-editor-wrap').style.display = isVisual ? 'none' : '';
                 const vBtn = document.getElementById('editor-tab-visual');
                 const rBtn = document.getElementById('editor-tab-raw');
                 if (isVisual) {
@@ -2510,24 +2653,16 @@
             veParseRaw(raw) {
                 if (!raw || !raw.trim()) return [];
                 return raw.split('\n').map(line => {
-                    if (isSectionLabel(line)) {
-                        return { lyric: line.trim(), chords: {}, isLabel: true };
-                    }
+                    if (isSectionLabel(line)) return { lyric: line.trim(), chords: {}, isLabel: true };
                     const chords = {};
                     let lyric = '';
                     let i = 0;
                     while (i < line.length) {
                         if (line[i] === '[') {
                             const close = line.indexOf(']', i);
-                            if (close !== -1) {
-                                const chord = line.slice(i+1, close);
-                                chords[lyric.length] = chord;
-                                i = close + 1;
-                                continue;
-                            }
+                            if (close !== -1) { const chord = line.slice(i+1, close); chords[lyric.length] = chord; i = close + 1; continue; }
                         }
-                        lyric += line[i];
-                        i++;
+                        lyric += line[i]; i++;
                     }
                     return { lyric, chords };
                 });
@@ -2552,9 +2687,7 @@
             veOnLyricsChange() {
                 const newLines = document.getElementById('ve-lyrics-input').value.split('\n');
                 const updated = newLines.map((newLyric, idx) => {
-                    if (isSectionLabel(newLyric)) {
-                        return { lyric: newLyric.trim(), chords: {}, isLabel: true };
-                    }
+                    if (isSectionLabel(newLyric)) return { lyric: newLyric.trim(), chords: {}, isLabel: true };
                     const old = this.veLines[idx];
                     if (old && !old.isLabel && old.lyric === newLyric) return old;
                     const oldChords = (old && !old.isLabel && old.lyric.length === newLyric.length) ? old.chords : {};
@@ -2606,38 +2739,26 @@
                 const currentChord = (this.veLines[li]?.chords || {})[ci];
                 const key = document.getElementById('edit-key').value || 'G';
                 const si = CHROMATIC_SHARP.indexOf(key) !== -1 ? CHROMATIC_SHARP.indexOf(key) : CHROMATIC_FLAT.indexOf(key);
-
                 const quickChords = [
                     key, key+'m', key+'7', key+'maj7',
-                    ...([2,4,5,7,9,11].map(iv => {
-                        const ni = ((si+iv)%12+12)%12;
-                        return CHROMATIC_SHARP[ni];
-                    })),
-                    ...([2,4,9].map(iv => {
-                        const ni = ((si+iv)%12+12)%12;
-                        return CHROMATIC_SHARP[ni]+'m';
-                    })),
+                    ...([2,4,5,7,9,11].map(iv => { const ni = ((si+iv)%12+12)%12; return CHROMATIC_SHARP[ni]; })),
+                    ...([2,4,9].map(iv => { const ni = ((si+iv)%12+12)%12; return CHROMATIC_SHARP[ni]+'m'; })),
                     'Cadd9','Dsus2','Esus4','Fsus2'
                 ].slice(0,18);
-
                 const line = this.veLines[li];
                 const charLabel = line ? `"${line.lyric[ci] || '…'}" — Line ${li+1}, pos ${ci+1}` : '';
                 document.getElementById('ve-picker-context').textContent = charLabel;
-
                 document.getElementById('ve-quick-chords').innerHTML = quickChords.map(c => `
                     <button class="ve-quick-chord-btn${c===currentChord?' is-current':''}"
                         onclick="app.veSetChord(${li},${ci},'${this.escHtml(c)}')">${this.escHtml(c)}</button>
                 `).join('');
-
                 document.getElementById('ve-custom-chord').value = currentChord || '';
                 document.getElementById('ve-chord-picker-overlay').classList.remove('hidden');
                 setTimeout(() => document.getElementById('ve-custom-chord').focus(), 80);
             },
 
             veOverlayClick(event) {
-                if (event.target === document.getElementById('ve-chord-picker-overlay')) {
-                    this.veClosePicker();
-                }
+                if (event.target === document.getElementById('ve-chord-picker-overlay')) this.veClosePicker();
             },
 
             veSetChord(li, ci, chord) {
@@ -2755,8 +2876,6 @@
                     this.showLeaders();
                 } catch (err) { console.error(err); this.setSyncStatus('error', 'Remove failed'); }
             },
-
-            // ── Utility ──────────────────────────────────────────────────
 
             escHtml(str) {
                 return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
