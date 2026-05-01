@@ -386,7 +386,9 @@
             color: #f87171;
         }
 
-        /* ── VERSE MODAL ── */
+        /* ══════════════════════════════════════════════════════════
+           VERSE MODAL — Manual text input (no API selectors)
+        ══════════════════════════════════════════════════════════ */
         #verse-modal {
             position: fixed; inset: 0;
             background: rgba(0,0,0,0.75);
@@ -422,72 +424,99 @@
         .verse-modal-sub {
             font-size: 0.82rem;
             color: var(--text-dim);
-            margin-bottom: 22px;
+            margin-bottom: 24px;
         }
 
-        /* verse selects row */
-        .vm-selects {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-        .vm-selects select {
-            margin: 0;
-            padding: 9px 10px;
-            font-size: 0.83rem;
-            background: var(--bg-deep);
-            border: 1px solid #334155;
-            color: var(--text-main);
-            border-radius: 8px;
-        }
-        .vm-selects select:disabled { opacity: 0.4; cursor: not-allowed; }
-
-        .vm-fetch-row {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-        .vm-fetch-btn {
-            background: #7c3aed;
-            color: #fff;
-            border: none;
-            padding: 9px 18px;
-            border-radius: 8px;
-            font-size: 0.83rem;
+        /* Manual input fields */
+        .vm-field-label {
+            display: block;
+            font-size: 0.72rem;
             font-weight: 700;
-            cursor: pointer;
-            font-family: var(--font-sans);
-            white-space: nowrap;
-            transition: background 0.2s;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #a78bfa;
+            margin-bottom: 6px;
         }
-        .vm-fetch-btn:hover { background: #6d28d9; }
-        #vm-fetch-status { font-size: 0.78rem; color: var(--text-dim); }
-
-        #vm-verse-preview {
-            background: rgba(124,58,237,0.1);
+        .vm-verse-textarea {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(124,58,237,0.07);
             border: 1px solid rgba(124,58,237,0.3);
+            border-radius: 10px;
+            color: #e8e0ff;
+            font-family: var(--font-lora);
+            font-size: 1rem;
+            font-style: italic;
+            line-height: 1.75;
+            resize: vertical;
+            min-height: 110px;
+            margin-bottom: 16px;
+            transition: border-color 0.2s;
+        }
+        .vm-verse-textarea:focus {
+            outline: none;
+            border-color: rgba(124,58,237,0.65);
+        }
+        .vm-verse-textarea::placeholder {
+            color: rgba(167,139,250,0.35);
+            font-style: italic;
+        }
+        .vm-ref-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(124,58,237,0.07);
+            border: 1px solid rgba(124,58,237,0.3);
+            border-radius: 10px;
+            color: #c4b5fd;
+            font-family: var(--font-sans);
+            font-size: 0.88rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            margin-bottom: 20px;
+            transition: border-color 0.2s;
+        }
+        .vm-ref-input:focus {
+            outline: none;
+            border-color: rgba(124,58,237,0.65);
+        }
+        .vm-ref-input::placeholder {
+            color: rgba(167,139,250,0.35);
+            font-weight: 400;
+        }
+
+        /* Live preview inside modal */
+        #vm-live-preview {
+            background: rgba(124,58,237,0.08);
+            border: 1px solid rgba(124,58,237,0.2);
             border-radius: 10px;
             padding: 16px 18px;
             margin-bottom: 20px;
             display: none;
         }
-        #vm-verse-ref {
-            font-size: 0.68rem;
+        #vm-live-preview.visible { display: block; }
+        .vm-preview-label {
+            font-size: 0.62rem;
             font-weight: 700;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.12em;
             text-transform: uppercase;
             color: #a78bfa;
-            margin-bottom: 8px;
-            font-family: var(--font-sans);
+            margin-bottom: 10px;
         }
-        #vm-verse-text {
+        #vm-preview-text {
             font-family: var(--font-lora);
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             color: #e8e0ff;
             line-height: 1.75;
             font-style: italic;
+            margin-bottom: 8px;
+        }
+        #vm-preview-ref {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            color: #c4b5fd;
+            text-transform: uppercase;
+            font-family: var(--font-sans);
         }
 
         .vm-actions {
@@ -1127,8 +1156,6 @@
         @media (max-width: 480px) {
             .lineup-section-header h1 { font-size: 1.5rem; }
             .toolbar-label { min-width: 52px; font-size: 0.65rem; }
-            .vm-selects { grid-template-columns: 1fr 1fr; }
-            .vm-selects select:first-child { grid-column: 1 / -1; }
         }
 
         /* Visual Chord Editor */
@@ -1329,33 +1356,35 @@
     </div>
 
     <!-- ══════════════════════════════════════════════════════
-         BIBLE VERSE MODAL
+         BIBLE VERSE MODAL — Manual input, no API selectors
     ═══════════════════════════════════════════════════════ -->
     <div id="verse-modal" class="hidden">
         <div class="verse-modal-box">
             <h3>📖 Bible Verse of the Week</h3>
-            <p class="verse-modal-sub">Select a verse and it will appear as a beautiful quote card on the home screen.</p>
+            <p class="verse-modal-sub">Type or paste a verse and it will appear as a beautiful quote card on the home screen.</p>
 
-            <div class="vm-selects">
-                <select id="vm-book" onchange="app.vmFetchChapters()">
-                    <option value="">— Pick a book —</option>
-                </select>
-                <select id="vm-chapter" onchange="app.vmFetchVerseList()" disabled>
-                    <option value="">Ch.</option>
-                </select>
-                <select id="vm-verse-num" disabled>
-                    <option value="">Vs.</option>
-                </select>
-            </div>
+            <label class="vm-field-label">Verse Text</label>
+            <textarea
+                id="vm-verse-text-input"
+                class="vm-verse-textarea"
+                placeholder="e.g. For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future."
+                oninput="app.vmUpdatePreview()"
+            ></textarea>
 
-            <div class="vm-fetch-row">
-                <button class="vm-fetch-btn" onclick="app.vmFetchVerse()">Fetch Verse</button>
-                <span id="vm-fetch-status"></span>
-            </div>
+            <label class="vm-field-label">Reference</label>
+            <input
+                id="vm-verse-ref-input"
+                class="vm-ref-input"
+                type="text"
+                placeholder="e.g. Jeremiah 29:11 (NIV)"
+                oninput="app.vmUpdatePreview()"
+            >
 
-            <div id="vm-verse-preview">
-                <div id="vm-verse-ref"></div>
-                <div id="vm-verse-text"></div>
+            <!-- Live Preview -->
+            <div id="vm-live-preview">
+                <div class="vm-preview-label">✨ Preview</div>
+                <div id="vm-preview-text"></div>
+                <div id="vm-preview-ref"></div>
             </div>
 
             <div class="vm-actions">
@@ -1660,8 +1689,7 @@
             songs: [],
             leaders: [],
             lineup: null,
-            weekVerse: null,          // ← standalone Bible verse of the week
-            vmPendingVerse: null,     // ← verse being previewed in modal
+            weekVerse: null,
             lineupSelectedIds: [],
             currentSongId: null,
             currentKey: 'C',
@@ -1673,63 +1701,6 @@
             lineupZoom: 100,
 
             masterLeaderId: '',
-
-            BIBLE_BOOKS: [
-                'Genesis','Exodus','Leviticus','Numbers','Deuteronomy','Joshua','Judges','Ruth',
-                '1 Samuel','2 Samuel','1 Kings','2 Kings','1 Chronicles','2 Chronicles','Ezra',
-                'Nehemiah','Esther','Job','Psalms','Proverbs','Ecclesiastes','Song of Solomon',
-                'Isaiah','Jeremiah','Lamentations','Ezekiel','Daniel','Hosea','Joel','Amos',
-                'Obadiah','Jonah','Micah','Nahum','Habakkuk','Zephaniah','Haggai','Zechariah',
-                'Malachi','Matthew','Mark','Luke','John','Acts','Romans','1 Corinthians',
-                '2 Corinthians','Galatians','Ephesians','Philippians','Colossians','1 Thessalonians',
-                '2 Thessalonians','1 Timothy','2 Timothy','Titus','Philemon','Hebrews','James',
-                '1 Peter','2 Peter','1 John','2 John','3 John','Jude','Revelation'
-            ],
-
-            CHAPTER_COUNTS: {
-                'Genesis':50,'Exodus':40,'Leviticus':27,'Numbers':36,'Deuteronomy':34,'Joshua':24,
-                'Judges':21,'Ruth':4,'1 Samuel':31,'2 Samuel':24,'1 Kings':22,'2 Kings':25,
-                '1 Chronicles':29,'2 Chronicles':36,'Ezra':10,'Nehemiah':13,'Esther':10,'Job':42,
-                'Psalms':150,'Proverbs':31,'Ecclesiastes':12,'Song of Solomon':8,'Isaiah':66,
-                'Jeremiah':52,'Lamentations':5,'Ezekiel':48,'Daniel':12,'Hosea':14,'Joel':3,
-                'Amos':9,'Obadiah':1,'Jonah':4,'Micah':7,'Nahum':3,'Habakkuk':3,'Zephaniah':3,
-                'Haggai':2,'Zechariah':14,'Malachi':4,'Matthew':28,'Mark':16,'Luke':24,'John':21,
-                'Acts':28,'Romans':16,'1 Corinthians':16,'2 Corinthians':13,'Galatians':6,
-                'Ephesians':6,'Philippians':4,'Colossians':4,'1 Thessalonians':5,'2 Thessalonians':3,
-                '1 Timothy':6,'2 Timothy':4,'Titus':3,'Philemon':1,'Hebrews':13,'James':5,
-                '1 Peter':5,'2 Peter':3,'1 John':5,'2 John':1,'3 John':1,'Jude':1,'Revelation':22
-            },
-
-            VERSE_COUNTS: {
-                'Genesis':{1:31,2:25,3:24,4:26,5:32,6:22,7:24,8:22,9:29,10:32,11:32,12:20,13:18,14:24,15:21,16:16,17:27,18:33,19:38,20:18,21:34,22:24,23:20,24:67,25:34,26:35,27:46,28:22,29:35,30:43,31:55,32:32,33:20,34:31,35:29,36:43,37:36,38:30,39:23,40:23,41:57,42:38,43:34,44:34,45:28,46:34,47:31,48:22,49:33,50:26},
-                'Exodus':{1:22,2:25,3:22,4:31,5:23,6:30,7:25,8:32,9:35,10:29,11:10,12:51,13:22,14:31,15:27,16:36,17:16,18:27,19:25,20:26,21:36,22:31,23:33,24:18,25:40,26:37,27:21,28:43,29:46,30:38,31:18,32:35,33:23,34:35,35:35,36:38,37:29,38:31,39:43,40:38},
-                'Psalms':{1:6,2:12,3:8,4:8,5:12,6:10,7:17,8:9,9:20,10:18,11:7,12:8,13:6,14:7,15:5,16:11,17:15,18:50,19:14,20:9,21:13,22:31,23:6,24:10,25:22,26:12,27:14,28:9,29:11,30:12,31:24,32:11,33:22,34:22,35:28,36:12,37:40,38:22,39:13,40:17,41:13,42:11,43:5,44:26,45:17,46:11,47:9,48:14,49:20,50:23,51:19,52:9,53:6,54:7,55:23,56:13,57:11,58:11,59:17,60:12,61:8,62:12,63:11,64:10,65:13,66:20,67:7,68:35,69:36,70:5,71:24,72:20,73:28,74:23,75:10,76:12,77:20,78:72,79:13,80:19,81:16,82:8,83:18,84:12,85:13,86:17,87:7,88:18,89:52,90:17,91:16,92:15,93:5,94:23,95:11,96:13,97:12,98:9,99:9,100:5,101:8,102:28,103:22,104:35,105:45,106:48,107:43,108:13,109:31,110:7,111:10,112:10,113:9,114:8,115:18,116:19,117:2,118:29,119:176,120:7,121:8,122:9,123:4,124:8,125:5,126:6,127:5,128:6,129:8,130:8,131:3,132:18,133:3,134:3,135:21,136:26,137:9,138:8,139:24,140:13,141:10,142:7,143:12,144:15,145:21,146:10,147:20,148:14,149:9,150:6},
-                'John':{1:51,2:25,3:36,4:54,5:47,6:71,7:53,8:59,9:41,10:42,11:57,12:50,13:38,14:31,15:27,16:33,17:26,18:40,19:42,20:31,21:25},
-                'Romans':{1:32,2:29,3:31,4:25,5:21,6:23,7:25,8:39,9:33,10:21,11:36,12:21,13:14,14:23,15:33,16:27},
-                'Philippians':{1:30,2:30,3:21,4:23},
-                'Matthew':{1:25,2:23,3:17,4:25,5:48,6:34,7:29,8:34,9:38,10:42,11:30,12:50,13:58,14:36,15:39,16:28,17:27,18:35,19:30,20:34,21:46,22:46,23:39,24:51,25:46,26:75,27:66,28:20},
-                'Isaiah':{1:31,2:22,3:26,4:6,5:30,6:13,7:25,8:23,9:21,10:34,11:16,12:6,13:22,14:32,15:9,16:14,17:14,18:7,19:25,20:6,21:17,22:25,23:18,24:23,25:12,26:21,27:13,28:29,29:24,30:33,31:9,32:20,33:24,34:17,35:10,36:22,37:38,38:22,39:8,40:31,41:29,42:25,43:28,44:28,45:25,46:13,47:15,48:22,49:26,50:11,51:23,52:15,53:12,54:17,55:13,56:12,57:21,58:14,59:21,60:22,61:11,62:12,63:19,64:12,65:25,66:24},
-                'Jeremiah':{1:19,2:37,3:25,4:31,5:31,6:30,7:34,8:22,9:26,10:25,11:23,12:17,13:27,14:22,15:21,16:21,17:27,18:23,19:15,20:18,21:14,22:30,23:40,24:10,25:38,26:24,27:22,28:17,29:32,30:24,31:40,32:44,33:26,34:22,35:19,36:32,37:21,38:28,39:18,40:16,41:18,42:22,43:13,44:30,45:5,46:28,47:7,48:47,49:39,50:46,51:64,52:34},
-                'Hebrews':{1:14,2:18,3:19,4:16,5:14,6:20,7:28,8:13,9:28,10:39,11:40,12:29,13:25},
-                'James':{1:27,2:26,3:18,4:17,5:20},
-                'Revelation':{1:20,2:29,3:22,4:11,5:14,6:17,7:17,8:13,9:21,10:11,11:19,12:17,13:18,14:20,15:8,16:21,17:18,18:24,19:21,20:15,21:27,22:21},
-                'Proverbs':{1:33,2:22,3:35,4:27,5:23,6:35,7:27,8:36,9:18,10:32,11:31,12:28,13:25,14:35,15:33,16:33,17:28,18:24,19:29,20:30,21:31,22:29,23:35,24:34,25:28,26:28,27:27,28:28,29:27,30:33,31:31},
-                'Luke':{1:80,2:52,3:38,4:44,5:39,6:49,7:50,8:56,9:62,10:42,11:54,12:59,13:35,14:35,15:32,16:31,17:37,18:43,19:48,20:47,21:38,22:71,23:56,24:53},
-                'Acts':{1:26,2:47,3:26,4:37,5:42,6:15,7:60,8:40,9:43,10:48,11:30,12:25,13:52,14:28,15:41,16:40,17:34,18:28,19:41,20:38,21:40,22:30,23:35,24:27,25:27,26:32,27:44,28:31},
-                'Ephesians':{1:23,2:22,3:21,4:32,5:33,6:24},
-                '1 Corinthians':{1:31,2:16,3:23,4:21,5:13,6:20,7:40,8:13,9:27,10:33,11:34,12:31,13:13,14:40,15:58,16:24},
-                '2 Corinthians':{1:24,2:17,3:18,4:18,5:21,6:18,7:16,8:24,9:15,10:18,11:33,12:21,13:14},
-                'Galatians':{1:24,2:21,3:29,4:31,5:26,6:18},
-                'Colossians':{1:29,2:23,3:25,4:18},
-                '1 John':{1:10,2:29,3:24,4:21,5:21},
-                'Mark':{1:45,2:28,3:35,4:41,5:43,6:56,7:37,8:38,9:50,10:52,11:33,12:44,13:37,14:72,15:47,16:20},
-                '1 Peter':{1:25,2:25,3:22,4:19,5:14},
-                '2 Timothy':{1:18,2:26,3:17,4:22},
-                '1 Timothy':{1:20,2:15,3:16,4:16,5:25,6:21},
-                'Titus':{1:16,2:15,3:15},
-                'Job':{1:22,2:13,3:26,4:21,5:27,6:30,7:21,8:22,9:35,10:22,11:20,12:25,13:28,14:22,15:35,16:22,17:16,18:21,19:29,20:29,21:34,22:30,23:17,24:25,25:6,26:14,27:23,28:28,29:25,30:31,31:40,32:22,33:33,34:37,35:16,36:33,37:24,38:41,39:30,40:24,41:34,42:17},
-                'Deuteronomy':{1:46,2:37,3:29,4:49,5:33,6:25,7:26,8:20,9:29,10:22,11:32,12:32,13:18,14:29,15:23,16:22,17:20,18:22,19:21,20:20,21:23,22:30,23:25,24:22,25:19,26:19,27:26,28:68,29:29,30:20,31:30,32:52,33:29,34:12},
-            },
 
             async init() {
                 this.populateKeyDropdowns();
@@ -1858,122 +1829,60 @@
                     </div>`;
             },
 
-            // ── Verse Modal ──────────────────────────────────────────────
+            // ── Verse Modal ─────────────────────────────────────────────
+            // Simple manual input — no Bible API, no dropdowns
             vmOpenModal(editing = false) {
-                this.vmPendingVerse = null;
-                document.getElementById('vm-fetch-status').textContent = '';
-                document.getElementById('vm-verse-preview').style.display = 'none';
-                document.getElementById('vm-book').innerHTML = '<option value="">— Pick a book —</option>';
-                this.BIBLE_BOOKS.forEach(b => {
-                    const opt = document.createElement('option');
-                    opt.value = b; opt.textContent = b;
-                    document.getElementById('vm-book').appendChild(opt);
-                });
-                document.getElementById('vm-chapter').innerHTML = '<option value="">Ch.</option>';
-                document.getElementById('vm-chapter').disabled = true;
-                document.getElementById('vm-verse-num').innerHTML = '<option value="">Vs.</option>';
-                document.getElementById('vm-verse-num').disabled = true;
+                const textInput = document.getElementById('vm-verse-text-input');
+                const refInput = document.getElementById('vm-verse-ref-input');
 
-                // Pre-fill if editing
+                // Pre-fill if editing an existing verse
                 if (editing && this.weekVerse) {
-                    document.getElementById('vm-verse-ref').textContent = this.weekVerse.ref;
-                    document.getElementById('vm-verse-text').textContent = this.weekVerse.text;
-                    document.getElementById('vm-verse-preview').style.display = '';
-                    document.getElementById('vm-fetch-status').textContent = '✓ Verse loaded';
-                    this.vmPendingVerse = { ...this.weekVerse };
-
-                    if (this.weekVerse.book) {
-                        document.getElementById('vm-book').value = this.weekVerse.book;
-                        this.vmFetchChapters();
-                        setTimeout(() => {
-                            if (this.weekVerse.chapter) {
-                                document.getElementById('vm-chapter').value = this.weekVerse.chapter;
-                                this.vmFetchVerseList();
-                                setTimeout(() => {
-                                    if (this.weekVerse.verse) document.getElementById('vm-verse-num').value = this.weekVerse.verse;
-                                }, 60);
-                            }
-                        }, 60);
-                    }
+                    textInput.value = this.weekVerse.text || '';
+                    refInput.value = this.weekVerse.ref || '';
+                } else {
+                    textInput.value = '';
+                    refInput.value = '';
                 }
 
+                // Trigger preview update
+                this.vmUpdatePreview();
                 document.getElementById('verse-modal').classList.remove('hidden');
+
+                // Focus the text area
+                setTimeout(() => textInput.focus(), 80);
             },
 
             vmCloseModal() {
                 document.getElementById('verse-modal').classList.add('hidden');
-                this.vmPendingVerse = null;
             },
 
-            vmFetchChapters() {
-                const book = document.getElementById('vm-book').value;
-                const chSel = document.getElementById('vm-chapter');
-                const vsSel = document.getElementById('vm-verse-num');
-                chSel.innerHTML = '<option value="">Ch.</option>';
-                vsSel.innerHTML = '<option value="">Vs.</option>';
-                chSel.disabled = true; vsSel.disabled = true;
-                if (!book) return;
-                const count = this.CHAPTER_COUNTS[book] || 50;
-                for (let i = 1; i <= count; i++) {
-                    const o = document.createElement('option');
-                    o.value = i; o.textContent = i;
-                    chSel.appendChild(o);
-                }
-                chSel.disabled = false;
-            },
+            vmUpdatePreview() {
+                const text = document.getElementById('vm-verse-text-input').value.trim();
+                const ref = document.getElementById('vm-verse-ref-input').value.trim();
+                const preview = document.getElementById('vm-live-preview');
 
-            vmFetchVerseList() {
-                const book = document.getElementById('vm-book').value;
-                const ch = document.getElementById('vm-chapter').value;
-                const vsSel = document.getElementById('vm-verse-num');
-                vsSel.innerHTML = '<option value="">Vs.</option>';
-                vsSel.disabled = true;
-                if (!book || !ch) return;
-                const count = (this.VERSE_COUNTS[book] || {})[parseInt(ch)] || 30;
-                for (let i = 1; i <= count; i++) {
-                    const o = document.createElement('option');
-                    o.value = i; o.textContent = i;
-                    vsSel.appendChild(o);
+                if (!text && !ref) {
+                    preview.classList.remove('visible');
+                    return;
                 }
-                vsSel.disabled = false;
-                document.getElementById('vm-fetch-status').textContent = count + ' verses available';
-            },
 
-            async vmFetchVerse() {
-                const book = document.getElementById('vm-book').value;
-                const ch = document.getElementById('vm-chapter').value;
-                const vs = document.getElementById('vm-verse-num').value;
-                if (!book || !ch || !vs) { alert('Please select a book, chapter, and verse.'); return; }
-                const statusEl = document.getElementById('vm-fetch-status');
-                statusEl.textContent = 'Fetching…';
-                try {
-                    const bookSlug = encodeURIComponent(book.toLowerCase());
-                    const url = `https://bible-api.com/${bookSlug}+${ch}:${vs}?translation=nlt`;
-                    const res = await fetch(url);
-                    if (!res.ok) throw new Error('HTTP ' + res.status);
-                    const data = await res.json();
-                    if (data.text) {
-                        const cleanText = data.text.trim().replace(/\n/g, ' ');
-                        const ref = `${book} ${ch}:${vs} (NLT)`;
-                        this.vmPendingVerse = { ref, text: cleanText, book, chapter: ch, verse: vs };
-                        document.getElementById('vm-verse-ref').textContent = ref;
-                        document.getElementById('vm-verse-text').textContent = cleanText;
-                        document.getElementById('vm-verse-preview').style.display = '';
-                        statusEl.textContent = '✓ Verse ready';
-                    } else {
-                        statusEl.textContent = 'Verse not found';
-                    }
-                } catch(e) {
-                    console.error(e);
-                    statusEl.textContent = '✗ Fetch failed — try again';
-                }
+                preview.classList.add('visible');
+                document.getElementById('vm-preview-text').textContent = text || '…';
+                document.getElementById('vm-preview-ref').textContent = ref ? `— ${ref}` : '';
             },
 
             async vmSaveVerse() {
-                if (!this.vmPendingVerse) { alert('Please fetch a verse first.'); return; }
+                const text = document.getElementById('vm-verse-text-input').value.trim();
+                const ref = document.getElementById('vm-verse-ref-input').value.trim();
+
+                if (!text) { alert('Please enter the verse text.'); return; }
+                if (!ref)  { alert('Please enter the verse reference (e.g. John 3:16).'); return; }
+
+                const verseData = { text, ref };
+
                 this.setSyncStatus('syncing', 'Saving…');
                 try {
-                    await setDoc(doc(db, 'settings', 'weekVerse'), this.vmPendingVerse);
+                    await setDoc(doc(db, 'settings', 'weekVerse'), verseData);
                     this.setSyncStatus('synced', 'Saved ✓');
                     this.vmCloseModal();
                 } catch (err) {
@@ -2780,7 +2689,7 @@
             veRemoveChordAtCursor() {
                 if (this.veActiveLine === null || this.veActiveChar === null) return;
                 const line = this.veLines[this.veActiveLine];
-                if (line) delete line.chords[this.veActiveChar];
+                if (line) delete line.chords[this.veActiveLine];
                 this.veActiveLine = null; this.veActiveChar = null;
                 this.veRenderCanvas();
                 this.veClosePicker();
