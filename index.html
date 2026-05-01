@@ -530,6 +530,58 @@
             white-space: inherit;
         }
 
+        /* ── Master Leader Toolbar Row ── */
+        .master-leader-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(99,102,241,0.08);
+            border: 1px solid rgba(99,102,241,0.25);
+            border-radius: 8px;
+            padding: 6px 10px;
+            flex: 1;
+            min-width: 220px;
+        }
+        .master-leader-wrap select {
+            margin: 0;
+            padding: 5px 10px;
+            font-size: 0.82rem;
+            background: var(--bg-card);
+            border: 1px solid rgba(99,102,241,0.4);
+            color: var(--text-main);
+            border-radius: 6px;
+            width: auto;
+            cursor: pointer;
+            font-family: var(--font-sans);
+            flex: 1;
+        }
+        .master-leader-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            background: #6366f1;
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 12px;
+            white-space: nowrap;
+            display: none;
+        }
+        .master-leader-badge.visible { display: inline-block; }
+        .master-clear-btn {
+            background: transparent;
+            border: 1px solid rgba(248,113,113,0.4);
+            color: #f87171;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font-sans);
+            white-space: nowrap;
+            display: none;
+        }
+        .master-clear-btn.visible { display: inline-block; }
+        .master-clear-btn:hover { background: rgba(248,113,113,0.1); }
+
         /* --- SONG DETAIL --- */
         .controls-panel {
             background: var(--bg-card);
@@ -643,12 +695,11 @@
             display: block;
             font-weight: 700;
             font-style: italic;
-            color: #92400e;           /* amber/brown — warm gold on white panel */
+            color: #92400e;
             font-family: var(--font-sans);
             font-size: 0.82em;
             letter-spacing: 0.06em;
             text-transform: uppercase;
-            /* Tighter: above next block, below previous */
             margin-top: 0.6em;
             margin-bottom: 0.5em;
             padding: 2px 8px;
@@ -657,7 +708,6 @@
             border-radius: 0 4px 4px 0;
             line-height: 1.4;
         }
-        /* section label in dark (performance / detail) views — same style as visual editor */
         .cv-section-label-dark {
             display: block;
             font-weight: 700;
@@ -677,7 +727,6 @@
         }
 
         .chord { color: #b45309; font-weight: bold; position: relative; display: inline-block; height: 0; vertical-align: top; top: -1.2em; }
-        /* TIGHTENED: was 1.5em */
         .lyric-line { display: block; margin-bottom: 1em; position: relative; }
 
         /* --- PERFORMANCE VIEW --- */
@@ -841,7 +890,6 @@
             line-height: 1;
         }
 
-        /* section label in the visual editor canvas */
         .ve-section-label {
             display: block;
             font-weight: 700;
@@ -1073,6 +1121,18 @@
 
         <!-- Sticky toolbar -->
         <div class="lineup-toolbar">
+            <!-- Row 1: Master Leader selector (NEW) -->
+            <div class="toolbar-row">
+                <span class="toolbar-label">🎤 Leader</span>
+                <div class="master-leader-wrap">
+                    <select id="master-leader-select" onchange="app.setMasterLeader(this.value)">
+                        <option value="">— Individual song keys —</option>
+                    </select>
+                    <span class="master-leader-badge" id="master-leader-badge"></span>
+                    <button class="master-clear-btn" id="master-clear-btn" onclick="app.clearMasterLeader()">✕ Clear</button>
+                </div>
+            </div>
+            <!-- Row 2: Font Size -->
             <div class="toolbar-row">
                 <span class="toolbar-label">Font Size</span>
                 <div class="font-size-presets">
@@ -1088,6 +1148,7 @@
                     <button class="font-nudge" onclick="app.nudgeLineupFont(1)" title="Increase">+</button>
                 </div>
             </div>
+            <!-- Row 3: Layout -->
             <div class="toolbar-row">
                 <span class="toolbar-label">Layout</span>
                 <div class="wrap-toggle-group">
@@ -1305,6 +1366,9 @@
             lineupWrapMode: false,
             lineupZoom: 100,
 
+            // ── Master leader state ──────────────────────────────────────
+            masterLeaderId: '',
+
             async init() {
                 this.populateKeyDropdowns();
                 this.setSyncStatus('syncing', 'Connecting…');
@@ -1463,6 +1527,51 @@
                 });
             },
 
+            // ── Master Leader ────────────────────────────────────────────
+
+            // Populate the master leader dropdown from this.leaders
+            _populateMasterLeaderSelect() {
+                const sel = document.getElementById('master-leader-select');
+                if (!sel) return;
+                sel.innerHTML = `<option value="">— Individual song keys —</option>` +
+                    this.leaders.map(l => `<option value="${l.id}"${l.id === this.masterLeaderId ? ' selected' : ''}>${this.escHtml(l.name)}</option>`).join('');
+            },
+
+            // Called when master leader dropdown changes
+            setMasterLeader(leaderId) {
+                this.masterLeaderId = leaderId;
+                const badge  = document.getElementById('master-leader-badge');
+                const clearBtn = document.getElementById('master-clear-btn');
+
+                if (leaderId) {
+                    const leader = this.leaders.find(l => l.id === leaderId);
+                    badge.textContent  = leader ? `${leader.name}'s keys applied` : '';
+                    badge.classList.add('visible');
+                    clearBtn.classList.add('visible');
+                } else {
+                    badge.classList.remove('visible');
+                    clearBtn.classList.remove('visible');
+                }
+
+                // Apply to every song section currently rendered
+                if (this.lineup) {
+                    const songs = (this.lineup.songIds || []).map(id => this.songs.find(s => s.id === id)).filter(Boolean);
+                    songs.forEach(song => {
+                        // Update the per-song dropdown to match
+                        const perSongSelect = document.getElementById(`lineup-leader-${song.id}`);
+                        if (perSongSelect) perSongSelect.value = leaderId;
+                        // Re-render that song's chart
+                        this.changeLineupSongKey(song.id, leaderId);
+                    });
+                }
+            },
+
+            // Clear button resets everything to original keys
+            clearMasterLeader() {
+                document.getElementById('master-leader-select').value = '';
+                this.setMasterLeader('');
+            },
+
             // ── Lineup Hero ──────────────────────────────────────────────
 
             renderLineupHero() {
@@ -1502,6 +1611,10 @@
 
             viewLineup() {
                 if (!this.lineup) return;
+
+                // Reset master leader when entering the lineup view
+                this.masterLeaderId = '';
+
                 const songs = (this.lineup.songIds || []).map(id => this.songs.find(s => s.id === id)).filter(Boolean);
                 const dateStr = this.lineup.date
                     ? new Date(this.lineup.date + 'T00:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' })
@@ -1550,6 +1663,13 @@
                 }).join('');
 
                 container.innerHTML = `<div class="lineup-unified-panel">${sectionsHtml}</div>`;
+
+                // Populate and reset master leader selector
+                this._populateMasterLeaderSelect();
+                const badge = document.getElementById('master-leader-badge');
+                const clearBtn = document.getElementById('master-clear-btn');
+                if (badge) badge.classList.remove('visible');
+                if (clearBtn) clearBtn.classList.remove('visible');
 
                 this._applyLineupStyles();
                 this.setLineupFont(this.lineupFontSize);
@@ -1830,9 +1950,6 @@
                 }).join('/');
             },
 
-            // ── buildChartHtml: handles *Section Label* lines ────────────
-            // darkMode = true → uses dark gold label (for detail/performance views)
-            // darkMode = false (default) → uses light amber label (for white lineup panel)
             buildChartHtml(song, targetKey, darkMode = false) {
                 let si = CHROMATIC_SHARP.indexOf(song.defaultKey);
                 if (si === -1) si = CHROMATIC_FLAT.indexOf(song.defaultKey);
@@ -1844,7 +1961,6 @@
 
                 let html = '';
                 song.chordChart.split('\n').forEach(line => {
-                    // ── Section label: *Verse 1*, *Chorus*, etc. ──
                     if (isSectionLabel(line)) {
                         html += `<span class="${labelClass}">${this.escHtml(sectionLabelText(line))}</span>`;
                         return;
@@ -1894,7 +2010,6 @@
             renderChart() {
                 const song = this.songs.find(s => s.id === this.currentSongId);
                 if (!song) return;
-                // Use darkMode=true for the song detail view (dark background)
                 const html = this.buildChartHtml(song, this.currentKey, true);
                 document.getElementById('chord-chart-container').innerHTML = html;
                 document.getElementById('performance-content').innerHTML = html;
@@ -2029,12 +2144,9 @@
                 }
             },
 
-            // veParseRaw: parse [Chord]lyric format into line objects
-            // Section-label lines (*text*) are stored with lyric = "*text*" and no chords
             veParseRaw(raw) {
                 if (!raw || !raw.trim()) return [];
                 return raw.split('\n').map(line => {
-                    // Section label — store as-is so the textarea shows the asterisks
                     if (isSectionLabel(line)) {
                         return { lyric: line.trim(), chords: {}, isLabel: true };
                     }
@@ -2060,7 +2172,6 @@
 
             veSerialize() {
                 return this.veLines.map(({ lyric, chords }) => {
-                    // Section labels serialize as plain *text* (no chord brackets)
                     if (isSectionLabel(lyric)) return lyric;
                     let result = '';
                     for (let i = 0; i <= lyric.length; i++) {
@@ -2078,7 +2189,6 @@
             veOnLyricsChange() {
                 const newLines = document.getElementById('ve-lyrics-input').value.split('\n');
                 const updated = newLines.map((newLyric, idx) => {
-                    // If the new line is a section label, mark it
                     if (isSectionLabel(newLyric)) {
                         return { lyric: newLyric.trim(), chords: {}, isLabel: true };
                     }
@@ -2100,7 +2210,6 @@
                     return;
                 }
                 canvas.innerHTML = this.veLines.map((line, li) => {
-                    // Section label: render as styled non-interactive label
                     if (line.isLabel || isSectionLabel(line.lyric)) {
                         return `<span class="ve-section-label">${this.escHtml(sectionLabelText(line.lyric))}</span>`;
                     }
