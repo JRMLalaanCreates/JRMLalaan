@@ -872,6 +872,9 @@
             min-width: 68px;
         }
 
+        /* ═══════════════════════════════════
+           SHARED TOOLBAR COMPONENT STYLES
+        ═══════════════════════════════════ */
         .font-size-presets {
             display: flex;
             gap: 3px;
@@ -920,13 +923,6 @@
             font-family: var(--font-sans);
         }
         .font-nudge:hover { background: #334155; }
-        #lineup-font-display {
-            font-size: 0.75rem;
-            color: var(--accent);
-            font-weight: 700;
-            min-width: 32px;
-            text-align: center;
-        }
 
         .wrap-toggle-group {
             display: flex;
@@ -974,6 +970,67 @@
             font-weight: 700;
             min-width: 36px;
             text-align: right;
+        }
+
+        /* Accidentals toggle button (shared style) */
+        .accidentals-toggle {
+            display: flex;
+            gap: 3px;
+            background: var(--bg-card);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 3px;
+            flex-shrink: 0;
+        }
+        .accidentals-toggle button {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            padding: 5px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            transition: background 0.15s, color 0.15s;
+            white-space: nowrap;
+            letter-spacing: 0.04em;
+        }
+        .accidentals-toggle button:hover { background: #334155; }
+        .accidentals-toggle button.active { background: var(--accent); color: var(--bg-deep); }
+
+        /* ═══════════════════════════════════
+           SONG DETAIL TOOLBAR (sticky)
+        ═══════════════════════════════════ */
+        .detail-toolbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: var(--bg-deep);
+            border-bottom: 1px solid #334155;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+        .detail-toolbar .toolbar-row {
+            margin-bottom: 8px;
+        }
+        .detail-toolbar .toolbar-row:last-child {
+            margin-bottom: 0;
+        }
+        /* font display inside nudge wrap for detail */
+        #detail-font-display {
+            font-size: 0.75rem;
+            color: var(--accent);
+            font-weight: 700;
+            min-width: 32px;
+            text-align: center;
+        }
+        #lineup-font-display {
+            font-size: 0.75rem;
+            color: var(--accent);
+            font-weight: 700;
+            min-width: 32px;
+            text-align: center;
         }
 
         .lineup-chart-content {
@@ -1045,7 +1102,7 @@
             background: var(--bg-card);
             padding: 20px;
             border-radius: 12px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
@@ -1460,6 +1517,16 @@
             color: var(--accent);
             font-family: var(--font-mono);
         }
+
+        /* Detail chart wrap mode */
+        #chord-chart-container.wrap-on {
+            overflow-x: visible;
+            white-space: pre-wrap !important;
+            word-break: break-word;
+        }
+        #chord-chart-container.wrap-on .cv-line {
+            white-space: pre-wrap;
+        }
     </style>
 </head>
 <body>
@@ -1477,9 +1544,7 @@
         <span id="sync-label">Connecting…</span>
     </div>
 
-    <!-- ═══════════════════════════════════════════
-         AUTH MODAL
-    ═══════════════════════════════════════════ -->
+    <!-- AUTH MODAL -->
     <div id="auth-modal" class="hidden">
         <div class="auth-modal-box">
             <div class="auth-lock-icon">🔒</div>
@@ -1632,8 +1697,9 @@
             <span class="lineup-date-badge" id="lineup-view-date"></span>
         </div>
 
-        <!-- Sticky toolbar -->
+        <!-- Sticky toolbar for lineup -->
         <div class="lineup-toolbar">
+            <!-- Row 1: Leader -->
             <div class="toolbar-row">
                 <span class="toolbar-label">🎤 Leader</span>
                 <div class="master-leader-wrap">
@@ -1644,6 +1710,7 @@
                     <button class="master-clear-btn" id="master-clear-btn" onclick="app.clearMasterLeader()">✕ Clear</button>
                 </div>
             </div>
+            <!-- Row 2: Font Size -->
             <div class="toolbar-row">
                 <span class="toolbar-label">Font Size</span>
                 <div class="font-size-presets">
@@ -1659,17 +1726,23 @@
                     <button class="font-nudge" onclick="app.nudgeLineupFont(1)" title="Increase">+</button>
                 </div>
             </div>
+            <!-- Row 3: Layout + Zoom + Accidentals -->
             <div class="toolbar-row">
                 <span class="toolbar-label">Layout</span>
                 <div class="wrap-toggle-group">
-                    <button id="wrap-off-btn" onclick="app.setWrapMode(false)" class="active">↔ Scroll</button>
-                    <button id="wrap-on-btn"  onclick="app.setWrapMode(true)">↩ Wrap</button>
+                    <button id="lineup-wrap-off-btn" onclick="app.setLineupWrapMode(false)" class="active">↔ Scroll</button>
+                    <button id="lineup-wrap-on-btn"  onclick="app.setLineupWrapMode(true)">↩ Wrap</button>
                 </div>
                 <div class="zoom-slider-wrap">
                     <span style="font-size:0.7rem;color:var(--text-dim);white-space:nowrap">Zoom</span>
                     <input type="range" id="lineup-zoom-slider" min="50" max="150" value="100"
                            oninput="app.setLineupZoom(this.value)">
                     <span class="zoom-pct" id="lineup-zoom-pct">100%</span>
+                </div>
+                <!-- Accidentals toggle for lineup -->
+                <div class="accidentals-toggle">
+                    <button id="lineup-sharp-btn" class="active" onclick="app.setLineupAccidentals(false)"># Sharp</button>
+                    <button id="lineup-flat-btn" onclick="app.setLineupAccidentals(true)">♭ Flat</button>
                 </div>
             </div>
         </div>
@@ -1687,8 +1760,9 @@
             <button class="btn-outline" onclick="app.showSongs()">← Back</button>
         </div>
         <h1 id="detail-title" style="font-size: 2.5rem; margin-bottom: 5px;"></h1>
-        <p id="detail-meta" style="color: var(--text-dim); margin-bottom: 30px;"></p>
+        <p id="detail-meta" style="color: var(--text-dim); margin-bottom: 20px;"></p>
 
+        <!-- Controls panel: leader + key -->
         <div class="controls-panel">
             <div class="control-group">
                 <label>Song Leader</label>
@@ -1701,15 +1775,46 @@
                 <select id="key-select" onchange="app.handleManualKeyChange()"></select>
             </div>
             <div class="control-group">
-                <label>Font Size</label>
-                <input type="range" min="12" max="30" value="18" oninput="app.updateFontSize(this.value)">
+                <button class="btn" onclick="app.enterPerformanceMode()" style="width:100%">Performance View</button>
             </div>
-            <div class="control-group">
-                <button class="btn" onclick="app.enterPerformanceMode()">Performance View</button>
+        </div>
+
+        <!-- Sticky detail toolbar -->
+        <div class="detail-toolbar">
+            <!-- Row 1: Font Size -->
+            <div class="toolbar-row">
+                <span class="toolbar-label">Font Size</span>
+                <div class="font-size-presets">
+                    <button onclick="app.setDetailFont(10)" id="df-xs">XS</button>
+                    <button onclick="app.setDetailFont(12)" id="df-sm">S</button>
+                    <button onclick="app.setDetailFont(15)" id="df-md">M</button>
+                    <button onclick="app.setDetailFont(18)" id="df-lg" class="active">L</button>
+                    <button onclick="app.setDetailFont(22)" id="df-xl">XL</button>
+                </div>
+                <div class="font-nudge-wrap">
+                    <button class="font-nudge" onclick="app.nudgeDetailFont(-1)" title="Decrease">−</button>
+                    <span id="detail-font-display">18px</span>
+                    <button class="font-nudge" onclick="app.nudgeDetailFont(1)" title="Increase">+</button>
+                </div>
             </div>
-            <div class="control-group">
-                <label>Accidentals</label>
-                <button class="btn-outline" style="width:100%" onclick="app.toggleFlats()"># / ♭</button>
+            <!-- Row 2: Layout + Zoom + Accidentals -->
+            <div class="toolbar-row">
+                <span class="toolbar-label">Layout</span>
+                <div class="wrap-toggle-group">
+                    <button id="detail-wrap-off-btn" onclick="app.setDetailWrapMode(false)" class="active">↔ Scroll</button>
+                    <button id="detail-wrap-on-btn"  onclick="app.setDetailWrapMode(true)">↩ Wrap</button>
+                </div>
+                <div class="zoom-slider-wrap">
+                    <span style="font-size:0.7rem;color:var(--text-dim);white-space:nowrap">Zoom</span>
+                    <input type="range" id="detail-zoom-slider" min="50" max="150" value="100"
+                           oninput="app.setDetailZoom(this.value)">
+                    <span class="zoom-pct" id="detail-zoom-pct">100%</span>
+                </div>
+                <!-- Accidentals toggle -->
+                <div class="accidentals-toggle">
+                    <button id="detail-sharp-btn" class="active" onclick="app.setDetailAccidentals(false)"># Sharp</button>
+                    <button id="detail-flat-btn" onclick="app.setDetailAccidentals(true)">♭ Flat</button>
+                </div>
             </div>
         </div>
 
@@ -1850,7 +1955,6 @@
                 return sessionStorage.getItem(SESSION_KEY) === '1';
             },
 
-            // Call this before any write action. cb = the action to run if unlocked.
             guard(cb) {
                 if (this.isUnlocked()) {
                     cb();
@@ -1911,7 +2015,6 @@
                 }
             },
 
-            // Lock button in nav: click when unlocked = lock; when locked = open modal to unlock
             toggleLock() {
                 if (this.isUnlocked()) {
                     sessionStorage.removeItem(SESSION_KEY);
@@ -1974,20 +2077,28 @@
             lineupSelectedIds: [],
             currentSongId: null,
             currentKey: 'C',
-            useFlats: false,
-            pendingKeyChange: false,
 
+            // ── Detail view state ──
+            useFlats: false,          // detail accidentals
+            detailFontSize: 18,
+            detailWrapMode: false,
+            detailZoom: 100,
+
+            // ── Lineup view state ──
+            lineupUseFlats: false,    // lineup accidentals (independent)
             lineupFontSize: 15,
             lineupWrapMode: false,
             lineupZoom: 100,
 
             masterLeaderId: '',
+            pendingKeyChange: false,
 
             async init() {
                 this.populateKeyDropdowns();
                 this.setSyncStatus('syncing', 'Connecting…');
                 if (window.innerWidth < 600) {
                     this.lineupWrapMode = true;
+                    this.detailWrapMode = true;
                 }
                 try {
                     await this.seedIfEmpty();
@@ -2070,139 +2181,69 @@
                 }, err => console.error('Verse listener:', err));
             },
 
-            renderVerseCard() {
-                const section = document.getElementById('verse-card-section');
-                if (!section) return;
+            // ═══════════════════════════════════════════════════
+            // DETAIL VIEW TOOLBAR CONTROLS
+            // ═══════════════════════════════════════════════════
 
-                if (!this.weekVerse) {
-                    section.innerHTML = `
-                        <div class="verse-card-empty" onclick="auth.guard(() => app.vmOpenModal())">
-                            <div class="verse-card-empty-icon">📖</div>
-                            <div class="verse-card-empty-text">
-                                <strong>Add a Bible Verse</strong>
-                                <span>Set a meditation verse for this week — it will appear here as a beautiful quote card.</span>
-                            </div>
-                            <div style="flex-shrink:0;font-size:1.2rem;color:#a5b4fc;opacity:0.7">＋</div>
-                        </div>`;
-                    return;
-                }
-
-                section.innerHTML = `
-                    <div class="verse-postcard">
-                        <div class="verse-postcard-band"></div>
-                        <div class="verse-postcard-deco">"</div>
-                        <div class="verse-postcard-inner">
-                            <div class="verse-postcard-label">
-                                📖 Verse of the Week
-                            </div>
-                            <div class="verse-postcard-text">${this.escHtml(this.weekVerse.text)}</div>
-                            <div class="verse-postcard-ref">
-                                <div class="verse-postcard-ref-dash"></div>
-                                <div class="verse-postcard-ref-text">${this.escHtml(this.weekVerse.ref)}</div>
-                            </div>
-                        </div>
-                        <div class="verse-postcard-actions">
-                            <button class="verse-action-btn" onclick="auth.guard(() => app.vmOpenModal(true))">✏️ Edit</button>
-                            <button class="verse-action-btn danger" onclick="auth.guard(() => app.removeWeekVerse())">✕ Remove</button>
-                        </div>
-                    </div>`;
+            setDetailFont(size) {
+                this.detailFontSize = size;
+                this._applyDetailStyles();
+                const map = { 10:'df-xs', 12:'df-sm', 15:'df-md', 18:'df-lg', 22:'df-xl' };
+                ['df-xs','df-sm','df-md','df-lg','df-xl'].forEach(id => {
+                    document.getElementById(id)?.classList.remove('active');
+                });
+                if (map[size]) document.getElementById(map[size])?.classList.add('active');
+                document.getElementById('detail-font-display').textContent = size + 'px';
             },
 
-            vmOpenModal(editing = false) {
-                const textInput = document.getElementById('vm-verse-text-input');
-                const refInput = document.getElementById('vm-verse-ref-input');
-                if (editing && this.weekVerse) {
-                    textInput.value = this.weekVerse.text || '';
-                    refInput.value = this.weekVerse.ref || '';
-                } else {
-                    textInput.value = '';
-                    refInput.value = '';
-                }
-                this.vmUpdatePreview();
-                document.getElementById('verse-modal').classList.remove('hidden');
-                setTimeout(() => textInput.focus(), 80);
+            nudgeDetailFont(delta) {
+                this.detailFontSize = Math.max(8, Math.min(36, this.detailFontSize + delta));
+                ['df-xs','df-sm','df-md','df-lg','df-xl'].forEach(id => {
+                    document.getElementById(id)?.classList.remove('active');
+                });
+                document.getElementById('detail-font-display').textContent = this.detailFontSize + 'px';
+                this._applyDetailStyles();
             },
 
-            vmCloseModal() {
-                document.getElementById('verse-modal').classList.add('hidden');
+            setDetailWrapMode(on) {
+                this.detailWrapMode = on;
+                document.getElementById('detail-wrap-on-btn').classList.toggle('active', on);
+                document.getElementById('detail-wrap-off-btn').classList.toggle('active', !on);
+                this._applyDetailStyles();
             },
 
-            vmUpdatePreview() {
-                const text = document.getElementById('vm-verse-text-input').value.trim();
-                const ref = document.getElementById('vm-verse-ref-input').value.trim();
-                const preview = document.getElementById('vm-live-preview');
-                if (!text && !ref) { preview.classList.remove('visible'); return; }
-                preview.classList.add('visible');
-                document.getElementById('vm-preview-text').textContent = text || '…';
-                document.getElementById('vm-preview-ref').textContent = ref ? `— ${ref}` : '';
+            setDetailZoom(pct) {
+                this.detailZoom = parseInt(pct);
+                document.getElementById('detail-zoom-pct').textContent = pct + '%';
+                this._applyDetailStyles();
             },
 
-            async vmSaveVerse() {
-                const text = document.getElementById('vm-verse-text-input').value.trim();
-                const ref = document.getElementById('vm-verse-ref-input').value.trim();
-                if (!text) { alert('Please enter the verse text.'); return; }
-                if (!ref)  { alert('Please enter the verse reference (e.g. John 3:16).'); return; }
-                const verseData = { text, ref };
-                this.setSyncStatus('syncing', 'Saving…');
-                try {
-                    await setDoc(doc(db, 'settings', 'weekVerse'), verseData);
-                    this.setSyncStatus('synced', 'Saved ✓');
-                    this.vmCloseModal();
-                } catch (err) {
-                    console.error(err);
-                    this.setSyncStatus('error', 'Save failed');
-                }
+            setDetailAccidentals(useFlats) {
+                this.useFlats = useFlats;
+                document.getElementById('detail-sharp-btn').classList.toggle('active', !useFlats);
+                document.getElementById('detail-flat-btn').classList.toggle('active', useFlats);
+                this.renderChart();
             },
 
-            async removeWeekVerse() {
-                if (!confirm('Remove the verse of the week?')) return;
-                this.setSyncStatus('syncing', 'Removing…');
-                try {
-                    await deleteDoc(doc(db, 'settings', 'weekVerse'));
-                    this.setSyncStatus('synced', 'Removed ✓');
-                } catch (err) {
-                    console.error(err);
-                    this.setSyncStatus('error', 'Remove failed');
-                }
+            _applyDetailStyles() {
+                const container = document.getElementById('chord-chart-container');
+                if (!container) return;
+                container.style.fontSize = this.detailFontSize + 'px';
+                container.style.zoom = (this.detailZoom / 100);
+                if (this.detailWrapMode) container.classList.add('wrap-on');
+                else container.classList.remove('wrap-on');
             },
 
-            async saveLineup() {
-                const name = document.getElementById('lineup-name-input').value.trim();
-                const date = document.getElementById('lineup-date-input').value;
-                if (!name) { alert('Please enter a lineup title.'); return; }
-                if (this.lineupSelectedIds.length === 0) { alert('Please select at least one song.'); return; }
-                const data = { name, date: date || '', songIds: this.lineupSelectedIds };
-                this.setSyncStatus('syncing', 'Saving…');
-                try {
-                    await setDoc(doc(db, 'lineups', 'current'), data);
-                    this.setSyncStatus('synced', 'Saved ✓');
-                    this.closeLineupModal();
-                } catch (err) {
-                    console.error(err);
-                    this.setSyncStatus('error', 'Save failed');
-                }
-            },
-
-            async deleteLineup() {
-                if (!confirm('Remove this lineup?')) return;
-                this.setSyncStatus('syncing', 'Removing…');
-                try {
-                    await deleteDoc(doc(db, 'lineups', 'current'));
-                    this.setSyncStatus('synced', 'Removed ✓');
-                    this.showSongs();
-                } catch (err) {
-                    console.error(err);
-                    this.setSyncStatus('error', 'Remove failed');
-                }
-            },
+            // ═══════════════════════════════════════════════════
+            // LINEUP VIEW TOOLBAR CONTROLS
+            // ═══════════════════════════════════════════════════
 
             setLineupFont(size) {
                 this.lineupFontSize = size;
                 this._applyLineupStyles();
                 const map = { 10:'lf-xs', 12:'lf-sm', 15:'lf-md', 18:'lf-lg', 22:'lf-xl' };
                 ['lf-xs','lf-sm','lf-md','lf-lg','lf-xl'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.classList.remove('active');
+                    document.getElementById(id)?.classList.remove('active');
                 });
                 if (map[size]) document.getElementById(map[size])?.classList.add('active');
                 document.getElementById('lineup-font-display').textContent = size + 'px';
@@ -2217,10 +2258,10 @@
                 this._applyLineupStyles();
             },
 
-            setWrapMode(on) {
+            setLineupWrapMode(on) {
                 this.lineupWrapMode = on;
-                document.getElementById('wrap-on-btn').classList.toggle('active', on);
-                document.getElementById('wrap-off-btn').classList.toggle('active', !on);
+                document.getElementById('lineup-wrap-on-btn').classList.toggle('active', on);
+                document.getElementById('lineup-wrap-off-btn').classList.toggle('active', !on);
                 this._applyLineupStyles();
             },
 
@@ -2228,6 +2269,21 @@
                 this.lineupZoom = parseInt(pct);
                 document.getElementById('lineup-zoom-pct').textContent = pct + '%';
                 this._applyLineupStyles();
+            },
+
+            setLineupAccidentals(useFlats) {
+                this.lineupUseFlats = useFlats;
+                document.getElementById('lineup-sharp-btn').classList.toggle('active', !useFlats);
+                document.getElementById('lineup-flat-btn').classList.toggle('active', useFlats);
+                // Re-render all lineup charts with updated accidentals
+                if (this.lineup) {
+                    const songs = (this.lineup.songIds || []).map(id => this.songs.find(s => s.id === id)).filter(Boolean);
+                    songs.forEach(song => {
+                        const leaderSelect = document.getElementById(`lineup-leader-${song.id}`);
+                        const leaderId = leaderSelect ? leaderSelect.value : '';
+                        this.changeLineupSongKey(song.id, leaderId);
+                    });
+                }
             },
 
             _applyLineupStyles() {
@@ -2312,6 +2368,8 @@
             viewLineup() {
                 if (!this.lineup) return;
                 this.masterLeaderId = '';
+                // Reset lineup accidentals state to match toolbar
+                this.lineupUseFlats = false;
                 const songs = (this.lineup.songIds || []).map(id => this.songs.find(s => s.id === id)).filter(Boolean);
                 const dateStr = this.lineup.date
                     ? new Date(this.lineup.date + 'T00:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' })
@@ -2324,7 +2382,7 @@
 
                 const container = document.getElementById('lineup-charts-container');
                 const sectionsHtml = songs.map((song, idx) => {
-                    const chartHtml = this.buildChartHtml(song, song.defaultKey);
+                    const chartHtml = this.buildChartHtml(song, song.defaultKey, false, false);
                     const leaderOptions = this.leaders.map(l => {
                         const savedKey = (l.preferredKeys || {})[song.id];
                         const label = savedKey ? `${this.escHtml(l.name)} — Key of ${savedKey}` : `${this.escHtml(l.name)} (no saved key)`;
@@ -2359,10 +2417,15 @@
                 const clearBtn = document.getElementById('master-clear-btn');
                 if (badge) badge.classList.remove('visible');
                 if (clearBtn) clearBtn.classList.remove('visible');
+
+                // Reset accidentals buttons
+                document.getElementById('lineup-sharp-btn').classList.add('active');
+                document.getElementById('lineup-flat-btn').classList.remove('active');
+
                 this._applyLineupStyles();
                 this.setLineupFont(this.lineupFontSize);
-                document.getElementById('wrap-on-btn').classList.toggle('active', this.lineupWrapMode);
-                document.getElementById('wrap-off-btn').classList.toggle('active', !this.lineupWrapMode);
+                document.getElementById('lineup-wrap-on-btn').classList.toggle('active', this.lineupWrapMode);
+                document.getElementById('lineup-wrap-off-btn').classList.toggle('active', !this.lineupWrapMode);
                 document.getElementById('lineup-zoom-slider').value = this.lineupZoom;
                 document.getElementById('lineup-zoom-pct').textContent = this.lineupZoom + '%';
                 this.showView('view-lineup');
@@ -2390,7 +2453,8 @@
                 }
                 const chartEl = document.getElementById(`lineup-chart-${songId}`);
                 if (chartEl) {
-                    chartEl.innerHTML = this.buildChartHtml(song, targetKey);
+                    // Pass lineupUseFlats for lineup accidentals
+                    chartEl.innerHTML = this.buildChartHtml(song, targetKey, false, this.lineupUseFlats);
                     if (this.lineupWrapMode) chartEl.classList.add('wrap-on');
                     else chartEl.classList.remove('wrap-on');
                 }
@@ -2474,6 +2538,36 @@
                 }).join('');
             },
 
+            async saveLineup() {
+                const name = document.getElementById('lineup-name-input').value.trim();
+                const date = document.getElementById('lineup-date-input').value;
+                if (!name) { alert('Please enter a lineup title.'); return; }
+                if (this.lineupSelectedIds.length === 0) { alert('Please select at least one song.'); return; }
+                const data = { name, date: date || '', songIds: this.lineupSelectedIds };
+                this.setSyncStatus('syncing', 'Saving…');
+                try {
+                    await setDoc(doc(db, 'lineups', 'current'), data);
+                    this.setSyncStatus('synced', 'Saved ✓');
+                    this.closeLineupModal();
+                } catch (err) {
+                    console.error(err);
+                    this.setSyncStatus('error', 'Save failed');
+                }
+            },
+
+            async deleteLineup() {
+                if (!confirm('Remove this lineup?')) return;
+                this.setSyncStatus('syncing', 'Removing…');
+                try {
+                    await deleteDoc(doc(db, 'lineups', 'current'));
+                    this.setSyncStatus('synced', 'Removed ✓');
+                    this.showSongs();
+                } catch (err) {
+                    console.error(err);
+                    this.setSyncStatus('error', 'Remove failed');
+                }
+            },
+
             showView(viewId) {
                 document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
                 document.getElementById(viewId).classList.remove('hidden');
@@ -2517,13 +2611,33 @@
                 this.currentSongId = id;
                 this.currentKey = song.defaultKey;
                 this.pendingKeyChange = false;
+                // Reset detail toolbar state
+                this.useFlats = false;
+                this.detailFontSize = 18;
+                this.detailWrapMode = false;
+                this.detailZoom = 100;
+
                 this.showView('view-detail');
                 document.getElementById('detail-title').innerText = song.title;
                 document.getElementById('detail-meta').innerText = `${song.artist} | ${song.tempo} BPM | ${song.timeSignature}`;
+
                 const lSelect = document.getElementById('leader-select');
                 lSelect.innerHTML = `<option value="">Original Key (${song.defaultKey})</option>` +
                     this.leaders.map(l => `<option value="${l.id}">${this.escHtml(l.name)}</option>`).join('');
                 document.getElementById('key-select').value = this.currentKey;
+
+                // Reset toolbar UI
+                ['df-xs','df-sm','df-md','df-lg','df-xl'].forEach(id => document.getElementById(id)?.classList.remove('active'));
+                document.getElementById('df-lg')?.classList.add('active');
+                document.getElementById('detail-font-display').textContent = '18px';
+                document.getElementById('detail-wrap-off-btn').classList.add('active');
+                document.getElementById('detail-wrap-on-btn').classList.remove('active');
+                document.getElementById('detail-zoom-slider').value = 100;
+                document.getElementById('detail-zoom-pct').textContent = '100%';
+                document.getElementById('detail-sharp-btn').classList.add('active');
+                document.getElementById('detail-flat-btn').classList.remove('active');
+
+                this._applyDetailStyles();
                 this.updateLeaderKeyUI();
                 this.renderChart();
             },
@@ -2607,9 +2721,8 @@
                 } catch (err) { console.error(err); this.setSyncStatus('error', 'Remove failed'); }
             },
 
-            toggleFlats() { this.useFlats = !this.useFlats; this.renderChart(); },
-
-            transposeChord(chordName, steps) {
+            transposeChord(chordName, steps, forceFlats) {
+                const useF = forceFlats !== undefined ? forceFlats : this.useFlats;
                 return chordName.split('/').map(part => {
                     const match = part.match(/^([A-G][#b]?)(.*)/);
                     if (!match) return part;
@@ -2618,11 +2731,13 @@
                     if (index === -1) index = CHROMATIC_FLAT.indexOf(root);
                     if (index === -1) return part;
                     let ni = ((index + steps) % 12 + 12) % 12;
-                    return (this.useFlats ? CHROMATIC_FLAT[ni] : CHROMATIC_SHARP[ni]) + quality;
+                    return (useF ? CHROMATIC_FLAT[ni] : CHROMATIC_SHARP[ni]) + quality;
                 }).join('/');
             },
 
-            buildChartHtml(song, targetKey, darkMode = false) {
+            // buildChartHtml now accepts explicit useFlats param for lineup independence
+            buildChartHtml(song, targetKey, darkMode = false, useFlats = null) {
+                const flatMode = useFlats !== null ? useFlats : this.useFlats;
                 let si = CHROMATIC_SHARP.indexOf(song.defaultKey);
                 if (si === -1) si = CHROMATIC_FLAT.indexOf(song.defaultKey);
                 let ti = CHROMATIC_SHARP.indexOf(targetKey);
@@ -2656,7 +2771,7 @@
                     let lineHtml = '<span class="cv-line">';
                     for (let ci = 0; ci < lyric.length; ci++) {
                         const chord = chords[ci];
-                        const transposed = chord ? this.transposeChord(chord, steps) : null;
+                        const transposed = chord ? this.transposeChord(chord, steps, flatMode) : null;
                         const ch = lyric[ci] === ' ' ? '&nbsp;' : this.escHtml(lyric[ci]);
                         if (transposed) {
                             lineHtml += `<span class="cv-char"><span class="cv-chord">${this.escHtml(transposed)}</span>${ch}</span>`;
@@ -2665,7 +2780,7 @@
                         }
                     }
                     if (chords[lyric.length]) {
-                        const transposed = this.transposeChord(chords[lyric.length], steps);
+                        const transposed = this.transposeChord(chords[lyric.length], steps, flatMode);
                         lineHtml += `<span class="cv-char"><span class="cv-chord">${this.escHtml(transposed)}</span>&nbsp;</span>`;
                     }
                     lineHtml += '</span>';
@@ -2677,9 +2792,11 @@
             renderChart() {
                 const song = this.songs.find(s => s.id === this.currentSongId);
                 if (!song) return;
-                const html = this.buildChartHtml(song, this.currentKey, true);
+                // detail uses this.useFlats
+                const html = this.buildChartHtml(song, this.currentKey, true, this.useFlats);
                 document.getElementById('chord-chart-container').innerHTML = html;
                 document.getElementById('performance-content').innerHTML = html;
+                this._applyDetailStyles();
                 this.renderDiatonic(this.currentKey);
             },
 
@@ -2688,14 +2805,10 @@
                     {label:'IV',type:'Maj'},{label:'V',type:'Maj'},{label:'vi',type:'m'},{label:'vii°',type:'dim'}];
                 const intervals = [0,2,4,5,7,9,11];
                 document.getElementById('diatonic-helper').innerHTML = intervals.map((interval, idx) => {
-                    const note = this.transposeChord(key, interval);
+                    const note = this.transposeChord(key, interval, this.useFlats);
                     const suffix = formulas[idx].type === 'm' ? 'm' : (formulas[idx].type === 'dim' ? 'dim' : '');
                     return `<div class="diatonic-pill"><span>${formulas[idx].label}</span>${note}${suffix}</div>`;
                 }).join('');
-            },
-
-            updateFontSize(size) {
-                document.getElementById('chord-chart-container').style.fontSize = size + 'px';
             },
 
             enterPerformanceMode() {
@@ -2760,6 +2873,9 @@
                 } catch (err) { console.error(err); this.setSyncStatus('error', 'Save failed'); alert('Error saving.'); }
             },
 
+            // ═══════════════════════════════════════════════════
+            // VISUAL CHORD EDITOR
+            // ═══════════════════════════════════════════════════
             veLines: [],
             veActiveLine: null,
             veActiveChar: null,
@@ -2929,10 +3045,11 @@
                 }
             },
 
+            // ✅ BUG FIX: was using this.veActiveLine instead of this.veActiveChar for delete key
             veRemoveChordAtCursor() {
                 if (this.veActiveLine === null || this.veActiveChar === null) return;
                 const line = this.veLines[this.veActiveLine];
-                if (line) delete line.chords[this.veActiveLine];
+                if (line) delete line.chords[this.veActiveChar]; // FIXED: was line.chords[this.veActiveLine]
                 this.veActiveLine = null; this.veActiveChar = null;
                 this.veRenderCanvas();
                 this.veClosePicker();
@@ -3025,6 +3142,105 @@
                     this.setSyncStatus('synced', 'Synced ✓');
                     this.showLeaders();
                 } catch (err) { console.error(err); this.setSyncStatus('error', 'Remove failed'); }
+            },
+
+            // ═══════════════════════════════════════════════════
+            // VERSE
+            // ═══════════════════════════════════════════════════
+            renderVerseCard() {
+                const section = document.getElementById('verse-card-section');
+                if (!section) return;
+
+                if (!this.weekVerse) {
+                    section.innerHTML = `
+                        <div class="verse-card-empty" onclick="auth.guard(() => app.vmOpenModal())">
+                            <div class="verse-card-empty-icon">📖</div>
+                            <div class="verse-card-empty-text">
+                                <strong>Add a Bible Verse</strong>
+                                <span>Set a meditation verse for this week — it will appear here as a beautiful quote card.</span>
+                            </div>
+                            <div style="flex-shrink:0;font-size:1.2rem;color:#a5b4fc;opacity:0.7">＋</div>
+                        </div>`;
+                    return;
+                }
+
+                section.innerHTML = `
+                    <div class="verse-postcard">
+                        <div class="verse-postcard-band"></div>
+                        <div class="verse-postcard-deco">"</div>
+                        <div class="verse-postcard-inner">
+                            <div class="verse-postcard-label">
+                                📖 Verse of the Week
+                            </div>
+                            <div class="verse-postcard-text">${this.escHtml(this.weekVerse.text)}</div>
+                            <div class="verse-postcard-ref">
+                                <div class="verse-postcard-ref-dash"></div>
+                                <div class="verse-postcard-ref-text">${this.escHtml(this.weekVerse.ref)}</div>
+                            </div>
+                        </div>
+                        <div class="verse-postcard-actions">
+                            <button class="verse-action-btn" onclick="auth.guard(() => app.vmOpenModal(true))">✏️ Edit</button>
+                            <button class="verse-action-btn danger" onclick="auth.guard(() => app.removeWeekVerse())">✕ Remove</button>
+                        </div>
+                    </div>`;
+            },
+
+            vmOpenModal(editing = false) {
+                const textInput = document.getElementById('vm-verse-text-input');
+                const refInput = document.getElementById('vm-verse-ref-input');
+                if (editing && this.weekVerse) {
+                    textInput.value = this.weekVerse.text || '';
+                    refInput.value = this.weekVerse.ref || '';
+                } else {
+                    textInput.value = '';
+                    refInput.value = '';
+                }
+                this.vmUpdatePreview();
+                document.getElementById('verse-modal').classList.remove('hidden');
+                setTimeout(() => textInput.focus(), 80);
+            },
+
+            vmCloseModal() {
+                document.getElementById('verse-modal').classList.add('hidden');
+            },
+
+            vmUpdatePreview() {
+                const text = document.getElementById('vm-verse-text-input').value.trim();
+                const ref = document.getElementById('vm-verse-ref-input').value.trim();
+                const preview = document.getElementById('vm-live-preview');
+                if (!text && !ref) { preview.classList.remove('visible'); return; }
+                preview.classList.add('visible');
+                document.getElementById('vm-preview-text').textContent = text || '…';
+                document.getElementById('vm-preview-ref').textContent = ref ? `— ${ref}` : '';
+            },
+
+            async vmSaveVerse() {
+                const text = document.getElementById('vm-verse-text-input').value.trim();
+                const ref = document.getElementById('vm-verse-ref-input').value.trim();
+                if (!text) { alert('Please enter the verse text.'); return; }
+                if (!ref)  { alert('Please enter the verse reference (e.g. John 3:16).'); return; }
+                const verseData = { text, ref };
+                this.setSyncStatus('syncing', 'Saving…');
+                try {
+                    await setDoc(doc(db, 'settings', 'weekVerse'), verseData);
+                    this.setSyncStatus('synced', 'Saved ✓');
+                    this.vmCloseModal();
+                } catch (err) {
+                    console.error(err);
+                    this.setSyncStatus('error', 'Save failed');
+                }
+            },
+
+            async removeWeekVerse() {
+                if (!confirm('Remove the verse of the week?')) return;
+                this.setSyncStatus('syncing', 'Removing…');
+                try {
+                    await deleteDoc(doc(db, 'settings', 'weekVerse'));
+                    this.setSyncStatus('synced', 'Removed ✓');
+                } catch (err) {
+                    console.error(err);
+                    this.setSyncStatus('error', 'Remove failed');
+                }
             },
 
             escHtml(str) {
