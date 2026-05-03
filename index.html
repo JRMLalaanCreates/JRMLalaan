@@ -1715,14 +1715,14 @@
                 <span class="toolbar-label">Font Size</span>
                 <div class="font-size-presets">
                     <button onclick="app.setLineupFont(10)" id="lf-xs">XS</button>
-                    <button onclick="app.setLineupFont(12)" id="lf-sm">S</button>
-                    <button onclick="app.setLineupFont(15)" id="lf-md" class="active">M</button>
+                    <button onclick="app.setLineupFont(12)" id="lf-sm" class="active">S</button>
+                    <button onclick="app.setLineupFont(15)" id="lf-md">M</button>
                     <button onclick="app.setLineupFont(18)" id="lf-lg">L</button>
                     <button onclick="app.setLineupFont(22)" id="lf-xl">XL</button>
                 </div>
                 <div class="font-nudge-wrap">
                     <button class="font-nudge" onclick="app.nudgeLineupFont(-1)" title="Decrease">−</button>
-                    <span id="lineup-font-display">15px</span>
+                    <span id="lineup-font-display">12px</span>
                     <button class="font-nudge" onclick="app.nudgeLineupFont(1)" title="Increase">+</button>
                 </div>
             </div>
@@ -1786,14 +1786,14 @@
                 <span class="toolbar-label">Font Size</span>
                 <div class="font-size-presets">
                     <button onclick="app.setDetailFont(10)" id="df-xs">XS</button>
-                    <button onclick="app.setDetailFont(12)" id="df-sm">S</button>
+                    <button onclick="app.setDetailFont(12)" id="df-sm" class="active">S</button>
                     <button onclick="app.setDetailFont(15)" id="df-md">M</button>
-                    <button onclick="app.setDetailFont(18)" id="df-lg" class="active">L</button>
+                    <button onclick="app.setDetailFont(18)" id="df-lg">L</button>
                     <button onclick="app.setDetailFont(22)" id="df-xl">XL</button>
                 </div>
                 <div class="font-nudge-wrap">
                     <button class="font-nudge" onclick="app.nudgeDetailFont(-1)" title="Decrease">−</button>
-                    <span id="detail-font-display">18px</span>
+                    <span id="detail-font-display">12px</span>
                     <button class="font-nudge" onclick="app.nudgeDetailFont(1)" title="Increase">+</button>
                 </div>
             </div>
@@ -2079,14 +2079,14 @@
             currentKey: 'C',
 
             // ── Detail view state ──
-            useFlats: false,          // detail accidentals
-            detailFontSize: 18,
+            useFlats: false,
+            detailFontSize: 12,        // ← CHANGED from 18
             detailWrapMode: false,
             detailZoom: 100,
 
             // ── Lineup view state ──
-            lineupUseFlats: false,    // lineup accidentals (independent)
-            lineupFontSize: 15,
+            lineupUseFlats: false,
+            lineupFontSize: 12,        // ← CHANGED from 15
             lineupWrapMode: false,
             lineupZoom: 100,
 
@@ -2613,7 +2613,7 @@
                 this.pendingKeyChange = false;
                 // Reset detail toolbar state
                 this.useFlats = false;
-                this.detailFontSize = 18;
+                this.detailFontSize = 12;        // ← CHANGED from 18
                 this.detailWrapMode = false;
                 this.detailZoom = 100;
 
@@ -2626,10 +2626,10 @@
                     this.leaders.map(l => `<option value="${l.id}">${this.escHtml(l.name)}</option>`).join('');
                 document.getElementById('key-select').value = this.currentKey;
 
-                // Reset toolbar UI
+                // Reset toolbar UI — default to S (12px)
                 ['df-xs','df-sm','df-md','df-lg','df-xl'].forEach(id => document.getElementById(id)?.classList.remove('active'));
-                document.getElementById('df-lg')?.classList.add('active');
-                document.getElementById('detail-font-display').textContent = '18px';
+                document.getElementById('df-sm')?.classList.add('active');     // ← CHANGED from df-lg
+                document.getElementById('detail-font-display').textContent = '12px'; // ← CHANGED from 18px
                 document.getElementById('detail-wrap-off-btn').classList.add('active');
                 document.getElementById('detail-wrap-on-btn').classList.remove('active');
                 document.getElementById('detail-zoom-slider').value = 100;
@@ -3045,11 +3045,10 @@
                 }
             },
 
-            // ✅ BUG FIX: was using this.veActiveLine instead of this.veActiveChar for delete key
             veRemoveChordAtCursor() {
                 if (this.veActiveLine === null || this.veActiveChar === null) return;
                 const line = this.veLines[this.veActiveLine];
-                if (line) delete line.chords[this.veActiveChar]; // FIXED: was line.chords[this.veActiveLine]
+                if (line) delete line.chords[this.veActiveChar];
                 this.veActiveLine = null; this.veActiveChar = null;
                 this.veRenderCanvas();
                 this.veClosePicker();
