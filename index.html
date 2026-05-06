@@ -798,7 +798,7 @@
             align-items: center;
             gap: 10px;
             flex-wrap: wrap;
-            margin-bottom: 18px;
+            margin-bottom: 10px;
             padding: 10px 14px;
             background: #f8f7ff;
             border: 1px solid #e0e7ff;
@@ -841,6 +841,54 @@
         .lineup-key-badge.no-saved {
             background: #94a3b8;
         }
+
+        /* ═══════════════════════════════════════
+           CAPO SELECTOR ROW
+        ═══════════════════════════════════════ */
+        .lineup-capo-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+            padding: 8px 14px;
+            background: #fff8ed;
+            border: 1px solid #fde68a;
+            border-radius: 8px;
+            font-family: var(--font-sans);
+        }
+        .lineup-capo-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #92400e;
+            white-space: nowrap;
+        }
+        .lineup-capo-select {
+            margin: 0;
+            padding: 5px 10px;
+            font-size: 0.82rem;
+            background: #fff;
+            border: 1px solid #fcd34d;
+            color: #78350f;
+            border-radius: 6px;
+            width: auto;
+            cursor: pointer;
+            font-family: var(--font-sans);
+            font-weight: 600;
+        }
+        .lineup-capo-shapes-badge {
+            font-size: 0.72rem;
+            font-weight: 700;
+            background: #d97706;
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 12px;
+            white-space: nowrap;
+            display: none;
+        }
+        .lineup-capo-shapes-badge.visible { display: inline-block; }
 
         /* LINEUP TOOLBAR */
         .lineup-toolbar {
@@ -1017,7 +1065,6 @@
         .detail-toolbar .toolbar-row:last-child {
             margin-bottom: 0;
         }
-        /* font display inside nudge wrap for detail */
         #detail-font-display {
             font-size: 0.75rem;
             color: var(--accent);
@@ -2080,13 +2127,13 @@
 
             // ── Detail view state ──
             useFlats: false,
-            detailFontSize: 12,        // ← CHANGED from 18
+            detailFontSize: 12,
             detailWrapMode: false,
             detailZoom: 100,
 
             // ── Lineup view state ──
             lineupUseFlats: false,
-            lineupFontSize: 12,        // ← CHANGED from 15
+            lineupFontSize: 12,
             lineupWrapMode: false,
             lineupZoom: 100,
 
@@ -2275,7 +2322,6 @@
                 this.lineupUseFlats = useFlats;
                 document.getElementById('lineup-sharp-btn').classList.toggle('active', !useFlats);
                 document.getElementById('lineup-flat-btn').classList.toggle('active', useFlats);
-                // Re-render all lineup charts with updated accidentals
                 if (this.lineup) {
                     const songs = (this.lineup.songIds || []).map(id => this.songs.find(s => s.id === id)).filter(Boolean);
                     songs.forEach(song => {
@@ -2368,7 +2414,6 @@
             viewLineup() {
                 if (!this.lineup) return;
                 this.masterLeaderId = '';
-                // Reset lineup accidentals state to match toolbar
                 this.lineupUseFlats = false;
                 const songs = (this.lineup.songIds || []).map(id => this.songs.find(s => s.id === id)).filter(Boolean);
                 const dateStr = this.lineup.date
@@ -2407,6 +2452,21 @@
                                 </select>
                                 <span class="lineup-key-badge" id="lineup-key-badge-${song.id}"></span>
                             </div>
+                            <div class="lineup-capo-row">
+                                <span class="lineup-capo-label">🎸 Capo</span>
+                                <select class="lineup-capo-select" id="lineup-capo-${song.id}"
+                                    onchange="app.changeLineupCapo('${song.id}', this.value)">
+                                    <option value="0">No Capo</option>
+                                    <option value="1">Capo 1</option>
+                                    <option value="2">Capo 2</option>
+                                    <option value="3">Capo 3</option>
+                                    <option value="4">Capo 4</option>
+                                    <option value="5">Capo 5</option>
+                                    <option value="6">Capo 6</option>
+                                    <option value="7">Capo 7</option>
+                                </select>
+                                <span class="lineup-capo-shapes-badge" id="lineup-capo-badge-${song.id}"></span>
+                            </div>
                             <div class="lineup-chart-content${this.lineupWrapMode ? ' wrap-on' : ''}" id="lineup-chart-${song.id}">${chartHtml}</div>
                         </div>`;
                 }).join('');
@@ -2418,7 +2478,6 @@
                 if (badge) badge.classList.remove('visible');
                 if (clearBtn) clearBtn.classList.remove('visible');
 
-                // Reset accidentals buttons
                 document.getElementById('lineup-sharp-btn').classList.add('active');
                 document.getElementById('lineup-flat-btn').classList.remove('active');
 
@@ -2429,6 +2488,63 @@
                 document.getElementById('lineup-zoom-slider').value = this.lineupZoom;
                 document.getElementById('lineup-zoom-pct').textContent = this.lineupZoom + '%';
                 this.showView('view-lineup');
+            },
+
+            // ═══════════════════════════════════════════════════
+            // CAPO HANDLER
+            // ═══════════════════════════════════════════════════
+            changeLineupCapo(songId, capoFrets) {
+                const capo = parseInt(capoFrets) || 0;
+                const song = this.songs.find(s => s.id === songId);
+                if (!song) return;
+
+                // Determine the current sounding key for this song
+                const leaderSelect = document.getElementById(`lineup-leader-${songId}`);
+                const leaderId = leaderSelect ? leaderSelect.value : '';
+                let soundingKey = song.defaultKey;
+                if (leaderId) {
+                    const leader = this.leaders.find(l => l.id === leaderId);
+                    if (leader) {
+                        const savedKey = (leader.preferredKeys || {})[songId];
+                        if (savedKey) soundingKey = savedKey;
+                    }
+                }
+
+                // Shape key = sounding key shifted DOWN by capo frets
+                // e.g. sounding key A + capo 2 → guitarist plays shapes in G (sounds like A)
+                let si = CHROMATIC_SHARP.indexOf(soundingKey);
+                if (si === -1) si = CHROMATIC_FLAT.indexOf(soundingKey);
+                const shapeIdx = ((si - capo) % 12 + 12) % 12;
+                const shapeKey = this.lineupUseFlats ? CHROMATIC_FLAT[shapeIdx] : CHROMATIC_SHARP[shapeIdx];
+
+                // Re-render chart using shapeKey as the transposition target
+                const chartEl = document.getElementById(`lineup-chart-${songId}`);
+                if (chartEl) {
+                    chartEl.innerHTML = this.buildChartHtml(song, shapeKey, false, this.lineupUseFlats);
+                    if (this.lineupWrapMode) chartEl.classList.add('wrap-on');
+                    else chartEl.classList.remove('wrap-on');
+                }
+
+                // Update the meta info line
+                const metaEl = document.getElementById(`lineup-song-meta-p-${songId}`);
+                if (metaEl) {
+                    const capoNote = capo > 0
+                        ? ` &bull; <span style="color:#d97706;font-weight:700">Capo ${capo} → Shapes in ${shapeKey}</span>`
+                        : '';
+                    metaEl.innerHTML = `${this.escHtml(song.artist)} &bull; Key of <strong>${soundingKey}</strong>${capoNote} &bull; ${song.tempo} BPM &bull; ${song.timeSignature}`;
+                }
+
+                // Update the capo badge
+                const capoBadge = document.getElementById(`lineup-capo-badge-${songId}`);
+                if (capoBadge) {
+                    if (capo > 0) {
+                        capoBadge.textContent = `Shapes in ${shapeKey}`;
+                        capoBadge.classList.add('visible');
+                    } else {
+                        capoBadge.textContent = '';
+                        capoBadge.classList.remove('visible');
+                    }
+                }
             },
 
             changeLineupSongKey(songId, leaderId) {
@@ -2451,9 +2567,15 @@
                         }
                     }
                 }
+
+                // Reset capo to 0 when leader changes
+                const capoEl = document.getElementById(`lineup-capo-${songId}`);
+                if (capoEl) capoEl.value = '0';
+                const capoBadge = document.getElementById(`lineup-capo-badge-${songId}`);
+                if (capoBadge) { capoBadge.textContent = ''; capoBadge.classList.remove('visible'); }
+
                 const chartEl = document.getElementById(`lineup-chart-${songId}`);
                 if (chartEl) {
-                    // Pass lineupUseFlats for lineup accidentals
                     chartEl.innerHTML = this.buildChartHtml(song, targetKey, false, this.lineupUseFlats);
                     if (this.lineupWrapMode) chartEl.classList.add('wrap-on');
                     else chartEl.classList.remove('wrap-on');
@@ -2611,9 +2733,8 @@
                 this.currentSongId = id;
                 this.currentKey = song.defaultKey;
                 this.pendingKeyChange = false;
-                // Reset detail toolbar state
                 this.useFlats = false;
-                this.detailFontSize = 12;        // ← CHANGED from 18
+                this.detailFontSize = 12;
                 this.detailWrapMode = false;
                 this.detailZoom = 100;
 
@@ -2626,10 +2747,9 @@
                     this.leaders.map(l => `<option value="${l.id}">${this.escHtml(l.name)}</option>`).join('');
                 document.getElementById('key-select').value = this.currentKey;
 
-                // Reset toolbar UI — default to S (12px)
                 ['df-xs','df-sm','df-md','df-lg','df-xl'].forEach(id => document.getElementById(id)?.classList.remove('active'));
-                document.getElementById('df-sm')?.classList.add('active');     // ← CHANGED from df-lg
-                document.getElementById('detail-font-display').textContent = '12px'; // ← CHANGED from 18px
+                document.getElementById('df-sm')?.classList.add('active');
+                document.getElementById('detail-font-display').textContent = '12px';
                 document.getElementById('detail-wrap-off-btn').classList.add('active');
                 document.getElementById('detail-wrap-on-btn').classList.remove('active');
                 document.getElementById('detail-zoom-slider').value = 100;
@@ -2735,7 +2855,6 @@
                 }).join('/');
             },
 
-            // buildChartHtml now accepts explicit useFlats param for lineup independence
             buildChartHtml(song, targetKey, darkMode = false, useFlats = null) {
                 const flatMode = useFlats !== null ? useFlats : this.useFlats;
                 let si = CHROMATIC_SHARP.indexOf(song.defaultKey);
@@ -2792,7 +2911,6 @@
             renderChart() {
                 const song = this.songs.find(s => s.id === this.currentSongId);
                 if (!song) return;
-                // detail uses this.useFlats
                 const html = this.buildChartHtml(song, this.currentKey, true, this.useFlats);
                 document.getElementById('chord-chart-container').innerHTML = html;
                 document.getElementById('performance-content').innerHTML = html;
