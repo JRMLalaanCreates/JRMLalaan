@@ -890,14 +890,15 @@
         }
         .lineup-capo-shapes-badge.visible { display: inline-block; }
 
-        /* LINEUP TOOLBAR */
+        /* ═══════════════════════════════════════
+           LINEUP TOOLBAR — no longer sticky
+        ═══════════════════════════════════════ */
         .lineup-toolbar {
-            position: sticky;
-            top: 0;
-            z-index: 50;
+            /* REMOVED: position: sticky; top: 0; z-index: 50; */
             background: var(--bg-deep);
-            border-bottom: 1px solid #334155;
-            padding: 10px 0;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 14px 16px;
             margin-bottom: 20px;
         }
 
@@ -1048,15 +1049,14 @@
         .accidentals-toggle button.active { background: var(--accent); color: var(--bg-deep); }
 
         /* ═══════════════════════════════════
-           SONG DETAIL TOOLBAR (sticky)
+           SONG DETAIL TOOLBAR — no longer sticky
         ═══════════════════════════════════ */
         .detail-toolbar {
-            position: sticky;
-            top: 0;
-            z-index: 50;
+            /* REMOVED: position: sticky; top: 0; z-index: 50; */
             background: var(--bg-deep);
-            border-bottom: 1px solid #334155;
-            padding: 10px 0;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 14px 16px;
             margin-bottom: 20px;
         }
         .detail-toolbar .toolbar-row {
@@ -1574,6 +1574,102 @@
         #chord-chart-container.wrap-on .cv-line {
             white-space: pre-wrap;
         }
+
+        /* ═══════════════════════════════════════════════
+           FLOATING SONG NAVIGATOR (lineup view)
+        ═══════════════════════════════════════════════ */
+        #song-navigator {
+            position: fixed;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: center;
+        }
+        #song-navigator.hidden { display: none; }
+
+        .song-nav-label {
+            font-size: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            text-align: center;
+            margin-bottom: 2px;
+            opacity: 0.7;
+        }
+
+        .song-nav-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(99,102,241,0.85);
+            border: 2px solid rgba(99,102,241,0.5);
+            color: #fff;
+            font-family: var(--font-sans);
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.18s, transform 0.18s, border-color 0.18s, box-shadow 0.18s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            backdrop-filter: blur(4px);
+            line-height: 1;
+            padding: 0;
+            flex-shrink: 0;
+        }
+        .song-nav-btn:hover {
+            background: #6366f1;
+            border-color: #a5b4fc;
+            transform: scale(1.18);
+            box-shadow: 0 4px 18px rgba(99,102,241,0.55);
+        }
+        .song-nav-btn:active {
+            transform: scale(0.95);
+        }
+        .song-nav-btn.active-song {
+            background: var(--accent);
+            border-color: #fbbf24;
+            color: var(--bg-deep);
+            box-shadow: 0 4px 16px rgba(251,191,36,0.45);
+        }
+
+        /* Tooltip on hover */
+        .song-nav-btn[title]:hover::after {
+            content: attr(title);
+            position: absolute;
+            right: 46px;
+            background: var(--bg-card);
+            border: 1px solid #334155;
+            color: var(--text-main);
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        .song-nav-btn {
+            position: relative;
+        }
+
+        @media (max-width: 600px) {
+            #song-navigator {
+                right: 6px;
+                gap: 4px;
+            }
+            .song-nav-btn {
+                width: 30px;
+                height: 30px;
+                font-size: 0.75rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1589,6 +1685,11 @@
     <div id="sync-status">
         <div class="sync-dot syncing" id="sync-dot"></div>
         <span id="sync-label">Connecting…</span>
+    </div>
+
+    <!-- Floating Song Navigator (shown only in lineup view) -->
+    <div id="song-navigator" class="hidden">
+        <div class="song-nav-label">Songs</div>
     </div>
 
     <!-- AUTH MODAL -->
@@ -1744,7 +1845,7 @@
             <span class="lineup-date-badge" id="lineup-view-date"></span>
         </div>
 
-        <!-- Sticky toolbar for lineup -->
+        <!-- Toolbar for lineup (no longer sticky) -->
         <div class="lineup-toolbar">
             <!-- Row 1: Leader -->
             <div class="toolbar-row">
@@ -1826,7 +1927,7 @@
             </div>
         </div>
 
-        <!-- Sticky detail toolbar -->
+        <!-- Detail toolbar (no longer sticky) -->
         <div class="detail-toolbar">
             <!-- Row 1: Font Size -->
             <div class="toolbar-row">
@@ -2140,6 +2241,10 @@
             masterLeaderId: '',
             pendingKeyChange: false,
 
+            // ── Song navigator state ──
+            _navActiveSongId: null,
+            _navScrollObserver: null,
+
             async init() {
                 this.populateKeyDropdowns();
                 this.setSyncStatus('syncing', 'Connecting…');
@@ -2411,6 +2516,85 @@
                     </div>`;
             },
 
+            // ═══════════════════════════════════════════════════
+            // SONG NAVIGATOR
+            // ═══════════════════════════════════════════════════
+            _buildSongNavigator(songs) {
+                const nav = document.getElementById('song-navigator');
+                // Remove old buttons (keep the label div)
+                Array.from(nav.querySelectorAll('.song-nav-btn')).forEach(b => b.remove());
+
+                songs.forEach((song, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'song-nav-btn';
+                    btn.textContent = idx + 1;
+                    btn.title = song.title;
+                    btn.addEventListener('click', () => {
+                        this._navScrollToSong(song.id, btn);
+                    });
+                    btn.id = `nav-btn-${song.id}`;
+                    nav.appendChild(btn);
+                });
+
+                nav.classList.remove('hidden');
+                this._setupNavScrollObserver(songs);
+            },
+
+            _navScrollToSong(songId, clickedBtn) {
+                const section = document.getElementById(`lineup-section-${songId}`);
+                if (!section) return;
+
+                // Update active button
+                document.querySelectorAll('.song-nav-btn').forEach(b => b.classList.remove('active-song'));
+                if (clickedBtn) clickedBtn.classList.add('active-song');
+                this._navActiveSongId = songId;
+
+                // Scroll the section into view with a small top offset
+                const yOffset = -20;
+                const y = section.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                window.scrollTo({ top: y, behavior: 'smooth' });
+            },
+
+            _setupNavScrollObserver(songs) {
+                // Disconnect old observer if any
+                if (this._navScrollObserver) {
+                    this._navScrollObserver.disconnect();
+                    this._navScrollObserver = null;
+                }
+
+                const options = {
+                    root: null,
+                    rootMargin: '-10% 0px -70% 0px',
+                    threshold: 0
+                };
+
+                this._navScrollObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            // Extract song id from element id: "lineup-section-{id}"
+                            const songId = entry.target.id.replace('lineup-section-', '');
+                            document.querySelectorAll('.song-nav-btn').forEach(b => b.classList.remove('active-song'));
+                            const activeBtn = document.getElementById(`nav-btn-${songId}`);
+                            if (activeBtn) activeBtn.classList.add('active-song');
+                        }
+                    });
+                }, options);
+
+                songs.forEach(song => {
+                    const section = document.getElementById(`lineup-section-${song.id}`);
+                    if (section) this._navScrollObserver.observe(section);
+                });
+            },
+
+            _hideNavigator() {
+                const nav = document.getElementById('song-navigator');
+                nav.classList.add('hidden');
+                if (this._navScrollObserver) {
+                    this._navScrollObserver.disconnect();
+                    this._navScrollObserver = null;
+                }
+            },
+
             viewLineup() {
                 if (!this.lineup) return;
                 this.masterLeaderId = '';
@@ -2487,7 +2671,13 @@
                 document.getElementById('lineup-wrap-off-btn').classList.toggle('active', !this.lineupWrapMode);
                 document.getElementById('lineup-zoom-slider').value = this.lineupZoom;
                 document.getElementById('lineup-zoom-pct').textContent = this.lineupZoom + '%';
+
                 this.showView('view-lineup');
+
+                // Build the floating song navigator after DOM is shown
+                requestAnimationFrame(() => {
+                    this._buildSongNavigator(songs);
+                });
             },
 
             // ═══════════════════════════════════════════════════
@@ -2498,7 +2688,6 @@
                 const song = this.songs.find(s => s.id === songId);
                 if (!song) return;
 
-                // Determine the current sounding key for this song
                 const leaderSelect = document.getElementById(`lineup-leader-${songId}`);
                 const leaderId = leaderSelect ? leaderSelect.value : '';
                 let soundingKey = song.defaultKey;
@@ -2510,14 +2699,11 @@
                     }
                 }
 
-                // Shape key = sounding key shifted DOWN by capo frets
-                // e.g. sounding key A + capo 2 → guitarist plays shapes in G (sounds like A)
                 let si = CHROMATIC_SHARP.indexOf(soundingKey);
                 if (si === -1) si = CHROMATIC_FLAT.indexOf(soundingKey);
                 const shapeIdx = ((si - capo) % 12 + 12) % 12;
                 const shapeKey = this.lineupUseFlats ? CHROMATIC_FLAT[shapeIdx] : CHROMATIC_SHARP[shapeIdx];
 
-                // Re-render chart using shapeKey as the transposition target
                 const chartEl = document.getElementById(`lineup-chart-${songId}`);
                 if (chartEl) {
                     chartEl.innerHTML = this.buildChartHtml(song, shapeKey, false, this.lineupUseFlats);
@@ -2525,7 +2711,6 @@
                     else chartEl.classList.remove('wrap-on');
                 }
 
-                // Update the meta info line
                 const metaEl = document.getElementById(`lineup-song-meta-p-${songId}`);
                 if (metaEl) {
                     const capoNote = capo > 0
@@ -2534,7 +2719,6 @@
                     metaEl.innerHTML = `${this.escHtml(song.artist)} &bull; Key of <strong>${soundingKey}</strong>${capoNote} &bull; ${song.tempo} BPM &bull; ${song.timeSignature}`;
                 }
 
-                // Update the capo badge
                 const capoBadge = document.getElementById(`lineup-capo-badge-${songId}`);
                 if (capoBadge) {
                     if (capo > 0) {
@@ -2568,7 +2752,6 @@
                     }
                 }
 
-                // Reset capo to 0 when leader changes
                 const capoEl = document.getElementById(`lineup-capo-${songId}`);
                 if (capoEl) capoEl.value = '0';
                 const capoBadge = document.getElementById(`lineup-capo-badge-${songId}`);
@@ -2582,11 +2765,11 @@
                 }
                 const metaEl = document.getElementById(`lineup-song-meta-p-${songId}`);
                 if (metaEl) metaEl.innerHTML = `${this.escHtml(song.artist)} &bull; Key of <strong>${targetKey}</strong> &bull; ${song.tempo} BPM &bull; ${song.timeSignature}`;
-                const badge = document.getElementById(`lineup-key-badge-${songId}`);
-                if (badge) {
-                    badge.className = badgeClass;
-                    if (leaderId && badgeText) { badge.textContent = badgeText; badge.style.display = 'inline-block'; }
-                    else badge.style.display = 'none';
+                const badgeEl = document.getElementById(`lineup-key-badge-${songId}`);
+                if (badgeEl) {
+                    badgeEl.className = badgeClass;
+                    if (leaderId && badgeText) { badgeEl.textContent = badgeText; badgeEl.style.display = 'inline-block'; }
+                    else badgeEl.style.display = 'none';
                 }
             },
 
@@ -2694,6 +2877,10 @@
                 document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
                 document.getElementById(viewId).classList.remove('hidden');
                 window.scrollTo(0, 0);
+                // Hide navigator when leaving lineup view
+                if (viewId !== 'view-lineup') {
+                    this._hideNavigator();
+                }
             },
 
             showSongs() {
