@@ -1897,7 +1897,7 @@
 
         <div id="lineup-charts-container"></div>
         <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
-            <button class="btn" onclick="auth.guard(() => app.openLineupModal(true))" style="background:#6366f1;color:#fff">✏️ Edit Lineup</button>
+            <button class="btn" onclick="auth.guard(() => app.openLineupModal(true, app.lineup?.id))" style="background:#6366f1;color:#fff">✏️ Edit Lineup</button>
             <button class="btn-outline" style="color:#f87171;border-color:#f87171" onclick="auth.guard(() => app.deleteLineup())">Delete Lineup</button>
         </div>
     </div>
@@ -2221,6 +2221,7 @@
             songs: [],
             leaders: [],
             lineup: null,
+            lineups: [],
             weekVerse: null,
             lineupSelectedIds: [],
             currentSongId: null,
@@ -2318,9 +2319,11 @@
             },
 
             listenLineup() {
-                const lineupDoc = doc(db, 'lineups', 'current');
-                onSnapshot(lineupDoc, snap => {
-                    this.lineup = snap.exists() ? snap.data() : null;
+                const q = query(collection(db, 'lineups'), orderBy('date'));
+                onSnapshot(q, snap => {
+                    this.lineups = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    // Keep this.lineup as the first one for backward compat
+                    this.lineup = this.lineups[0] || null;
                     this.renderLineupHero();
                 }, err => console.error('Lineup listener:', err));
             },
@@ -2486,33 +2489,38 @@
             renderLineupHero() {
                 const section = document.getElementById('lineup-hero-section');
                 if (!section) return;
-                if (!this.lineup) {
+                if (!this.lineups || this.lineups.length === 0) {
                     section.innerHTML = `
                         <div class="lineup-hero empty">
                             <div>
                                 <div style="font-size:1.5rem;margin-bottom:6px;">📋</div>
-                                <p>No lineup set for this week yet.</p>
+                                <p>No lineups set yet.</p>
                             </div>
                             <button class="btn" onclick="auth.guard(() => app.openLineupModal())" style="background:#6366f1;color:#fff;flex-shrink:0">+ Create Lineup</button>
                         </div>`;
                     return;
                 }
-                const songs = (this.lineup.songIds || []).map(id => this.songs.find(s => s.id === id)).filter(Boolean);
-                const dateStr = this.lineup.date
-                    ? new Date(this.lineup.date + 'T00:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' })
-                    : '';
-                section.innerHTML = `
-                    <div class="lineup-hero">
-                        <div class="lineup-hero-label">🎵 This Week's Lineup</div>
-                        <h2>${this.escHtml(this.lineup.name)}</h2>
-                        ${dateStr ? `<div class="lineup-hero-date">${dateStr}</div>` : ''}
-                        <div class="lineup-song-pills">
-                            ${songs.map((s,i) => `<span class="lineup-song-pill">${i+1}. ${this.escHtml(s.title)}</span>`).join('')}
-                        </div>
-                        <div class="lineup-hero-actions">
-                            <button class="btn" onclick="app.viewLineup()">View All Chords →</button>
-                            <button class="btn-sm" onclick="auth.guard(() => app.openLineupModal(true))">✏️ Edit</button>
-                        </div>
+                section.innerHTML = this.lineups.map(lineup => {
+                    const songs = (lineup.songIds || []).map(id => this.songs.find(s => s.id === id)).filter(Boolean);
+                    const dateStr = lineup.date
+                        ? new Date(lineup.date + 'T00:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' })
+                        : '';
+                    return `
+                        <div class="lineup-hero" style="margin-bottom:14px;">
+                            <div class="lineup-hero-label">🎵 Lineup</div>
+                            <h2>${this.escHtml(lineup.name)}</h2>
+                            ${dateStr ? `<div class="lineup-hero-date">${dateStr}</div>` : ''}
+                            <div class="lineup-song-pills">
+                                ${songs.map((s,i) => `<span class="lineup-song-pill">${i+1}. ${this.escHtml(s.title)}</span>`).join('')}
+                            </div>
+                            <div class="lineup-hero-actions">
+                                <button class="btn" onclick="app.viewLineupById('${lineup.id}')">View All Chords →</button>
+                                <button class="btn-sm" onclick="auth.guard(() => app.openLineupModal(true, '${lineup.id}'))">✏️ Edit</button>
+                            </div>
+                        </div>`;
+                }).join('') + `
+                    <div style="margin-bottom:20px;">
+                        <button class="btn" onclick="auth.guard(() => app.openLineupModal())" style="background:#6366f1;color:#fff;">+ Add Another Lineup</button>
                     </div>`;
             },
 
@@ -2679,6 +2687,13 @@
                     this._buildSongNavigator(songs);
                 });
             },
+            
+            viewLineupById(lineupId) {
+                const lineup = this.lineups.find(l => l.id === lineupId);
+                if (!lineup) return;
+                this.lineup = lineup;
+                this.viewLineup();
+            },
 
             // ═══════════════════════════════════════════════════
             // CAPO HANDLER
@@ -2773,12 +2788,14 @@
                 }
             },
 
-            openLineupModal(editing = false) {
-                this.lineupSelectedIds = editing && this.lineup ? [...(this.lineup.songIds || [])] : [];
-                document.getElementById('lineup-name-input').value = editing && this.lineup ? this.lineup.name : '';
-                document.getElementById('lineup-date-input').value = editing && this.lineup ? this.lineup.date : '';
+            openLineupModal(editing = false, lineupId = null) {
+                this._editingLineupId = editing && lineupId ? lineupId : null;
+                const editTarget = this._editingLineupId ? this.lineups.find(l => l.id === this._editingLineupId) : null;
+                this.lineupSelectedIds = editTarget ? [...(editTarget.songIds || [])] : [];
+                document.getElementById('lineup-name-input').value = editTarget ? editTarget.name : '';
+                document.getElementById('lineup-date-input').value = editTarget ? editTarget.date : '';
                 document.getElementById('lineup-search-input').value = '';
-                document.getElementById('lineup-modal-title').textContent = editing ? 'Edit Lineup' : "Create This Week's Lineup";
+                document.getElementById('lineup-modal-title').textContent = editing ? 'Edit Lineup' : "Create New Lineup";
                 this.renderLineupPicker(this.songs);
                 this.renderSelectedOrder();
                 document.getElementById('lineup-modal').classList.remove('hidden');
@@ -2851,7 +2868,11 @@
                 const data = { name, date: date || '', songIds: this.lineupSelectedIds };
                 this.setSyncStatus('syncing', 'Saving…');
                 try {
-                    await setDoc(doc(db, 'lineups', 'current'), data);
+                    if (this._editingLineupId) {
+                        await updateDoc(doc(db, 'lineups', this._editingLineupId), data);
+                    } else {
+                        await addDoc(collection(db, 'lineups'), data);
+                    }
                     this.setSyncStatus('synced', 'Saved ✓');
                     this.closeLineupModal();
                 } catch (err) {
@@ -2862,9 +2883,11 @@
 
             async deleteLineup() {
                 if (!confirm('Remove this lineup?')) return;
+                const idToDelete = this.lineup?.id;
+                if (!idToDelete) return;
                 this.setSyncStatus('syncing', 'Removing…');
                 try {
-                    await deleteDoc(doc(db, 'lineups', 'current'));
+                    await deleteDoc(doc(db, 'lineups', idToDelete));
                     this.setSyncStatus('synced', 'Removed ✓');
                     this.showSongs();
                 } catch (err) {
