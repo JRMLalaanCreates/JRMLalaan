@@ -31,6 +31,7 @@
             font-family: var(--font-sans);
             line-height: 1.6;
             padding-bottom: 50px;
+            overflow-x: hidden;
         }
 
         .container { max-width: 900px; margin: 0 auto; padding: 20px; }
@@ -824,9 +825,9 @@
             width: auto;
             cursor: pointer;
             font-family: var(--font-sans);
-            flex: 1;
-            min-width: 160px;
-            max-width: 280px;
+            flex: 1 1 160px;
+            min-width: 0;
+            max-width: 100%;
         }
         .lineup-key-badge {
             display: none;
@@ -1639,21 +1640,23 @@
             box-shadow: 0 4px 16px rgba(251,191,36,0.45);
         }
 
-        /* Tooltip on hover */
-        .song-nav-btn[title]:hover::after {
-            content: attr(title);
-            position: absolute;
-            right: 46px;
-            background: var(--bg-card);
-            border: 1px solid #334155;
-            color: var(--text-main);
-            font-size: 0.72rem;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 6px;
-            white-space: nowrap;
-            pointer-events: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+/* Tooltip on hover — only on devices with real hover (not touchscreens) */
+        @media (hover: hover) and (pointer: fine) {
+            .song-nav-btn[title]:hover::after {
+                content: attr(title);
+                position: absolute;
+                right: 46px;
+                background: var(--bg-card);
+                border: 1px solid #334155;
+                color: var(--text-main);
+                font-size: 0.72rem;
+                font-weight: 600;
+                padding: 4px 10px;
+                border-radius: 6px;
+                white-space: nowrap;
+                pointer-events: none;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            }
         }
         .song-nav-btn {
             position: relative;
@@ -1668,6 +1671,21 @@
                 width: 30px;
                 height: 30px;
                 font-size: 0.75rem;
+            }
+            .lineup-leader-select {
+                flex-basis: 100px;
+            }
+            .lineup-key-badge {
+                white-space: normal;
+                max-width: 100%;
+            }
+            .master-leader-wrap {
+                min-width: 0;
+                flex-basis: 100%;
+            }
+            .master-leader-wrap select {
+                min-width: 0;
+                flex: 1 1 auto;
             }
         }
     </style>
