@@ -2297,6 +2297,14 @@
             },
 
             async seedIfEmpty() {
+                // One-time marker doc — once seeding has happened, never seed again,
+                // even if the songs/leaders collections later become empty.
+                const seedMarkerRef = doc(db, 'settings', 'seedStatus');
+                const markerSnap = await getDoc(seedMarkerRef);
+                if (markerSnap.exists() && markerSnap.data().seeded) {
+                    return;
+                }
+
                 const songsCol = collection(db, 'songs');
                 const snap = await getDocs(query(songsCol, limit(1)));
                 if (snap.empty) {
@@ -2304,7 +2312,12 @@
                     SEED_SONGS.forEach(s => batch.set(doc(songsCol), s));
                     const leadersCol = collection(db, 'leaders');
                     SEED_LEADERS.forEach(l => batch.set(doc(leadersCol), l));
+                    batch.set(seedMarkerRef, { seeded: true, seededAt: new Date().toISOString() });
                     await batch.commit();
+                } else {
+                    // Songs already exist (your real data) but no marker yet — just set the
+                    // marker so future loads never check emptiness again.
+                    await setDoc(seedMarkerRef, { seeded: true, seededAt: new Date().toISOString() });
                 }
             },
 
