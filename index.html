@@ -2466,12 +2466,7 @@
                 document.getElementById('lineup-sharp-btn').classList.toggle('active', !useFlats);
                 document.getElementById('lineup-flat-btn').classList.toggle('active', useFlats);
                 if (this.lineup) {
-                    const songs = (this.lineup.songIds || []).map(id => this.songs.find(s => s.id === id)).filter(Boolean);
-                    songs.forEach(song => {
-                        const leaderSelect = document.getElementById(`lineup-leader-${song.id}`);
-                        const leaderId = leaderSelect ? leaderSelect.value : '';
-                        this.changeLineupSongKey(song.id, leaderId);
-                    });
+                    this.viewLineup();
                 }
             },
 
