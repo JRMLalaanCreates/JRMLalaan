@@ -1813,11 +1813,13 @@
             <h3 id="lineup-modal-title">Create This Week's Lineup</h3>
             <p class="modal-sub">Give it a name, pick a date, and select songs.</p>
 
-            <label style="font-size:0.8rem;color:var(--text-dim)">Lineup Title</label>
-            <input type="text" id="lineup-name-input" placeholder="e.g. Sunday Morning Service">
-
             <label style="font-size:0.8rem;color:var(--text-dim)">Date</label>
             <input type="date" id="lineup-date-input">
+
+            <label style="font-size:0.8rem;color:var(--text-dim)">Song Leader</label>
+            <select id="lineup-leader-input">
+                <option value="">— No leader / original keys —</option>
+            </select>
 
             <hr class="modal-divider">
 
@@ -1878,17 +1880,7 @@
 
         <!-- Toolbar for lineup (no longer sticky) -->
         <div class="lineup-toolbar">
-            <!-- Row 1: Leader -->
-            <div class="toolbar-row">
-                <span class="toolbar-label">🎤 Leader</span>
-                <div class="master-leader-wrap">
-                    <select id="master-leader-select" onchange="app.setMasterLeader(this.value)">
-                        <option value="">— Individual song keys —</option>
-                    </select>
-                    <span class="master-leader-badge" id="master-leader-badge"></span>
-                    <button class="master-clear-btn" id="master-clear-btn" onclick="app.clearMasterLeader()">✕ Clear</button>
-                </div>
-            </div>
+            
             <!-- Row 2: Font Size -->
             <div class="toolbar-row">
                 <span class="toolbar-label">Font Size</span>
@@ -2270,7 +2262,6 @@
             lineupWrapMode: false,
             lineupZoom: 100,
 
-            masterLeaderId: '',
             pendingKeyChange: false,
 
             // ── Song navigator state ──
@@ -2495,40 +2486,6 @@
                 });
             },
 
-            _populateMasterLeaderSelect() {
-                const sel = document.getElementById('master-leader-select');
-                if (!sel) return;
-                sel.innerHTML = `<option value="">— Individual song keys —</option>` +
-                    this.leaders.map(l => `<option value="${l.id}"${l.id === this.masterLeaderId ? ' selected' : ''}>${this.escHtml(l.name)}</option>`).join('');
-            },
-
-            setMasterLeader(leaderId) {
-                this.masterLeaderId = leaderId;
-                const badge = document.getElementById('master-leader-badge');
-                const clearBtn = document.getElementById('master-clear-btn');
-                if (leaderId) {
-                    const leader = this.leaders.find(l => l.id === leaderId);
-                    badge.textContent = leader ? `${leader.name}'s keys applied` : '';
-                    badge.classList.add('visible');
-                    clearBtn.classList.add('visible');
-                } else {
-                    badge.classList.remove('visible');
-                    clearBtn.classList.remove('visible');
-                }
-                if (this.lineup) {
-                    const songs = (this.lineup.songIds || []).map(id => this.songs.find(s => s.id === id)).filter(Boolean);
-                    songs.forEach(song => {
-                        const perSongSelect = document.getElementById(`lineup-leader-${song.id}`);
-                        if (perSongSelect) perSongSelect.value = leaderId;
-                        this.changeLineupSongKey(song.id, leaderId);
-                    });
-                }
-            },
-
-            clearMasterLeader() {
-                document.getElementById('master-leader-select').value = '';
-                this.setMasterLeader('');
-            },
 
             renderLineupHero() {
                 const section = document.getElementById('lineup-hero-section');
@@ -2549,11 +2506,13 @@
                     const dateStr = lineup.date
                         ? new Date(lineup.date + 'T00:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' })
                         : '';
+                    const heroLeader = lineup.leaderId ? this.leaders.find(l => l.id === lineup.leaderId) : null;
                     return `
                         <div class="lineup-hero" style="margin-bottom:14px;">
                             <div class="lineup-hero-label">🎵 Lineup</div>
                             <h2>${this.escHtml(lineup.name)}</h2>
                             ${dateStr ? `<div class="lineup-hero-date">${dateStr}</div>` : ''}
+                            ${heroLeader ? `<div class="lineup-hero-date">🎤 Led by ${this.escHtml(heroLeader.name)}</div>` : ''}
                             <div class="lineup-song-pills">
                                 ${songs.map((s,i) => `<span class="lineup-song-pill">${i+1}. ${this.escHtml(s.title)}</span>`).join('')}
                             </div>
@@ -2649,8 +2608,8 @@
 
             viewLineup() {
                 if (!this.lineup) return;
-                this.masterLeaderId = '';
                 this.lineupUseFlats = false;
+                const leader = this.lineup.leaderId ? this.leaders.find(l => l.id === this.lineup.leaderId) : null;
                 const songs = (this.lineup.songIds || []).map(id => this.songs.find(s => s.id === id)).filter(Boolean);
                 const dateStr = this.lineup.date
                     ? new Date(this.lineup.date + 'T00:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' })
@@ -2663,31 +2622,29 @@
 
                 const container = document.getElementById('lineup-charts-container');
                 const sectionsHtml = songs.map((song, idx) => {
-                    const chartHtml = this.buildChartHtml(song, song.defaultKey, false, false);
-                    const leaderOptions = this.leaders.map(l => {
-                        const savedKey = (l.preferredKeys || {})[song.id];
-                        const label = savedKey ? `${this.escHtml(l.name)} — Key of ${savedKey}` : `${this.escHtml(l.name)} (no saved key)`;
-                        return `<option value="${l.id}">${label}</option>`;
-                    }).join('');
+                    let targetKey = song.defaultKey;
+                    let leaderBadge = '';
+                    if (leader) {
+                        const savedKey = (leader.preferredKeys || {})[song.id];
+                        targetKey = savedKey || song.defaultKey;
+                        leaderBadge = savedKey
+                            ? `<span class="lineup-key-badge">${this.escHtml(leader.name)}: Key of ${savedKey}</span>`
+                            : `<span class="lineup-key-badge no-saved">${this.escHtml(leader.name)}: no saved key — using ${song.defaultKey}</span>`;
+                    }
+                    const chartHtml = this.buildChartHtml(song, targetKey, false, false);
                     return `
                         <div class="lineup-song-section" id="lineup-section-${song.id}">
                             <div class="lineup-song-meta">
                                 <div>
                                     <div class="lineup-song-num">Song ${idx + 1} of ${songs.length}</div>
                                     <h3>${this.escHtml(song.title)}</h3>
-                                    <p id="lineup-song-meta-p-${song.id}">${this.escHtml(song.artist)} &bull; Key of <strong>${song.defaultKey}</strong> &bull; ${song.tempo} BPM &bull; ${song.timeSignature}</p>
+                                    <p id="lineup-song-meta-p-${song.id}">${this.escHtml(song.artist)} &bull; Key of <strong>${targetKey}</strong> &bull; ${song.tempo} BPM &bull; ${song.timeSignature}</p>
                                 </div>
                                 <button class="lineup-open-btn" onclick="app.viewSong('${song.id}')">Open Song →</button>
                             </div>
-                            <div class="lineup-leader-row">
-                                <span class="lineup-leader-label">🎤 Song Leader</span>
-                                <select class="lineup-leader-select" id="lineup-leader-${song.id}"
-                                    onchange="app.changeLineupSongKey('${song.id}', this.value)">
-                                    <option value="">— Original Key (${song.defaultKey}) —</option>
-                                    ${leaderOptions}
-                                </select>
-                                <span class="lineup-key-badge" id="lineup-key-badge-${song.id}"></span>
-                            </div>
+                            
+                           ${leader ? `<div class="lineup-leader-row"><span class="lineup-leader-label">🎤 Song Leader</span>${leaderBadge}</div>` : ''}
+                           
                             <div class="lineup-capo-row">
                                 <span class="lineup-capo-label">🎸 Capo</span>
                                 <select class="lineup-capo-select" id="lineup-capo-${song.id}"
@@ -2708,11 +2665,6 @@
                 }).join('');
 
                 container.innerHTML = `<div class="lineup-unified-panel">${sectionsHtml}</div>`;
-                this._populateMasterLeaderSelect();
-                const badge = document.getElementById('master-leader-badge');
-                const clearBtn = document.getElementById('master-clear-btn');
-                if (badge) badge.classList.remove('visible');
-                if (clearBtn) clearBtn.classList.remove('visible');
 
                 document.getElementById('lineup-sharp-btn').classList.add('active');
                 document.getElementById('lineup-flat-btn').classList.remove('active');
@@ -2747,15 +2699,11 @@
                 const song = this.songs.find(s => s.id === songId);
                 if (!song) return;
 
-                const leaderSelect = document.getElementById(`lineup-leader-${songId}`);
-                const leaderId = leaderSelect ? leaderSelect.value : '';
                 let soundingKey = song.defaultKey;
-                if (leaderId) {
-                    const leader = this.leaders.find(l => l.id === leaderId);
-                    if (leader) {
-                        const savedKey = (leader.preferredKeys || {})[songId];
-                        if (savedKey) soundingKey = savedKey;
-                    }
+                const leader = this.lineup?.leaderId ? this.leaders.find(l => l.id === this.lineup.leaderId) : null;
+                if (leader) {
+                    const savedKey = (leader.preferredKeys || {})[songId];
+                    if (savedKey) soundingKey = savedKey;
                 }
 
                 let si = CHROMATIC_SHARP.indexOf(soundingKey);
@@ -2790,47 +2738,6 @@
                 }
             },
 
-            changeLineupSongKey(songId, leaderId) {
-                const song = this.songs.find(s => s.id === songId);
-                if (!song) return;
-                let targetKey = song.defaultKey;
-                let badgeText = '';
-                let badgeClass = 'lineup-key-badge';
-                if (leaderId) {
-                    const leader = this.leaders.find(l => l.id === leaderId);
-                    if (leader) {
-                        const savedKey = (leader.preferredKeys || {})[songId];
-                        if (savedKey) {
-                            targetKey = savedKey;
-                            badgeText = `Key of ${savedKey}`;
-                        } else {
-                            targetKey = song.defaultKey;
-                            badgeText = `No saved key — using ${song.defaultKey}`;
-                            badgeClass = 'lineup-key-badge no-saved';
-                        }
-                    }
-                }
-
-                const capoEl = document.getElementById(`lineup-capo-${songId}`);
-                if (capoEl) capoEl.value = '0';
-                const capoBadge = document.getElementById(`lineup-capo-badge-${songId}`);
-                if (capoBadge) { capoBadge.textContent = ''; capoBadge.classList.remove('visible'); }
-
-                const chartEl = document.getElementById(`lineup-chart-${songId}`);
-                if (chartEl) {
-                    chartEl.innerHTML = this.buildChartHtml(song, targetKey, false, this.lineupUseFlats);
-                    if (this.lineupWrapMode) chartEl.classList.add('wrap-on');
-                    else chartEl.classList.remove('wrap-on');
-                }
-                const metaEl = document.getElementById(`lineup-song-meta-p-${songId}`);
-                if (metaEl) metaEl.innerHTML = `${this.escHtml(song.artist)} &bull; Key of <strong>${targetKey}</strong> &bull; ${song.tempo} BPM &bull; ${song.timeSignature}`;
-                const badgeEl = document.getElementById(`lineup-key-badge-${songId}`);
-                if (badgeEl) {
-                    badgeEl.className = badgeClass;
-                    if (leaderId && badgeText) { badgeEl.textContent = badgeText; badgeEl.style.display = 'inline-block'; }
-                    else badgeEl.style.display = 'none';
-                }
-            },
 
             openLineupModal(editing = false, lineupId = null) {
                 this._editingLineupId = editing && lineupId ? lineupId : null;
@@ -2838,6 +2745,12 @@
                 this.lineupSelectedIds = editTarget ? [...(editTarget.songIds || [])] : [];
                 document.getElementById('lineup-name-input').value = editTarget ? editTarget.name : '';
                 document.getElementById('lineup-date-input').value = editTarget ? editTarget.date : '';
+               
+                const leaderSelect = document.getElementById('lineup-leader-input');
+                leaderSelect.innerHTML = `<option value="">— No leader / original keys —</option>` +
+                    this.leaders.map(l => `<option value="${l.id}">${this.escHtml(l.name)}</option>`).join('');
+                leaderSelect.value = editTarget?.leaderId || '';
+                
                 document.getElementById('lineup-search-input').value = '';
                 document.getElementById('lineup-modal-title').textContent = editing ? 'Edit Lineup' : "Create New Lineup";
                 this.renderLineupPicker(this.songs);
@@ -2907,9 +2820,16 @@
             async saveLineup() {
                 const name = document.getElementById('lineup-name-input').value.trim();
                 const date = document.getElementById('lineup-date-input').value;
+            
+                // ADD THIS — read the selected leader
+                const leaderId = document.getElementById('lineup-leader-input').value;
+            
                 if (!name) { alert('Please enter a lineup title.'); return; }
                 if (this.lineupSelectedIds.length === 0) { alert('Please select at least one song.'); return; }
-                const data = { name, date: date || '', songIds: this.lineupSelectedIds };
+            
+                // CHANGE THIS — add leaderId to the saved data
+                const data = { name, date: date || '', songIds: this.lineupSelectedIds, leaderId: leaderId || '' };
+            
                 this.setSyncStatus('syncing', 'Saving…');
                 try {
                     if (this._editingLineupId) {
