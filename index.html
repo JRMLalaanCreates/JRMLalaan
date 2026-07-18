@@ -1295,6 +1295,19 @@
             border-radius: 0 4px 4px 0;
             line-height: 1.4;
         }
+        .cv-section-key-badge {
+            display: inline-block;
+            margin-left: 8px;
+            font-size: 0.85em;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: none;
+            font-style: normal;
+            color: #78350f;
+            background: rgba(217,119,6,0.18);
+            padding: 1px 8px;
+            border-radius: 10px;
+        }
 
         .chord { color: #b45309; font-weight: bold; position: relative; display: inline-block; height: 0; vertical-align: top; top: -1.2em; }
         .lyric-line { display: block; margin-bottom: 1em; position: relative; }
@@ -2051,7 +2064,7 @@
                             placeholder="*Verse 1*&#10;Amazing grace how sweet the sound&#10;That saved a wretch like me&#10;&#10;*Chorus*&#10;I once was lost but now am found&#10;Was blind but now I see"
                             oninput="app.veOnLyricsChange()"></textarea>
                         <div class="section-label-hint">
-                            💡 Wrap a line in asterisks to make it a bold section label — e.g. <code>*Verse 1*</code>, <code>*Chorus*</code>, <code>*Bridge*</code>
+                            💡 Wrap a line in asterisks to make it a bold section label — e.g. <code>*Verse 1*</code>, <code>*Chorus*</code>, <code>*Bridge*</code>. You can also tag a key change: <code>*Chorus | Key: D*</code>
                         </div>
                     </div>
                     <div style="margin-bottom:10px;">
@@ -2068,7 +2081,7 @@
                         Use <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;">[Chord]</code> right before the syllable it lands on.
                     </div>
                     <div class="section-label-hint" style="margin-bottom:8px;">
-                        💡 Wrap a line in asterisks — e.g. <code>*Verse 1*</code>, <code>*Chorus*</code>, <code>*Bridge*</code>
+                        💡 Wrap a line in asterisks — e.g. <code>*Verse 1*</code>, <code>*Chorus*</code>, <code>*Bridge*</code>. Add a key change: <code>*Chorus | Key: D*</code>
                     </div>
                     <textarea id="edit-chart" rows="15" style="font-family: var(--font-mono);"></textarea>
                 </div>
@@ -2241,6 +2254,18 @@
         }
         function sectionLabelText(line) {
             return line.trim().replace(/^\*/, '').replace(/\*$/, '');
+        }
+        function parseSectionLabel(rawLabelText) {
+            // rawLabelText is the text already stripped of the surrounding asterisks
+            // Accepts formats like: "Verse 1 | Key: D"  or  "Verse 1 | Key of D"
+            const parts = rawLabelText.split('|');
+            const label = parts[0].trim();
+            let key = null;
+            if (parts[1]) {
+                const m = parts[1].match(/([A-G][#b]?)/);
+                if (m) key = m[1];
+            }
+            return { label, key };
         }
 
         const app = {
@@ -3038,7 +3063,13 @@
                 let html = '';
                 song.chordChart.split('\n').forEach(line => {
                     if (isSectionLabel(line)) {
-                        html += `<span class="${labelClass}">${this.escHtml(sectionLabelText(line))}</span>`;
+                        const parsed = parseSectionLabel(sectionLabelText(line));
+                        let badgeHtml = '';
+                        if (parsed.key) {
+                            const transposedKey = this.transposeChord(parsed.key, steps, flatMode);
+                            badgeHtml = `<span class="cv-section-key-badge">Key: ${this.escHtml(transposedKey)}</span>`;
+                        }
+                        html += `<span class="${labelClass}">${this.escHtml(parsed.label)}${badgeHtml}</span>`;
                         return;
                     }
                     if (line.trim() === '') {
@@ -3265,7 +3296,11 @@
                 }
                 canvas.innerHTML = this.veLines.map((line, li) => {
                     if (line.isLabel || isSectionLabel(line.lyric)) {
-                        return `<span class="ve-section-label">${this.escHtml(sectionLabelText(line.lyric))}</span>`;
+                        const parsed = parseSectionLabel(sectionLabelText(line.lyric));
+                        const badgeHtml = parsed.key
+                            ? `<span class="cv-section-key-badge">Key: ${this.escHtml(parsed.key)}</span>`
+                            : '';
+                        return `<span class="ve-section-label">${this.escHtml(parsed.label)}${badgeHtml}</span>`;
                     }
                     if (!line.lyric) return `<span class="ve-lyric-line">&nbsp;</span>`;
                     let chars = '';
